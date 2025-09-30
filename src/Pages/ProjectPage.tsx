@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import TodoModel, { type TaskFormData } from "@/components/TodoModel";
 import TaskAccordionTable from "@/components/TaskAccordionTable ";
 import { useTaskContext, type Task } from "../TaskContext/TaskContext";
+import Loader from "@/components/Loader";
 
 const ProjectPage: React.FC = () => {
   const { projectId } = useParams();
@@ -47,8 +48,6 @@ const ProjectPage: React.FC = () => {
     }
   };
 
-  if (!projectDocId) return <div>Loading...</div>;
-
   return (
     <div className="min-h-screen w-full p-2 space-y-4 flex flex-col bg-background text-foreground">
       <div className="flex-1 overflow-auto">
@@ -68,14 +67,7 @@ const ProjectPage: React.FC = () => {
         )}
       </div>
 
-      {showPopup && (
-        <TodoModel
-          projectTitle={projectId!}
-          showPopup={showPopup}
-          setShowPopup={setShowPopup}
-          onSubmit={handleAddTask}
-        />
-      )}
+      {showPopup && <TodoModel projectTitle={projectId!} />}
     </div>
   );
 };

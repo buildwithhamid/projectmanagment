@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { useUserContextId } from "../AuthContext/UserContext";
 import { db, auth } from "../Config/firbase";
 import {
   collection,
@@ -8,8 +7,8 @@ import {
   where,
   getDocs,
   deleteDoc,
+  updateDoc,
   doc,
-  serverTimestamp,
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -18,6 +17,7 @@ export interface Task {
   title: string;
   todo: string;
   createdAt: string;
+  updatedAt?: string;
   status: string;
   attachments?: string[];
   dueDate?: string;
@@ -28,6 +28,7 @@ export interface Task {
 export interface Project {
   id?: string;
   title: string;
+  discription?: string;
   url?: string;
   userId?: string;
   createdAt?: string;
@@ -55,11 +56,24 @@ interface TaskContextType {
       dueDate?: string;
     }
   ) => Promise<string>;
+  updateTaskInProject: (
+    projectTitle: string,
+    userId: string | null,
+    taskId: string,
+    updatedData: {
+      title: string;
+      todo: string;
+      status: string;
+      attachments?: string[] | undefined;
+      dueDate?: string | undefined;
+    }
+  ) => Promise<void>;
   deleteTaskFromProject: (
     projectTitle: string,
     userId: string | null,
     taskId: string
   ) => Promise<void>;
+  setLoading: (l: boolean) => void;
 
   // Projects
   fetchUserProjects: (userId: string) => Promise<void>;
@@ -77,7 +91,6 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     [key: string]: { title: string; tasks: Task[] };
   }>({});
   const [loading, setLoading] = useState(false);
-  const { userContextId } = useUserContextId();
 
   const fetchUserProjects = async (userId: string) => {
     try {
@@ -148,13 +161,21 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const deleteProject = async (projectId: string) => {
+  const deleteProject = async (projectId: string, projectTitle?: string) => {
     try {
+      setLoading(true);
+      const confirmed = window.confirm(
+        `Are you sure you want to delete project "${projectTitle || ""}"?`
+      );
+      if (!confirmed) return;
+
       await deleteDoc(doc(db, "Projects", projectId));
       setProjects((prev) => prev.filter((p) => p.id !== projectId));
       console.log("🗑️ Project deleted:", projectId);
     } catch (err) {
       console.error("❌ Error deleting project:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -175,9 +196,13 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         where("title", "==", projectTitle),
         where("userId", "==", userId)
       );
+
       const querySnapshot = await getDocs(q);
-      if (querySnapshot.empty)
-        throw new Error(`Project "${projectTitle}" not found for this user`);
+      if (querySnapshot.empty) {
+        throw new Error(
+          `Project "${projectTitle}" not found for user ${userId}`
+        );
+      }
 
       const projectDoc = querySnapshot.docs[0];
       const projectId = projectDoc.id;
@@ -196,7 +221,6 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         collection(db, "Projects", projectId, "tasks"),
         newTask
       );
-      console.log(newTask);
 
       setTaskCache((prev) => ({
         ...prev,
@@ -205,8 +229,8 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
           tasks: [...(prev[projectId]?.tasks || []), newTask],
         },
       }));
-
-      console.log(`✅ Task added to project "${projectTitle}":`, taskRef.id);
+      await fetchUserProjects(userId);
+      console.log(`✅ Task added to project "${normalizedTitle}":`, taskRef.id);
       return taskRef.id;
     } catch (err) {
       console.error("❌ Error adding task:", err);
@@ -220,6 +244,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     taskId: string
   ): Promise<void> => {
     try {
+      setLoading(true);
       const q = query(
         collection(db, "Projects"),
         where("title", "==", projectTitle),
@@ -250,6 +275,70 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (err) {
       console.error("❌ Error deleting task:", err);
       throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+  const updateTaskInProject = async (
+    projectTitle: string,
+    userId: string | null,
+    taskId: string,
+    updatedData: {
+      title?: string;
+      todo?: string;
+      status?: string;
+      attachments?: string[];
+      dueDate?: string;
+      updatedAt?: string;
+    }
+  ): Promise<void> => {
+    try {
+      setLoading(true);
+
+      // find project
+      const q = query(
+        collection(db, "Projects"),
+        where("title", "==", projectTitle),
+        where("userId", "==", userId)
+      );
+      const querySnapshot = await getDocs(q);
+      if (querySnapshot.empty)
+        throw new Error(`Project "${projectTitle}" not found for this user`);
+
+      const projectDoc = querySnapshot.docs[0];
+      const projectId = projectDoc.id;
+
+      // update Firestore
+      const taskRef = doc(db, "Projects", projectId, "tasks", taskId);
+      await updateDoc(taskRef, {
+        ...updatedData,
+        updatedAt: new Date().toISOString(),
+      });
+
+      // ✅ update local cache
+      setTaskCache((prev) => {
+        const tasks = prev[projectId]?.tasks.map((t) =>
+          t.id === taskId
+            ? {
+                ...t,
+                ...updatedData,
+                id: taskId,
+                updatedAt: new Date().toISOString(),
+              }
+            : t
+        );
+        return {
+          ...prev,
+          [projectId]: { ...prev[projectId], tasks },
+        };
+      });
+
+      console.log(`✅ Task ${taskId} updated in project "${projectTitle}"`);
+    } catch (err) {
+      console.error("❌ Error updating task:", err);
+      throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -274,7 +363,9 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         taskCache,
         setTaskCache,
         loading,
+        setLoading,
         addTaskToProjectByTitle,
+        updateTaskInProject,
         fetchUserProjects,
         addProject,
         deleteProject,
