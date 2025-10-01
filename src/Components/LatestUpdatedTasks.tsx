@@ -29,7 +29,7 @@ const LatestUpdatedTasks: React.FC<LatestUpdatedTasksProps> = ({
   return (
     <Card className="w-full md:w-1/3 h-96 border border-border/40 rounded-lg  shadow-md bg-card">
       <CardHeader className="flex justify-between -ml-3">
-        <CardTitle className="text-md">Latest Tasks</CardTitle>
+        <CardTitle className="text-md">Recently Updated Tasks</CardTitle>
         <Badge variant="outline" className="text-sm -mr-3">
           {latestTasks.length}
         </Badge>
@@ -46,7 +46,7 @@ const LatestUpdatedTasks: React.FC<LatestUpdatedTasksProps> = ({
                hover:-translate-y-1 hover:shadow-md cursor-pointer"
               >
                 <CardContent className="p-0">
-                  <div className="flex justify-between items-start">
+                  <div className=" relative flex justify-between items-start">
                     <div>
                       <p className="font-medium">{task.title}</p>
                       <p className="text-sm text-gray-500">
@@ -55,6 +55,11 @@ const LatestUpdatedTasks: React.FC<LatestUpdatedTasksProps> = ({
                       <p className="text-xs text-gray-500">
                         Last updated:{" "}
                         {new Date(task.updatedAt || "").toLocaleString()}
+                      </p>{" "}
+                      <p className=" absolute bottom-0.5 right-1 text-xs text-gray-500">
+                        status:{" "}
+                        {task.status.charAt(0).toUpperCase() +
+                          task.status.slice(1)}
                       </p>
                     </div>
 

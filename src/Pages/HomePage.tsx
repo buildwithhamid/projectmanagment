@@ -1,13 +1,15 @@
 import React, { useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { ProjectCard } from "@/components/ProjectCard";
-import { CheckCircle, Clock, FolderOpen } from "lucide-react";
+import { CheckCircle, Clock, FolderOpen, Plus } from "lucide-react";
 import { useTaskContext } from "@/TaskContext/TaskContext";
 import { useNavigate } from "react-router-dom";
 import { StatsCard } from "@/components/HomePageSatasCard";
 import Loader from "@/components/Loader";
 import LatestUpdatedTasks from "@/components/LatestUpdatedTasks";
-
+import { Dialog, DialogContent, DialogTrigger } from "@radix-ui/react-dialog";
+import { Button } from "@/components/ui/button";
+import ProjectModol from "@/components/ProjectModol";
 const HomePage = () => {
   const { projects, taskCache, loading } = useTaskContext();
 
@@ -100,6 +102,18 @@ const HomePage = () => {
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-2xl font-semibold">My Projects</h2>
               <div className="flex items-center gap-2">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Plus
+                      className="text-muted-foreground hover:text-primary cursor-pointer"
+                      size={24}
+                    />
+                  </DialogTrigger>
+                  <DialogContent>
+                    <ProjectModol />
+                  </DialogContent>
+                </Dialog>
+
                 <Badge variant="outline" className="text-sm">
                   {projects.length} Projects
                 </Badge>

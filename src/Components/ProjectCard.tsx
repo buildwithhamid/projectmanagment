@@ -6,7 +6,7 @@ import {
   CardFooter,
   CardTitle,
 } from "./ui/card";
-import { Badge, MoreHorizontal } from "lucide-react";
+
 import { Progress } from "./ui/progress";
 import { Calendar, Eye, Paperclip, MessagesSquare } from "lucide-react";
 
@@ -25,7 +25,7 @@ interface Project {
   dueDate?: string;
   label?: string;
   priority?: string;
-  attachments?: number;
+  attachments?: string[];
   comments?: number;
   members?: { avatar: string; name: string }[];
 }
@@ -63,55 +63,52 @@ export const ProjectCard = ({ project, tasks, onClick }: ProjectCardProps) => {
   };
 
   return (
-    <Card
-      className="w-full relative py-4 border border-border/50 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer"
-      onClick={handleCardClick}
-    >
-      <CardHeader>
+    <Card className="w-full relative border border-border/50 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer overflow-hidden pb-1">
+      {project?.attachments?.length > 0 && (
+        <div className="w-full h-12 -mt-3">
+          <img
+            src={project.attachments[0]}
+            alt={project.title}
+            className="w-full h-full object-cover "
+          />
+        </div>
+      )}
+
+      <CardHeader className="-mt-1">
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-2">
             <Eye
-              className="text-muted-foreground hover:text-primary cursor-pointer"
+              className="absolute top-14 right-2 text-muted-foreground hover:text-primary cursor-pointer"
               size={20}
-              onClick={(e) => {
-                e.stopPropagation(); // prevents card click
-                handleCardClick();
-              }}
+              onClick={handleCardClick}
             />
-            {/* More button from main branch */}
-            <button className="text-muted-foreground hover:text-foreground">
-              <MoreHorizontal className="w-4 h-4" />
-            </button>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-3 -ml-3">
-        <CardTitle className="text-base font-semibold line-clamp-2 -mt-2">
-          {project?.title}
+      <CardContent className="flex flex-col gap-2 -mt-2 -ml-3 px-4">
+        <CardTitle className="text-base font-semibold line-clamp-2">
+          {project?.title.charAt(0).toUpperCase() + project?.title.slice(1)}
         </CardTitle>
 
-        {
-          <p className="text-sm text-muted-foreground line-clamp-2">
-            {project.description ||
-              "Lorem ipsum dolor sit amet consectetur adipiscing elit commodo sollicitudin quis lectus eu arcu, ornare dictumst diam auctor mauris taciti malesuada litora integer accumsan interdum. Tristique leo est et tellus ante consequat neque hendrerit, sociis viverra iaculis fusce metus sodales commodo"}
-          </p>
-        }
+        <p className="text-sm text-muted-foreground line-clamp-2">
+          {project.description}
+        </p>
 
         <div className="flex items-center flex-wrap gap-2 text-xs">
           <span className="text-xs text-gray-500 flex gap-0.5">
-            <Calendar size={14} />{" "}
+            <Calendar size={14} />
             <p className="text-xs text-gray-500">
-              {project?.createdAt && (
-                // {project?.createdAt?.toLocaleString()}
-                <span>Today</span>
-              )}
+              {project?.createdAt
+                ? new Date(project.createdAt).toLocaleDateString()
+                : "No date"}
             </p>
           </span>
+
           <div className="flex gap-2">
-            {" "}
             <span className="flex items-center gap-1 text-muted-foreground">
-              <Paperclip className="w-3 h-3" /> {project?.attachments || 0}
+              <Paperclip className="w-3 h-3" />{" "}
+              {project?.attachments?.length || 0}
             </span>
             <span className="flex items-center gap-1 text-muted-foreground">
               <MessagesSquare className="w-3 h-3" /> {project?.comments || 0}
@@ -120,7 +117,7 @@ export const ProjectCard = ({ project, tasks, onClick }: ProjectCardProps) => {
         </div>
       </CardContent>
 
-      <CardFooter className="flex items-center justify-between -ml-3 ">
+      <CardFooter className="flex items-center justify-between -ml-3 px-4">
         <div className="flex items-center gap-2 flex-1">
           <Progress value={percentage} className="h-2 flex-1 rounded-full" />
           <span className="text-xs text-muted-foreground whitespace-nowrap">

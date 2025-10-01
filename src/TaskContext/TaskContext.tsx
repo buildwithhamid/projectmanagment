@@ -32,6 +32,7 @@ export interface Project {
   url?: string;
   userId?: string;
   createdAt?: string;
+  attachemnts?: string[];
   dueDate?: string;
 }
 
@@ -77,7 +78,12 @@ interface TaskContextType {
 
   // Projects
   fetchUserProjects: (userId: string) => Promise<void>;
-  addProject: (title: string, userId: string) => Promise<string>;
+  addProject: (
+    title: string,
+    userId: string,
+    discription: string,
+    attachments: string[]
+  ) => Promise<string>;
   deleteProject: (projectId: string) => Promise<void>;
 }
 
@@ -130,7 +136,12 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const addProject = async (title: string, userId: string) => {
+  const addProject = async (
+    title: string,
+    userId: string,
+    description?: string,
+    attachments?: string[]
+  ) => {
     try {
       setLoading(true);
 
@@ -138,18 +149,18 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
 
       const projectData = {
         title,
+        description: description,
+        attachments,
         userId,
         url: `/projects/${title.toLowerCase().replace(/\s+/g, "-")}`,
-        createdAt: serverTimestamp(),
+        createdAt: new Date().toISOString(),
       };
 
       const docRef = await addDoc(collection(db, "Projects"), projectData);
 
       console.log("✅ Project created:", projectData);
-      setProjects((prev) => [
-        ...prev,
-        { id: docRef.id, ...projectData, createdAt: new Date().toISOString() },
-      ]);
+      setProjects((prev) => [...prev, { id: docRef.id, ...projectData }]);
+
       await fetchUserProjects(userId);
 
       return docRef.id;
@@ -230,7 +241,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         },
       }));
       await fetchUserProjects(userId);
-      console.log(`✅ Task added to project "${normalizedTitle}":`, taskRef.id);
+      console.log(`✅ Task added to project "${projectTitle}":`, taskRef.id);
       return taskRef.id;
     } catch (err) {
       console.error("❌ Error adding task:", err);

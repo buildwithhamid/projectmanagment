@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import { MdDashboardCustomize } from "react-icons/md";
 import { IoHomeOutline } from "react-icons/io5";
 import { AiOutlinePlus, AiOutlineDelete } from "react-icons/ai";
-import { Separator } from "../components/ui/separator";
+import { Separator } from "./ui/separator";
 
 import {
   Sidebar,
@@ -213,7 +213,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     >
                       {({ isActive }) => (
                         <SidebarMenuButton
-                          tooltip={project.title}
+                          tooltip={
+                            project?.title.charAt(0).toUpperCase() +
+                            project?.title.slice(1)
+                          }
                           isActive={isActive}
                           className={`flex items-center ${
                             state === "expanded"
@@ -227,8 +230,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         >
                           <span className="text-sm font-medium">
                             {state === "collapsed"
-                              ? project.title[0] + project.title.slice(-1)
-                              : project.title}
+                              ? project.title.toUpperCase()[0] +
+                                project.title.slice(-1)
+                              : project?.title.charAt(0).toUpperCase() +
+                                project?.title.slice(1)}
                           </span>
                         </SidebarMenuButton>
                       )}
