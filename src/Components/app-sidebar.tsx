@@ -2,7 +2,7 @@ import * as React from "react";
 import { NavLink } from "react-router-dom";
 import { MdDashboardCustomize } from "react-icons/md";
 import { IoHomeOutline } from "react-icons/io5";
-import { AiOutlinePlus, AiOutlineDelete, AiOutlineMenu } from "react-icons/ai";
+import { AiOutlinePlus, AiOutlineDelete } from "react-icons/ai";
 import { Separator } from "../components/ui/separator";
 
 import {
@@ -33,8 +33,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [showInput, setShowInput] = React.useState(false);
   const [newProject, setNewProject] = React.useState("");
   const { userContextId } = useUserContextId();
-const { projects, fetchUserProjects, addProject, deleteProject, loading, setLoading } =
-  useTaskContext();
+  const {
+    projects,
+    fetchUserProjects,
+    addProject,
+    deleteProject,
+    loading,
+    setLoading,
+  } = useTaskContext();
   const { setOpen, state } = useSidebar();
 
   React.useEffect(() => {
@@ -102,19 +108,18 @@ const { projects, fetchUserProjects, addProject, deleteProject, loading, setLoad
                             : "hover:bg-sidebar-accent hover:text-foreground"
                         } `}
                       >
-<item.icon
-  className="cursor-pointer"
-  size={22} // keep smaller size from dev for consistency
-/>
-{state === "expanded" && (
-  <span
-    className="text-sm font-medium cursor-pointer"
-    onClick={() => setOpen(false)} // keep main branch behavior
-  >
-    {item.title}
-  </span>
-)}
-
+                        <item.icon
+                          className="cursor-pointer"
+                          size={22} // keep smaller size from dev for consistency
+                        />
+                        {state === "expanded" && (
+                          <span
+                            className="text-sm font-medium cursor-pointer"
+                            onClick={() => setOpen(false)} // keep main branch behavior
+                          >
+                            {item.title}
+                          </span>
+                        )}
                       </SidebarMenuButton>
                     )}
                   </NavLink>
@@ -162,27 +167,27 @@ const { projects, fetchUserProjects, addProject, deleteProject, loading, setLoad
                   value={newProject}
                   onChange={(e) => setNewProject(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleAddProject()}
-<div className="flex gap-2 mb-1">
-  <button
-    onClick={handleAddProject}
-    className="px-3 py-1 text-sm rounded bg-primary text-white hover:bg-primary/90 cursor-pointer"
-    disabled={loading}
-  >
-    {loading ? "Adding..." : "Add"}
-  </button>
+                ></SidebarInput>
+                <div className="flex gap-2 mb-1">
+                  <button
+                    onClick={handleAddProject}
+                    className="px-3 py-1 text-sm rounded bg-primary text-white hover:bg-primary/90 cursor-pointer"
+                    disabled={loading}
+                  >
+                    {loading ? "Adding..." : "Add"}
+                  </button>
 
-  <button
-    onClick={() => {
-      setOpen(false);
-      setShowInput(false);
-    }}
-    className="px-3 py-1 text-sm rounded bg-muted hover:bg-destructive hover:text-white cursor-pointer"
-    disabled={loading}
-  >
-    Cancel
-  </button>
-</div>
-
+                  <button
+                    onClick={() => {
+                      setOpen(false);
+                      setShowInput(false);
+                    }}
+                    className="px-3 py-1 text-sm rounded bg-muted hover:bg-destructive hover:text-white cursor-pointer"
+                    disabled={loading}
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             )}
 

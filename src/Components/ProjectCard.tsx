@@ -69,13 +69,7 @@ export const ProjectCard = ({ project, tasks, onClick }: ProjectCardProps) => {
     >
       <CardHeader>
         <div className="flex justify-between items-start">
-          {/* Badge from main branch */}
-          <Badge variant="outline" className="text-xs font-medium">
-            {project?.label || "Personal"}
-          </Badge>
-
           <div className="flex items-center gap-2">
-            {/* Eye icon from dev branch */}
             <Eye
               className="text-muted-foreground hover:text-primary cursor-pointer"
               size={20}
