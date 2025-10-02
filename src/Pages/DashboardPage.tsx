@@ -3,33 +3,44 @@ import { useTaskContext } from "../TaskContext/TaskContext";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { db } from "../Config/firbase";
 import { updateDoc, doc } from "firebase/firestore";
+import { useParams } from "react-router-dom";
+import { Dialog, DialogTrigger, DialogContent } from "@radix-ui/react-dialog";
+import { Button } from "@/components/ui/button";
+
+import TodoModel from "@/components/TodoModel";
+import { FaEdit } from "react-icons/fa";
+import { Plus } from "lucide-react";
 
 const DashboardPage: React.FC = () => {
   const { taskCache } = useTaskContext();
+  const { projectId } = useParams();
+  const [projectTitle, setprojectTitle] = useState<string>("");
   const [statusTasks, setStatusTasks] = useState<{ [key: string]: any[] }>({});
+
   const [loading, setLoading] = useState(true);
   const statuses = ["backlog", "pending", "active", "inactive", "completed"];
-
+  const { projects } = useTaskContext();
   useEffect(() => {
-    const allTasks = Object.values(taskCache)
-      .map((project) => project.tasks)
-      .flat();
+    if (!projectId) return;
 
-    if (allTasks.length === 0) {
-      setLoading(true);
-      setStatusTasks({});
-    } else {
-      const statusTasksObj: { [key: string]: any[] } = {};
-      statuses.forEach((status) => {
-        statusTasksObj[status] = allTasks.filter(
-          (task) => task.status === status
-        );
-      });
-      setStatusTasks(statusTasksObj);
-      setLoading(false);
-    }
-  }, [taskCache]);
+    const project = taskCache[projectId];
+    const projectTasks = project?.tasks;
+    console.log(projectTasks);
+    const project2 = projects.find((p) => p.id === projectId);
+    setprojectTitle(project2?.title || "");
 
+    const statusTasksObj: { [key: string]: any[] } = {};
+    statuses.forEach((status) => {
+      statusTasksObj[status] = projectTasks.filter(
+        (task) => task.status === status
+      );
+    });
+
+    setStatusTasks(statusTasksObj);
+    setLoading(projectTasks.length === 0);
+  }, [projectId, taskCache]);
+  console.log(`current page project title: ${projectTitle}`);
+  console.log(statusTasks);
   const updateTaskStatusInFirebase = async (
     taskId: string,
     newStatus: string
@@ -87,7 +98,7 @@ const DashboardPage: React.FC = () => {
                   {statusKey}
                 </h2>
 
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-2">
                   {loading ? (
                     <p>Loading...</p>
                   ) : (
@@ -99,15 +110,15 @@ const DashboardPage: React.FC = () => {
                       >
                         {(provided) => (
                           <div
-                            className="relative p-3 flex flex-col gap-2 bg-accent text-accent-foreground rounded-lg shadow-sm hover:shadow-md transition cursor-pointer hover:border border-white"
+                            className="relative p-2 flex flex-col gap-2 bg-accent text-accent-foreground rounded-lg shadow-sm hover:shadow-md transition cursor-pointer hover:border border-white"
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
                           >
-                            {todo.attechments &&
-                              todo.attechments.length > 0 && (
+                            {todo.attachments &&
+                              todo.attachments.length > 0 && (
                                 <img
-                                  src={todo.attechments[0]}
+                                  src={todo.attachments[0]}
                                   alt="todo-attachment"
                                   className="w-full h-28 object-cover rounded-md"
                                 />
@@ -127,12 +138,47 @@ const DashboardPage: React.FC = () => {
                                 {todo.todo}
                               </p>
                             )}
+
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <FaEdit
+                                  size={16}
+                                  className={`absolute right-2 ${
+                                    todo.attachments &&
+                                    todo.attachments.length > 0 &&
+                                    "top-32"
+                                  } text-muted-foreground hover:text-primary cursor-pointer`}
+                                />
+                              </DialogTrigger>
+                              <DialogContent>
+                                <TodoModel
+                                  projectTitle={projectTitle}
+                                  taskToEdit={todo}
+                                />
+                              </DialogContent>
+                            </Dialog>
                           </div>
                         )}
                       </Draggable>
                     ))
                   )}
-                  <div className="w-full"></div>
+                  <div className="w-full flex justify-end">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="cursor-pointer"
+                        >
+                          Add <Plus className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+
+                      <DialogContent>
+                        <TodoModel projectTitle={projectTitle} />
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                 </div>
                 {provided.placeholder}
               </div>

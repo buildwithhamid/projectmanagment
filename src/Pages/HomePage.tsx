@@ -10,6 +10,7 @@ import LatestUpdatedTasks from "@/components/LatestUpdatedTasks";
 import { Dialog, DialogContent, DialogTrigger } from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import ProjectModol from "@/components/ProjectModol";
+import { Input } from "@/components/ui/input";
 const HomePage = () => {
   const { projects, taskCache, loading } = useTaskContext();
 
@@ -66,7 +67,7 @@ const HomePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background ">
       <div className="flex flex-1">
         <main className="max-w-7xl mx-auto p-3 flex-1">
           <section className="mb-3">

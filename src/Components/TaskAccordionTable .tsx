@@ -5,7 +5,7 @@ import { Plus, FileText } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { Task } from "@/TaskContext/TaskContext";
+import { useTaskContext, type Task } from "@/TaskContext/TaskContext";
 import { useNavigate } from "react-router-dom";
 import {
   Accordion,
@@ -31,23 +31,11 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
 }) => {
   const navigate = useNavigate();
   const userContextId = useUserContextId();
-
-  // const handleDeleteTask = async (taskId: string) => {
-  //   if (!userContextId) return;
-
-  //   const confirmDelete = window.confirm(
-  //     "Are you sure you want to delete this task?"
-  //   );
-  //   if (!confirmDelete) return;
-
-  //   try {
-  //     await deleteTaskFromProject(projectTitle, userContextId, taskId);
-  //     alert("Task deleted successfully!");
-  //   } catch (err) {
-  //     console.error(err);
-  //     alert("Failed to delete task.");
-  //   }
-  // };
+  const { projects } = useTaskContext();
+  const specifictaskdata = projects.filter(
+    (project) => project.title === projectTitle
+  );
+  console.log(specifictaskdata);
   const getPriorityInfo = (dueDate: string) => {
     const today = new Date();
     const due = new Date(dueDate);
@@ -104,156 +92,174 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
       tasks: groupedTasks[status] || [],
     };
   });
+  const handleTrelloLink = (projectId: string) => {
+    console.log(`Navigating ${projectId}  to Trello Page`);
+    navigate(`/dashboard/${projectId}`);
+  };
 
   return (
-    <div className="min-h-full w-full p-0">
-      <Card className=" border border-border/40 rounded-lg shadow-sm hover:shadow-md hover:border-border transition-all duration-300 cursor-pointer">
-        <CardHeader>
-          <CardTitle className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 text-lg">
-            <div className="flex items-center gap-2">
-              <FileText className="h-5 w-5 text-primary" />
-              <h4 className="font-semibold">
-                {projectTitle.toUpperCase()}'s Tasks
-              </h4>
+    <Card className="  border border-border/40 rounded-lg shadow-sm hover:shadow-md hover:border-border transition-all duration-300 cursor-pointer ">
+      <CardHeader>
+        <CardTitle className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 text-lg">
+          <div className="flex items-center gap-2">
+            <FileText className="h-5 w-5 text-primary" />
+            <h4 className="font-semibold">
+              {projectTitle.toUpperCase()}'s Tasks
+            </h4>
+          </div>
+
+          {!loading && (
+            <div className="flex gap-2">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="ghost" size="sm" className="cursor-pointer">
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </DialogTrigger>
+
+                <DialogContent>
+                  <TodoModel projectTitle={projectTitle} />
+                </DialogContent>
+              </Dialog>
+
+              <Button
+                size="sm"
+                className="cursor-pointer"
+                onClick={() => handleTrelloLink(specifictaskdata[0].id || "")}
+              >
+                View Trello
+              </Button>
             </div>
+          )}
+        </CardTitle>
+      </CardHeader>
 
-            {!loading && (
-              <div className="flex gap-2">
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="cursor-pointer"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </DialogTrigger>
+      <CardContent>
+        <div className="relative">
+          {specifictaskdata?.[0]?.attachments?.length > 0 && (
+            <img
+              src={specifictaskdata[0].attachments[0]}
+              alt={specifictaskdata[0].title ?? "Project image"}
+              className="w-full h-36 object-cover rounded-lg mb-2"
+            />
+          )}
 
-                  <DialogContent>
-                    <TodoModel projectTitle={projectTitle} />
-                  </DialogContent>
-                </Dialog>
+          <p className="line-clamp-4 text-gray-300">
+            {specifictaskdata?.[0]?.description ?? "No description available"}
+          </p>
 
-                <Button
-                  size="sm"
-                  className="cursor-pointer"
-                  onClick={() => navigate("/dashboard")}
-                >
-                  View Trello
-                </Button>
-              </div>
-            )}
-          </CardTitle>
-        </CardHeader>
+          <div className="flex gap-3 absolute -bottom-6 text-xs text-gray-500">
+            <p>{tasks?.length ?? 0} Tasks</p>
+            <p>
+              Created At:{" "}
+              {specifictaskdata?.[0]?.createdAt
+                ? new Date(specifictaskdata[0].createdAt).toLocaleString()
+                : "—"}
+            </p>
+          </div>
+        </div>
 
-        <CardContent>
-          <Accordion
-            type="multiple"
-            defaultValue={["backlog"]}
-            className="space-y-2"
-          >
-            {taskSections.map((section) => (
-              <AccordionItem key={section.id} value={section.id}>
-                <AccordionTrigger className="px-3 py-2 hover:no-underline">
-                  <div className="flex items-center">
-                    <Badge
-                      className={`${section.badgeColor} w-20 mr-3 rounded-sm`}
-                    >
-                      {section.title}
-                    </Badge>
-                    <span className="text-sm text-muted-foreground">
-                      • {section.tasks.length} Task
-                      {section.tasks.length !== 1 ? "s" : ""}
-                    </span>
+        <Accordion
+          type="multiple"
+          defaultValue={["backlog"]}
+          className="space-y-2 mt-8"
+        >
+          {taskSections.map((section) => (
+            <AccordionItem key={section.id} value={section.id}>
+              <AccordionTrigger className="px-0 py-2 hover:no-underline">
+                <div className="flex items-center">
+                  <Badge
+                    className={`${section.badgeColor} w-20 mr-3 rounded-sm`}
+                  >
+                    {section.title}
+                  </Badge>
+                  <span className="text-sm text-muted-foreground">
+                    • {section.tasks.length} Task
+                    {section.tasks.length !== 1 ? "s" : ""}
+                  </span>
+                </div>
+              </AccordionTrigger>
+
+              <AccordionContent className="px-0 pb-0">
+                <div>
+                  <div className="hidden sm:grid grid-cols-12 gap-2 px-3 py-2 bg-card text-card-foreground text-xs font-semibold uppercase">
+                    <div className="col-span-5">Name</div>
+                    <div className="col-span-2">Priority</div>
+                    <div className="col-span-2">Due Date</div>
+                    <div className="col-span-3">Created</div>
                   </div>
-                </AccordionTrigger>
 
-                <AccordionContent className="px-0 pb-0">
-                  <div>
-                    <div className="hidden sm:grid grid-cols-12 gap-2 px-3 py-2 bg-card text-card-foreground text-xs font-semibold uppercase">
-                      <div className="col-span-5">Name</div>
-                      <div className="col-span-2">Priority</div>
-                      <div className="col-span-2">Due Date</div>
-                      <div className="col-span-3">Created</div>
-                    </div>
-
-                    {section.tasks.map((task) => (
-                      <div key={task.id} className="border-b bg-card">
-                        <div className="hidden sm:grid grid-cols-12 gap-2 py-2 items-center">
-                          <div className="col-span-5 ">
-                            <TaskDetailsAccordion
-                              task={task}
-                              projectTitle={projectTitle}
-                            />
-                          </div>
-                          <div className="col-span-2 flex items-center">
-                            <Badge
-                              className={
-                                getPriorityInfo(task.dueDate).className
-                              }
-                            >
-                              {getPriorityInfo(task.dueDate).label}
-                            </Badge>
-                          </div>
-                          <div className="col-span-2 flex items-center">
-                            <span className="text-sm">
-                              {task.dueDate
-                                ? new Date(task.dueDate).toLocaleDateString()
-                                : "—"}
-                            </span>
-                          </div>
-                          <div className="col-span-3 flex items-center">
-                            <span className="text-sm">
-                              {task.createdAt
-                                ? new Date(task.createdAt).toLocaleDateString()
-                                : "—"}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="sm:hidden flex flex-col gap-1 px-3 py-2">
+                  {section.tasks.map((task) => (
+                    <div key={task.id} className="border-b bg-card">
+                      <div className="hidden sm:grid grid-cols-12 gap-2 py-2 items-center">
+                        <div className="col-span-5 ">
                           <TaskDetailsAccordion
                             task={task}
                             projectTitle={projectTitle}
                           />
-                          <div className="flex justify-between text-sm">
-                            <span className="font-medium">Priority:</span>
-                            <Badge
-                              className={
-                                getPriorityInfo(task.dueDate).className
-                              }
-                            >
-                              {getPriorityInfo(task.dueDate).label}
-                            </Badge>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="font-medium">Due Date:</span>
-                            <span>
-                              {task.dueDate
-                                ? new Date(task.dueDate).toLocaleDateString()
-                                : "—"}
-                            </span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="font-medium">Created:</span>
-                            <span>
-                              {task.createdAt
-                                ? new Date(task.createdAt).toLocaleDateString()
-                                : "—"}
-                            </span>
-                          </div>
+                        </div>
+                        <div className="col-span-2 flex items-center">
+                          <Badge
+                            className={getPriorityInfo(task.dueDate).className}
+                          >
+                            {getPriorityInfo(task.dueDate).label}
+                          </Badge>
+                        </div>
+                        <div className="col-span-2 flex items-center">
+                          <span className="text-sm">
+                            {task.dueDate
+                              ? new Date(task.dueDate).toLocaleDateString()
+                              : "—"}
+                          </span>
+                        </div>
+                        <div className="col-span-3 flex items-center">
+                          <span className="text-sm">
+                            {task.createdAt
+                              ? new Date(task.createdAt).toLocaleDateString()
+                              : "—"}
+                          </span>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </CardContent>
-      </Card>
-    </div>
+
+                      <div className="sm:hidden flex flex-col gap-1 px-3 py-2">
+                        <TaskDetailsAccordion
+                          task={task}
+                          projectTitle={projectTitle}
+                        />
+                        <div className="flex justify-between text-sm">
+                          <span className="font-medium">Priority:</span>
+                          <Badge
+                            className={getPriorityInfo(task.dueDate).className}
+                          >
+                            {getPriorityInfo(task.dueDate).label}
+                          </Badge>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="font-medium">Due Date:</span>
+                          <span>
+                            {task.dueDate
+                              ? new Date(task.dueDate).toLocaleDateString()
+                              : "—"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="font-medium">Created:</span>
+                          <span>
+                            {task.createdAt
+                              ? new Date(task.createdAt).toLocaleDateString()
+                              : "—"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </CardContent>
+    </Card>
   );
 };
 

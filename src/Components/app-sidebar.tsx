@@ -24,10 +24,7 @@ import { useUserContextId } from "@/AuthContext/UserContext";
 import SidebarFooter from "./sidebar-footer";
 import Loader from "./Loader";
 
-const items = [
-  { title: "Home", url: "/home", icon: IoHomeOutline },
-  { title: "Dashboard", url: "/dashboard", icon: MdDashboardCustomize },
-];
+const items = [{ title: "Home", url: "/home", icon: IoHomeOutline }];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [showInput, setShowInput] = React.useState(false);
@@ -204,7 +201,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     }`}
                   >
                     <NavLink
-                      to={project.url! || `/projects/${project.title}`}
+                      to={`/projects/${project.title}`}
                       className="flex-1"
                       onClick={() => {
                         setOpen(false);
