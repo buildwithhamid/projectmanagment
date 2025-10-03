@@ -191,7 +191,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {/* Project list */}
             <SidebarMenu>
               {projects.length > 0 ? (
-                projects.map((project) => (
+                projects.reverse().map((project) => (
                   <SidebarMenuItem
                     key={project.id}
                     className={`flex items-center justify-between ${
@@ -201,7 +201,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     }`}
                   >
                     <NavLink
-                      to={`/projects/${project.title}`}
+                      to={`/projects/${project.id}`}
                       className="flex-1"
                       onClick={() => {
                         setOpen(false);

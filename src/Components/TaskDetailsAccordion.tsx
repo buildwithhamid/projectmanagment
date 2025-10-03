@@ -16,10 +16,10 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 
 const TaskDetailsAccordion = ({
   task,
-  projectTitle,
+  projectid,
 }: {
   task: Task & { dueDate: string };
-  projectTitle: string;
+  projectid: string;
 }) => {
   const [showDetail, setShowDetail] = useState(false);
   const { deleteTaskFromProject } = useTaskContext();
@@ -27,11 +27,7 @@ const TaskDetailsAccordion = ({
   const handleDelChange = async () => {
     try {
       if (window.confirm("Are you sure you want to delete this task?")) {
-        await deleteTaskFromProject(
-          projectTitle,
-          task.userId ?? null,
-          task.id ?? ""
-        );
+        await deleteTaskFromProject(projectid ?? null, task.id ?? "");
       }
     } catch (error) {
       console.log("err: ", error);
@@ -88,7 +84,7 @@ const TaskDetailsAccordion = ({
                     className="absolute top-2 right-14 text-muted-foreground hover:text-primary cursor-pointer"
                   />
                 </DialogTrigger>
-                <TodoModel projectTitle={projectTitle} taskToEdit={task} />
+                <TodoModel projectId={projectid} taskToEdit={task} />
               </Dialog>
 
               <MdDeleteOutline

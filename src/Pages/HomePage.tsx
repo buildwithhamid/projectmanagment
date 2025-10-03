@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import { Badge } from "@/components/ui/badge";
+import React, { useMemo, useState } from "react";
+
 import { ProjectCard } from "@/components/ProjectCard";
 import { CheckCircle, Clock, FolderOpen, Plus } from "lucide-react";
 import { useTaskContext } from "@/TaskContext/TaskContext";
@@ -13,6 +13,10 @@ import ProjectModol from "@/components/ProjectModol";
 import { Input } from "@/components/ui/input";
 const HomePage = () => {
   const { projects, taskCache, loading } = useTaskContext();
+  const [filteredProject, setfilteredProject] = useState("");
+  const filteredProjects = projects.filter((project) =>
+    project.title.toLowerCase().includes(filteredProject.toLowerCase())
+  );
 
   const totalTasks = useMemo(() => {
     return Object.values(taskCache).reduce(
@@ -101,39 +105,54 @@ const HomePage = () => {
 
           <section>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-2xl font-semibold">My Projects</h2>
-              <div className="flex items-center gap-2">
+              <h2 className="text-2xl font-semibold">My Projects </h2>
+
+              <div className="flex items-center gap-3">
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Plus
-                      className="text-muted-foreground hover:text-primary cursor-pointer"
-                      size={24}
-                    />
+                    <Button
+                      variant="secondary"
+                      size="default"
+                      className="flex items-center gap-1"
+                    >
+                      <Plus size={20} />
+                    </Button>
                   </DialogTrigger>
                   <DialogContent>
                     <ProjectModol />
                   </DialogContent>
                 </Dialog>
-
-                <Badge variant="outline" className="text-sm">
-                  {projects.length} Projects
-                </Badge>
-                <Badge variant="outline" className="text-sm">
-                  {totalTasks} Tasks
-                </Badge>
+                <div className="relative">
+                  <Input
+                    type="text"
+                    placeholder="Search projects..."
+                    value={filteredProject}
+                    onChange={(e) => setfilteredProject(e.target.value)}
+                    className="px-3 py-2 border rounded-md text-sm w-52 focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
               </div>
             </div>
 
             <div className="flex gap-2">
               <div className="w-3/4 h-min grid gap-2 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
-                {projects.map((project) => (
-                  <ProjectCard
-                    key={project.id}
-                    project={project}
-                    tasks={taskCache[project?.id]?.tasks || []}
-                    onClick={handleProjectClick}
-                  />
-                ))}
+                {filteredProjects.length > 0
+                  ? filteredProjects.map((project) => (
+                      <ProjectCard
+                        key={project.id}
+                        project={project}
+                        tasks={taskCache[project?.id]?.tasks || []}
+                        onClick={handleProjectClick}
+                      />
+                    ))
+                  : projects.map((project) => (
+                      <ProjectCard
+                        key={project.id}
+                        project={project}
+                        tasks={taskCache[project?.id]?.tasks || []}
+                        onClick={handleProjectClick}
+                      />
+                    ))}
               </div>
 
               <LatestUpdatedTasks latestTasks={latestTasks} />

@@ -21,20 +21,19 @@ interface TaskAccordionTableProps {
   tasks: Task[];
   loading: boolean;
   handleshowpop: () => void;
-  projectTitle: string;
+  projectId: string;
 }
 
 const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
   tasks,
   loading,
-  projectTitle,
+  projectId,
 }) => {
   const navigate = useNavigate();
   const userContextId = useUserContextId();
   const { projects } = useTaskContext();
-  const specifictaskdata = projects.filter(
-    (project) => project.title === projectTitle
-  );
+  const specifictaskdata = projects.find((project) => project.id === projectId);
+
   console.log(specifictaskdata);
   const getPriorityInfo = (dueDate: string) => {
     const today = new Date();
@@ -104,7 +103,7 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
           <div className="flex items-center gap-2">
             <FileText className="h-5 w-5 text-primary" />
             <h4 className="font-semibold">
-              {projectTitle.toUpperCase()}'s Tasks
+              {specifictaskdata?.title.toUpperCase()}'s Tasks
             </h4>
           </div>
 
@@ -118,14 +117,14 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
                 </DialogTrigger>
 
                 <DialogContent>
-                  <TodoModel projectTitle={projectTitle} />
+                  <TodoModel projectId={projectId} />
                 </DialogContent>
               </Dialog>
 
               <Button
                 size="sm"
                 className="cursor-pointer"
-                onClick={() => handleTrelloLink(specifictaskdata[0].id || "")}
+                onClick={() => handleTrelloLink(specifictaskdata?.id || "")}
               >
                 View Trello
               </Button>
@@ -136,24 +135,24 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
 
       <CardContent>
         <div className="relative">
-          {specifictaskdata?.[0]?.attachments?.length > 0 && (
+          {specifictaskdata?.attachments?.length > 0 && (
             <img
-              src={specifictaskdata[0].attachments[0]}
-              alt={specifictaskdata[0].title ?? "Project image"}
+              src={specifictaskdata?.attachments[0]}
+              alt={specifictaskdata?.title ?? "Project image"}
               className="w-full h-36 object-cover rounded-lg mb-2"
             />
           )}
 
           <p className="line-clamp-4 text-gray-300">
-            {specifictaskdata?.[0]?.description ?? "No description available"}
+            {specifictaskdata?.description ?? "No description available"}
           </p>
 
           <div className="flex gap-3 absolute -bottom-6 text-xs text-gray-500">
             <p>{tasks?.length ?? 0} Tasks</p>
             <p>
               Created At:{" "}
-              {specifictaskdata?.[0]?.createdAt
-                ? new Date(specifictaskdata[0].createdAt).toLocaleString()
+              {specifictaskdata?.createdAt
+                ? new Date(specifictaskdata.createdAt).toLocaleString()
                 : "—"}
             </p>
           </div>
@@ -195,7 +194,7 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
                         <div className="col-span-5 ">
                           <TaskDetailsAccordion
                             task={task}
-                            projectTitle={projectTitle}
+                            projectid={projectId}
                           />
                         </div>
                         <div className="col-span-2 flex items-center">
@@ -224,7 +223,7 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
                       <div className="sm:hidden flex flex-col gap-1 px-3 py-2">
                         <TaskDetailsAccordion
                           task={task}
-                          projectTitle={projectTitle}
+                          projectid={projectId}
                         />
                         <div className="flex justify-between text-sm">
                           <span className="font-medium">Priority:</span>

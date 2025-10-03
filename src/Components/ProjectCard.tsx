@@ -8,7 +8,11 @@ import {
 } from "./ui/card";
 
 import { Progress } from "./ui/progress";
-import { Calendar, Eye, Paperclip, MessagesSquare } from "lucide-react";
+import { Calendar, Paperclip, MessagesSquare } from "lucide-react";
+import { FaEdit } from "react-icons/fa";
+import { Dialog, DialogTrigger, DialogContent } from "@radix-ui/react-dialog";
+
+import ProjectModol from "./ProjectModol";
 
 interface Task {
   id: string;
@@ -57,8 +61,8 @@ export const ProjectCard = ({ project, tasks, onClick }: ProjectCardProps) => {
   const percentage = calculateProgress(completed, total);
 
   const handleCardClick = () => {
-    if (project.title) {
-      onClick?.(project.title);
+    if (project.id) {
+      onClick?.(project.id);
     }
   };
 
@@ -76,22 +80,29 @@ export const ProjectCard = ({ project, tasks, onClick }: ProjectCardProps) => {
 
       <CardHeader className="-mt-1">
         <div className="flex justify-between items-start">
-          <div className="flex items-center gap-2">
-            <Eye
-              className="absolute top-14 right-2 text-muted-foreground hover:text-primary cursor-pointer"
-              size={20}
-              onClick={handleCardClick}
-            />
-          </div>
+          <Dialog>
+            <DialogTrigger asChild>
+              <FaEdit
+                size={16}
+                className=" absolute top-13 right-2 text-muted-foreground hover:text-primary cursor-pointer"
+              />
+            </DialogTrigger>
+            <DialogContent>
+              <ProjectModol project={project} />
+            </DialogContent>
+          </Dialog>
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-col gap-2 -mt-2 -ml-3 px-4">
+      <CardContent
+        className="flex flex-col gap-1 -mt-2 -ml-3 px-4"
+        onClick={handleCardClick}
+      >
         <CardTitle className="text-base font-semibold line-clamp-2">
           {project?.title.charAt(0).toUpperCase() + project?.title.slice(1)}
         </CardTitle>
 
-        <p className="text-sm text-muted-foreground line-clamp-2">
+        <p className="text-sm text-muted-foreground line-clamp-2 ">
           {project.description}
         </p>
 

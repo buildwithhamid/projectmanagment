@@ -46,9 +46,8 @@ interface TaskContextType {
   loading: boolean;
 
   // Tasks
-  addTaskToProjectByTitle: (
-    projectTitle: string,
-    userId: string,
+  addTaskToProject: (
+    projectId: string,
     formData: {
       title: string;
       todo: string;
@@ -58,8 +57,8 @@ interface TaskContextType {
     }
   ) => Promise<string>;
   updateTaskInProject: (
-    projectTitle: string,
-    userId: string | null,
+    projectid: string,
+
     taskId: string,
     updatedData: {
       title: string;
@@ -70,8 +69,8 @@ interface TaskContextType {
     }
   ) => Promise<void>;
   deleteTaskFromProject: (
-    projectTitle: string,
-    userId: string | null,
+    projectId: string,
+
     taskId: string
   ) => Promise<void>;
   setLoading: (l: boolean) => void;
@@ -84,6 +83,12 @@ interface TaskContextType {
     discription: string,
     attachments: string[]
   ) => Promise<string>;
+  updateProject: (
+    projectId: string,
+    title: string,
+    description?: string,
+    attachments?: string[]
+  ) => Promise<boolean>;
   deleteProject: (projectId: string) => Promise<void>;
 }
 
@@ -172,6 +177,43 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const updateProject = async (
+    projectId: string,
+    title: string,
+    description?: string,
+    attachments?: string[]
+  ) => {
+    try {
+      setLoading(true);
+
+      if (!projectId || !title.trim()) return false;
+
+      const updatedData = {
+        title,
+        description: description || "",
+        attachments: attachments || [],
+        url: `/projects/${title.toLowerCase().replace(/\s+/g, "-")}`,
+        updatedAt: new Date().toISOString(),
+      };
+
+      const projectRef = doc(db, "Projects", projectId);
+      await updateDoc(projectRef, updatedData);
+
+      setProjects((prev) =>
+        prev.map((p) => (p.id === projectId ? { ...p, ...updatedData } : p))
+      );
+
+      console.log("✅ Project updated:", updatedData);
+
+      return true;
+    } catch (err) {
+      console.error("❌ Error updating project:", err);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const deleteProject = async (projectId: string, projectTitle?: string) => {
     try {
       setLoading(true);
@@ -190,9 +232,8 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const addTaskToProjectByTitle = async (
-    projectTitle: string,
-    userId: string,
+  const addTaskToProject = async (
+    projectId: string,
     formData: {
       title: string;
       todo: string;
@@ -202,30 +243,13 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   ): Promise<string> => {
     try {
-      const q = query(
-        collection(db, "Projects"),
-        where("title", "==", projectTitle),
-        where("userId", "==", userId)
-      );
-
-      const querySnapshot = await getDocs(q);
-      if (querySnapshot.empty) {
-        throw new Error(
-          `Project "${projectTitle}" not found for user ${userId}`
-        );
-      }
-
-      const projectDoc = querySnapshot.docs[0];
-      const projectId = projectDoc.id;
-
       const newTask: Task = {
-        title: formData.title,
-        todo: formData.todo,
-        status: formData.status,
-        attachments: formData.attachments || [],
+        title: formData.title?.trim() || "Untitled Task",
+        todo: formData.todo?.trim() || "",
+        status: formData.status || "backlog",
+        attachments: formData.attachments ?? [],
         createdAt: new Date().toISOString(),
-        userId: userId,
-        dueDate: formData.dueDate,
+        dueDate: formData.dueDate ?? "",
       };
 
       const taskRef = await addDoc(
@@ -237,11 +261,14 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         ...prev,
         [projectId]: {
           ...prev[projectId],
-          tasks: [...(prev[projectId]?.tasks || []), newTask],
+          tasks: [
+            ...(prev[projectId]?.tasks || []),
+            { ...newTask, id: taskRef.id },
+          ],
         },
       }));
-      await fetchUserProjects(userId);
-      console.log(`✅ Task added to project "${projectTitle}":`, taskRef.id);
+
+      console.log(`✅ Task added to project "${projectId}":`, taskRef.id);
       return taskRef.id;
     } catch (err) {
       console.error("❌ Error adding task:", err);
@@ -250,24 +277,11 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const deleteTaskFromProject = async (
-    projectTitle: string,
-    userId: string | null,
+    projectId: string,
     taskId: string
   ): Promise<void> => {
     try {
       setLoading(true);
-      const q = query(
-        collection(db, "Projects"),
-        where("title", "==", projectTitle),
-        where("userId", "==", userId)
-      );
-      const querySnapshot = await getDocs(q);
-
-      if (querySnapshot.empty)
-        throw new Error(`Project "${projectTitle}" not found for this user`);
-
-      const projectDoc = querySnapshot.docs[0];
-      const projectId = projectDoc.id;
 
       const taskRef = doc(db, "Projects", projectId, "tasks", taskId);
 
@@ -282,7 +296,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         },
       }));
 
-      console.log(`✅ Task ${taskId} deleted from project "${projectTitle}"`);
+      console.log(`✅ Task ${taskId} deleted from project: ${projectId}`);
     } catch (err) {
       console.error("❌ Error deleting task:", err);
       throw err;
@@ -291,8 +305,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
   const updateTaskInProject = async (
-    projectTitle: string,
-    userId: string | null,
+    projectid: string,
     taskId: string,
     updatedData: {
       title?: string;
@@ -300,51 +313,35 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
       status?: string;
       attachments?: string[];
       dueDate?: string;
-      updatedAt?: string;
     }
   ): Promise<void> => {
     try {
       setLoading(true);
 
-      // find project
-      const q = query(
-        collection(db, "Projects"),
-        where("title", "==", projectTitle),
-        where("userId", "==", userId)
-      );
-      const querySnapshot = await getDocs(q);
-      if (querySnapshot.empty)
-        throw new Error(`Project "${projectTitle}" not found for this user`);
+      if (!projectid || !taskId) {
+        console.error("❌ Missing projectId or taskId", { projectid, taskId });
+        return;
+      }
+      const taskRef = doc(db, "Projects", projectid, "tasks", taskId);
 
-      const projectDoc = querySnapshot.docs[0];
-      const projectId = projectDoc.id;
-
-      // update Firestore
-      const taskRef = doc(db, "Projects", projectId, "tasks", taskId);
       await updateDoc(taskRef, {
         ...updatedData,
         updatedAt: new Date().toISOString(),
       });
 
-      // ✅ update local cache
       setTaskCache((prev) => {
-        const tasks = prev[projectId]?.tasks.map((t) =>
+        const tasks = prev[projectid]?.tasks.map((t) =>
           t.id === taskId
-            ? {
-                ...t,
-                ...updatedData,
-                id: taskId,
-                updatedAt: new Date().toISOString(),
-              }
+            ? { ...t, ...updatedData, updatedAt: new Date().toISOString() }
             : t
         );
         return {
           ...prev,
-          [projectId]: { ...prev[projectId], tasks },
+          [projectid]: { ...prev[projectid], tasks },
         };
       });
 
-      console.log(`✅ Task ${taskId} updated in project "${projectTitle}"`);
+      console.log(`✅ Task ${taskId} updated in project ${projectid}`);
     } catch (err) {
       console.error("❌ Error updating task:", err);
       throw err;
@@ -375,10 +372,11 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         setTaskCache,
         loading,
         setLoading,
-        addTaskToProjectByTitle,
+        addTaskToProject,
         updateTaskInProject,
         fetchUserProjects,
         addProject,
+        updateProject,
         deleteProject,
         deleteTaskFromProject,
       }}

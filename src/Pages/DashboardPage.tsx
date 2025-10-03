@@ -6,17 +6,17 @@ import { updateDoc, doc } from "firebase/firestore";
 import { useParams } from "react-router-dom";
 import { Dialog, DialogTrigger, DialogContent } from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
-
+import { useNavigate } from "react-router-dom";
 import TodoModel from "@/components/TodoModel";
 import { FaEdit } from "react-icons/fa";
 import { Plus } from "lucide-react";
-
+import { ScrollArea } from "@/components/ui/scroll-area";
 const DashboardPage: React.FC = () => {
   const { taskCache } = useTaskContext();
   const { projectId } = useParams();
   const [projectTitle, setprojectTitle] = useState<string>("");
   const [statusTasks, setStatusTasks] = useState<{ [key: string]: any[] }>({});
-
+  const Navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const statuses = ["backlog", "pending", "active", "inactive", "completed"];
   const { projects } = useTaskContext();
@@ -82,10 +82,20 @@ const DashboardPage: React.FC = () => {
       updateTaskStatusInFirebase(movedTask.id, destId);
     }
   };
-
+  const handleListView = () => {
+    console.log(`Navigating the ${projectId} to list view`);
+    Navigate(`/projects/${projectId}`);
+  };
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="flex gap-2 p-2 w-screen  relative overflow-y-auto scrollbar-thin">
+      <div className="w-full flex justify-between items-center px-4 py-2  shadow-sm rounded-md ">
+        <h2 className="text-lg font-semibold">Trello</h2>
+        <Button variant="outline" size="sm" onClick={handleListView}>
+          View List
+        </Button>
+      </div>
+
+      <div className="flex gap-2 p-2 h-full w-full  relative overflow-y-auto scrollbar-thin -mt-2">
         {statuses.map((statusKey) => (
           <Droppable droppableId={statusKey} type="TASK" key={statusKey}>
             {(provided) => (
@@ -152,7 +162,7 @@ const DashboardPage: React.FC = () => {
                               </DialogTrigger>
                               <DialogContent>
                                 <TodoModel
-                                  projectTitle={projectTitle}
+                                  projectId={projectId}
                                   taskToEdit={todo}
                                 />
                               </DialogContent>
@@ -175,7 +185,7 @@ const DashboardPage: React.FC = () => {
                       </DialogTrigger>
 
                       <DialogContent>
-                        <TodoModel projectTitle={projectTitle} />
+                        <TodoModel projectId={projectId} />
                       </DialogContent>
                     </Dialog>
                   </div>

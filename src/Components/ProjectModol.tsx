@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   DialogContent,
   DialogHeader,
@@ -11,31 +11,68 @@ import { Button } from "@/components/ui/button";
 
 import { useTaskContext } from "@/TaskContext/TaskContext";
 import { useUserContextId } from "@/AuthContext/UserContext";
-export default function ProjectModol() {
-  const [formData, setFormData] = useState({
+
+type Project = {
+  id?: string;
+  title: string;
+  description: string;
+  attachments: string[];
+};
+
+export default function ProjectModol({
+  project,
+  onClose,
+}: {
+  project?: Project;
+  onClose?: () => void;
+}) {
+  const [formData, setFormData] = useState<Project>({
     title: "",
     description: "",
-    attachments: [] as string[],
+    attachments: [],
   });
+
   const { userContextId } = useUserContextId();
-  const { loading, addProject } = useTaskContext();
+  const { loading, addProject, updateProject } = useTaskContext();
+
+  useEffect(() => {
+    if (project) {
+      setFormData({
+        title: project.title,
+        description: project.description,
+        attachments: project.attachments || [],
+        id: project.id,
+      });
+    }
+  }, [project]);
+
   const handleSubmit = async () => {
     if (!formData.title.trim()) return;
 
-    await addProject(
-      formData.title,
-      userContextId,
-      formData.description,
-      formData.attachments
-    );
+    if (project) {
+      await updateProject(
+        project.id || "",
+        formData.title,
+        formData.description,
+        formData.attachments
+      );
+    } else {
+      await addProject(
+        formData.title,
+        userContextId || "",
+        formData.description,
+        formData.attachments
+      );
+    }
 
     setFormData({ title: "", description: "", attachments: [] });
+    if (onClose) onClose();
   };
 
   return (
     <DialogContent className="sm:max-w-md">
       <DialogHeader>
-        <DialogTitle>Add Project</DialogTitle>
+        <DialogTitle>{project ? "Edit Project" : "Add Project"}</DialogTitle>
       </DialogHeader>
 
       <div className="space-y-4">
@@ -54,6 +91,7 @@ export default function ProjectModol() {
             setFormData({ ...formData, description: e.target.value })
           }
         />
+
         <Input
           type="file"
           onChange={(e) => {
@@ -66,9 +104,16 @@ export default function ProjectModol() {
           }}
         />
       </div>
+
       <DialogFooter className="flex justify-center gap-2">
         <Button onClick={handleSubmit} disabled={loading}>
-          {loading ? "Adding..." : "Add"}
+          {loading
+            ? project
+              ? "Updating..."
+              : "Adding..."
+            : project
+            ? "Update"
+            : "Add"}
         </Button>
       </DialogFooter>
     </DialogContent>

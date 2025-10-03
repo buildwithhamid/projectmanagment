@@ -72,7 +72,7 @@ const LatestUpdatedTasks: React.FC<LatestUpdatedTasksProps> = ({
                       </DialogTrigger>
                       <DialogContent>
                         <TodoModel
-                          projectTitle={task.projectTitle}
+                          projectId={task.projectId}
                           taskToEdit={task}
                         />
                       </DialogContent>

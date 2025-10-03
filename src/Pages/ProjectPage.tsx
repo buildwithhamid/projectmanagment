@@ -11,11 +11,9 @@ const ProjectPage: React.FC = () => {
   const { taskCache, loading } = useTaskContext();
   const [showPopup, setShowPopup] = useState(false);
 
-  const projectDocId = Object.keys(taskCache).find(
-    (id) => taskCache[id].title === projectId
-  );
+  const projectDocId = Object.keys(taskCache).find((id) => id === projectId);
   const specificTasks = projectDocId ? taskCache[projectDocId].tasks : [];
-
+  console.log(`Tasks for ${projectId} are ${specificTasks}`);
   return (
     <div className="min-h-screen w-full p-2 space-y-4 flex flex-col bg-background text-foreground">
       <div className="flex-1 overflow-auto">
@@ -28,12 +26,12 @@ const ProjectPage: React.FC = () => {
             tasks={specificTasks}
             loading={loading}
             handleshowpop={() => setShowPopup(true)}
-            projectTitle={projectId!}
+            projectId={projectId}
           />
         )}
       </div>
 
-      {showPopup && <TodoModel projectTitle={projectId!} />}
+      {showPopup && <TodoModel projectId={projectId!} />}
     </div>
   );
 };

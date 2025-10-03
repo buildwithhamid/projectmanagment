@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import DatePicker from "./DatePicker";
-import { useUserContextId } from "@/AuthContext/UserContext";
+import { useParams } from "react-router-dom";
 
 export interface TaskFormData {
   title: string;
@@ -26,17 +26,17 @@ export interface TaskFormData {
   status: string;
   attachments: string[];
   dueDate: string;
-  createdAt: string;
+  createdAt?: string;
 }
 
 interface TodoModelProps {
-  projectTitle: string;
+  projectId: string;
   taskToEdit?: Task;
 }
 
-const TodoModel: React.FC<TodoModelProps> = ({ projectTitle, taskToEdit }) => {
-  const { addTaskToProjectByTitle, updateTaskInProject } = useTaskContext();
-  const { userContextId } = useUserContextId();
+const TodoModel: React.FC<TodoModelProps> = ({ projectId, taskToEdit }) => {
+  const { addTaskToProject, updateTaskInProject } = useTaskContext();
+  const { projectid } = useParams();
   const [formData, setFormData] = useState<TaskFormData>({
     title: "",
     todo: "",
@@ -51,38 +51,28 @@ const TodoModel: React.FC<TodoModelProps> = ({ projectTitle, taskToEdit }) => {
   useEffect(() => {
     if (taskToEdit) {
       setFormData({
-        title: taskToEdit.title,
-        todo: taskToEdit.todo,
-        status: taskToEdit.status,
+        title: taskToEdit.title || "",
+        todo: taskToEdit.todo || "",
+        status: taskToEdit.status || "backlog",
         attachments: taskToEdit.attachments || [],
         dueDate: taskToEdit.dueDate || "",
-        createdAt: taskToEdit.createdAt,
+        createdAt: taskToEdit.createdAt || "",
       });
     }
   }, [taskToEdit]);
 
   const handleSubmit = async () => {
-    if (!formData.title) return;
+    if (!formData.title.trim()) return;
     setLoading(true);
 
     try {
+      const activeProjectId = projectId || projectid;
+      if (!activeProjectId) throw new Error("❌ No project ID found");
+
       if (taskToEdit?.id) {
-        await updateTaskInProject(
-          projectTitle,
-          taskToEdit.userId || null,
-          taskToEdit.id,
-          formData
-        );
+        await updateTaskInProject(activeProjectId, taskToEdit.id, formData);
       } else {
-        await addTaskToProjectByTitle(projectTitle, userContextId, formData);
-        setFormData({
-          title: "",
-          todo: "",
-          status: "backlog",
-          attachments: [],
-          dueDate: "",
-          createdAt: "",
-        });
+        await addTaskToProject(activeProjectId, formData);
       }
 
       setFormData({
@@ -91,7 +81,6 @@ const TodoModel: React.FC<TodoModelProps> = ({ projectTitle, taskToEdit }) => {
         status: "backlog",
         attachments: [],
         dueDate: "",
-        createdAt: "",
       });
     } catch (err) {
       console.error("❌ Error saving task:", err);
