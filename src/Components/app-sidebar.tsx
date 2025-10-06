@@ -1,10 +1,10 @@
 import * as React from "react";
 import { NavLink } from "react-router-dom";
-import { MdDashboardCustomize } from "react-icons/md";
 import { IoHomeOutline } from "react-icons/io5";
 import { AiOutlinePlus, AiOutlineDelete } from "react-icons/ai";
 import { Separator } from "./ui/separator";
-
+import { Dialog, DialogTrigger, DialogContent } from "@radix-ui/react-dialog";
+import ProjectModol from "./ProjectModol";
 import {
   Sidebar,
   SidebarContent,
@@ -14,7 +14,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarInput,
   useSidebar,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
@@ -27,41 +26,13 @@ import Loader from "./Loader";
 const items = [{ title: "Home", url: "/home", icon: IoHomeOutline }];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const [showInput, setShowInput] = React.useState(false);
-  const [newProject, setNewProject] = React.useState("");
   const { userContextId } = useUserContextId();
-  const {
-    projects,
-    fetchUserProjects,
-    addProject,
-    deleteProject,
-    loading,
-    setLoading,
-  } = useTaskContext();
+  const { projects, fetchUserProjects, deleteProject } = useTaskContext();
   const { setOpen, state } = useSidebar();
 
   React.useEffect(() => {
     if (userContextId) fetchUserProjects(userContextId);
   }, [userContextId]);
-
-  const handleAddClick = () => {
-    if (state === "collapsed") setOpen(true);
-    setShowInput(true);
-  };
-
-  const handleAddProject = async () => {
-    if (!newProject.trim() || !userContextId) return;
-    setLoading(true);
-    try {
-      await addProject(newProject, userContextId);
-      setNewProject("");
-      setShowInput(false);
-    } catch (err) {
-      console.error("❌ Error adding project:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <Sidebar
@@ -92,7 +63,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     className="w-full"
                     onClick={() => {
                       setOpen(false);
-                      setShowInput(false);
                     }}
                   >
                     {({ isActive }) => (
@@ -138,55 +108,36 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <SidebarGroupLabel className="text-xs uppercase text-muted-foreground tracking-wide">
                     Projects
                   </SidebarGroupLabel>
-                  <button
-                    onClick={() => setShowInput(!showInput)}
-                    className="p-1 rounded hover:bg-sidebar-accent"
-                    title="Add Project"
-                  >
-                    <AiOutlinePlus size={18} />
-                  </button>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <button
+                        className="p-1 rounded hover:bg-sidebar-accent inline-flex items-center justify-center"
+                        title="Add Project"
+                      >
+                        <AiOutlinePlus size={18} />
+                      </button>
+                    </DialogTrigger>
+                    <DialogContent className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                      <ProjectModol />
+                    </DialogContent>
+                  </Dialog>
                 </>
               ) : (
-                <button
-                  onClick={handleAddClick}
-                  className="p-2 mb-1 rounded hover:bg-sidebar-accent"
-                  title="Add Project"
-                >
-                  <AiOutlinePlus size={20} />
-                </button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <button
+                      className="p-1 rounded hover:bg-sidebar-accent inline-flex items-center justify-center"
+                      title="Add Project"
+                    >
+                      <AiOutlinePlus size={18} />
+                    </button>
+                  </DialogTrigger>
+                  <DialogContent className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                    <ProjectModol />
+                  </DialogContent>
+                </Dialog>
               )}
             </div>
-
-            {showInput && state === "expanded" && (
-              <div className="px-3 my-2 space-y-2">
-                <SidebarInput
-                  placeholder="New project..."
-                  value={newProject}
-                  onChange={(e) => setNewProject(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleAddProject()}
-                ></SidebarInput>
-                <div className="flex gap-2 mb-1">
-                  <button
-                    onClick={handleAddProject}
-                    className="px-3 py-1 text-sm rounded bg-primary text-white hover:bg-primary/90 cursor-pointer"
-                    disabled={loading}
-                  >
-                    {loading ? "Adding..." : "Add"}
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setOpen(false);
-                      setShowInput(false);
-                    }}
-                    className="px-3 py-1 text-sm rounded bg-muted hover:bg-destructive hover:text-white cursor-pointer"
-                    disabled={loading}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
 
             {/* Project list */}
             <SidebarMenu>
@@ -205,7 +156,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       className="flex-1"
                       onClick={() => {
                         setOpen(false);
-                        setShowInput(false);
                       }}
                     >
                       {({ isActive }) => (
@@ -238,9 +188,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
                     {state === "expanded" && (
                       <button
-                        onClick={() =>
-                          deleteProject(project.id!, project.title)
-                        }
+                        onClick={() => deleteProject(project.id!)}
                         className="p-1 ml-1 text-muted-foreground hover:bg-red-500 hover:text-white rounded"
                       >
                         <AiOutlineDelete size={16} />

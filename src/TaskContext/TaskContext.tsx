@@ -28,10 +28,12 @@ export interface Task {
 export interface Project {
   id?: string;
   title: string;
+  Category: string;
   discription?: string;
   url?: string;
   userId?: string;
   createdAt?: string;
+  updatedAt?: string;
   attachemnts?: string[];
   dueDate?: string;
 }
@@ -68,11 +70,7 @@ interface TaskContextType {
       dueDate?: string | undefined;
     }
   ) => Promise<void>;
-  deleteTaskFromProject: (
-    projectId: string,
-
-    taskId: string
-  ) => Promise<void>;
+  deleteTaskFromProject: (projectId: string, taskId: string) => Promise<void>;
   setLoading: (l: boolean) => void;
 
   // Projects
@@ -81,12 +79,14 @@ interface TaskContextType {
     title: string,
     userId: string,
     discription: string,
+    Category: string,
     attachments: string[]
   ) => Promise<string>;
   updateProject: (
     projectId: string,
     title: string,
     description?: string,
+    Category?: string,
     attachments?: string[]
   ) => Promise<boolean>;
   deleteProject: (projectId: string) => Promise<void>;
@@ -145,6 +145,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     title: string,
     userId: string,
     description?: string,
+    Category?: string,
     attachments?: string[]
   ) => {
     try {
@@ -155,6 +156,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
       const projectData = {
         title,
         description: description,
+        Category: Category || "",
         attachments,
         userId,
         url: `/projects/${title.toLowerCase().replace(/\s+/g, "-")}`,
@@ -181,6 +183,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     projectId: string,
     title: string,
     description?: string,
+    Category?: string,
     attachments?: string[]
   ) => {
     try {
@@ -192,6 +195,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         title,
         description: description || "",
         attachments: attachments || [],
+        Category: Category || "",
         url: `/projects/${title.toLowerCase().replace(/\s+/g, "-")}`,
         updatedAt: new Date().toISOString(),
       };
@@ -214,11 +218,11 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const deleteProject = async (projectId: string, projectTitle?: string) => {
+  const deleteProject = async (projectId: string) => {
     try {
       setLoading(true);
       const confirmed = window.confirm(
-        `Are you sure you want to delete project "${projectTitle || ""}"?`
+        `Are you sure you want to delete project `
       );
       if (!confirmed) return;
 

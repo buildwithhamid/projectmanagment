@@ -37,11 +37,6 @@ export const StatsCard = ({
         <div className="text-2xl sm:text-4xl font-extrabold text-white mb-1 sm:mb-2">
           {value}
         </div>
-        {description && (
-          <p className="text-xs sm:text-sm text-white/75 leading-relaxed">
-            {description}
-          </p>
-        )}
       </CardContent>
     </Card>
   );

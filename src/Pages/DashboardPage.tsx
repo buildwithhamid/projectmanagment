@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import TodoModel from "@/components/TodoModel";
 import { FaEdit } from "react-icons/fa";
 import { Plus } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 const DashboardPage: React.FC = () => {
   const { taskCache } = useTaskContext();
   const { projectId } = useParams();

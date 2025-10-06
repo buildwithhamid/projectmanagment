@@ -16,6 +16,7 @@ type Project = {
   id?: string;
   title: string;
   description: string;
+  Category: string;
   attachments: string[];
 };
 
@@ -29,6 +30,7 @@ export default function ProjectModol({
   const [formData, setFormData] = useState<Project>({
     title: "",
     description: "",
+    Category: "",
     attachments: [],
   });
 
@@ -41,6 +43,7 @@ export default function ProjectModol({
         title: project.title,
         description: project.description,
         attachments: project.attachments || [],
+        Category: project.Category || "",
         id: project.id,
       });
     }
@@ -54,6 +57,7 @@ export default function ProjectModol({
         project.id || "",
         formData.title,
         formData.description,
+        formData.Category,
         formData.attachments
       );
     } else {
@@ -61,11 +65,12 @@ export default function ProjectModol({
         formData.title,
         userContextId || "",
         formData.description,
+        formData.Category,
         formData.attachments
       );
     }
 
-    setFormData({ title: "", description: "", attachments: [] });
+    setFormData({ title: "", description: "", attachments: [], Category: "" });
     if (onClose) onClose();
   };
 
@@ -89,6 +94,13 @@ export default function ProjectModol({
           value={formData.description}
           onChange={(e) =>
             setFormData({ ...formData, description: e.target.value })
+          }
+        />
+        <Input
+          placeholder="Project Category"
+          value={formData.Category}
+          onChange={(e) =>
+            setFormData({ ...formData, Category: e.target.value })
           }
         />
 
