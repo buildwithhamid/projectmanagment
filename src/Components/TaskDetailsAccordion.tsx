@@ -12,7 +12,8 @@ import { FaEdit } from "react-icons/fa";
 import type { Task } from "@/TaskContext/TaskContext";
 import { useTaskContext } from "@/TaskContext/TaskContext";
 import TodoModel from "./TodoModel";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "./ui/button";
 
 const TaskDetailsAccordion = ({
   task,
@@ -21,7 +22,6 @@ const TaskDetailsAccordion = ({
   task: Task & { dueDate: string };
   projectid: string;
 }) => {
-  const [showDetail, setShowDetail] = useState(false);
   const { deleteTaskFromProject } = useTaskContext();
 
   const handleDelChange = async () => {
@@ -70,12 +70,17 @@ const TaskDetailsAccordion = ({
                   </div>
                 </div>
               </div>
-
-              <Eye
-                size={20}
-                onClick={() => setShowDetail(!showDetail)}
-                className="absolute top-2 right-2 text-muted-foreground hover:text-primary cursor-pointer"
-              />
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Eye
+                    size={20}
+                    className="absolute top-2 right-2 text-muted-foreground hover:text-primary cursor-pointer"
+                  />
+                </DialogTrigger>
+                <DialogContent>
+                  <TaskDetailModal task={task} />
+                </DialogContent>
+              </Dialog>
 
               <Dialog>
                 <DialogTrigger asChild>
@@ -96,10 +101,6 @@ const TaskDetailsAccordion = ({
           </AccordionContent>
         </AccordionItem>
       </Accordion>
-
-      {showDetail && (
-        <TaskDetailModal task={task} onClose={() => setShowDetail(false)} />
-      )}
     </>
   );
 };

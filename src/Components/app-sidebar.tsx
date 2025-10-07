@@ -17,7 +17,8 @@ import {
   useSidebar,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-
+import { Card } from "./ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useTaskContext } from "@/TaskContext/TaskContext";
 import { useUserContextId } from "@/AuthContext/UserContext";
 import SidebarFooter from "./sidebar-footer";
@@ -40,6 +41,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {...props}
       className="flex flex-col h-full bg-sidebar"
     >
+      <Card className="flex items-center justify-center mt-2 ml-2 mr-2 px-1.5 py-1 bg-muted/40 rounded-lg ">
+        <div
+          className={`flex items-center ${
+            state === "expanded" ? "gap-3" : "justify-center"
+          } w-full`}
+        >
+          <Avatar className="h-6 w-6 ">
+            <AvatarImage src="https://github.com/shadcn.png" alt="@hasnain" />
+            <AvatarFallback>H</AvatarFallback>
+          </Avatar>
+
+          {state === "expanded" && (
+            <div className="flex flex-col leading-tight">
+              <span className="text-sm font-medium">Hasnain</span>
+            </div>
+          )}
+        </div>
+      </Card>
       <div className="md:hidden flex items-center justify-between p-2 border-b">
         <span className="font-semibold">Menu</span>
         <SidebarTrigger />
@@ -71,7 +90,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         isActive={isActive}
                         className={`flex items-center gap-3 px-2 py-1 rounded-md transition-colors ${
                           isActive
-                            ? "bg-primary text-white"
+                            ? "bg-accent text-white"
                             : "hover:bg-sidebar-accent hover:text-foreground"
                         } `}
                       >

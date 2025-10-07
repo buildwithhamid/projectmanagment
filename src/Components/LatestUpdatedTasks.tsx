@@ -5,6 +5,8 @@ import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import { FaEdit } from "react-icons/fa";
 import TodoModel from "./TodoModel";
 import { Badge } from "./ui/badge";
+import { Eye } from "lucide-react";
+import TaskDetailModal from "./TrelloDetailPage";
 
 interface LatestTask {
   id?: string;
@@ -27,7 +29,7 @@ const LatestUpdatedTasks: React.FC<LatestUpdatedTasksProps> = ({
   latestTasks,
 }) => {
   return (
-    <Card className="w-full md:w-1/3 h-96 rounded-lg  bg-card">
+    <Card className="w-full md:w-1/3 h-[400px] rounded-lg  bg-card">
       <CardHeader className="flex justify-between -ml-3">
         <CardTitle className="text-md">Recently Updated Tasks</CardTitle>
         <Badge variant="outline" className="text-sm -mr-3">
@@ -36,7 +38,7 @@ const LatestUpdatedTasks: React.FC<LatestUpdatedTasksProps> = ({
       </CardHeader>
 
       <CardContent className="p-0 -mt-1">
-        <ScrollArea className="h-80 w-full">
+        <ScrollArea className="h-88 w-full">
           <div className="flex flex-col gap-2 p-2">
             {latestTasks?.map((task) => (
               <Card
@@ -62,21 +64,34 @@ const LatestUpdatedTasks: React.FC<LatestUpdatedTasksProps> = ({
                           task.status.slice(1)}
                       </p>
                     </div>
+                    <div className="flex gap-2">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Eye
+                            size={20}
+                            className="text-muted-foreground hover:text-primary cursor-pointer"
+                          />
+                        </DialogTrigger>
+                        <DialogContent>
+                          <TaskDetailModal task={task} />
+                        </DialogContent>
+                      </Dialog>
 
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <FaEdit
-                          size={16}
-                          className="text-muted-foreground hover:text-primary cursor-pointer"
-                        />
-                      </DialogTrigger>
-                      <DialogContent>
-                        <TodoModel
-                          projectId={task.projectId}
-                          taskToEdit={task}
-                        />
-                      </DialogContent>
-                    </Dialog>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <FaEdit
+                            size={16}
+                            className="text-muted-foreground hover:text-primary cursor-pointer"
+                          />
+                        </DialogTrigger>
+                        <DialogContent>
+                          <TodoModel
+                            projectId={task.projectId}
+                            taskToEdit={task}
+                          />
+                        </DialogContent>
+                      </Dialog>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

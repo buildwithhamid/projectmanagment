@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import TodoModel from "@/components/TodoModel";
 import { FaEdit } from "react-icons/fa";
 import { Plus } from "lucide-react";
+import TaskDetailModal from "@/components/TrelloDetailPage";
 
 const DashboardPage: React.FC = () => {
   const { taskCache } = useTaskContext();
@@ -133,15 +134,22 @@ const DashboardPage: React.FC = () => {
                                   className="w-full h-28 object-cover rounded-md"
                                 />
                               )}
-                            <span
-                              className={`text-sm ${
-                                todo.status === "completed"
-                                  ? "line-through text-gray-500"
-                                  : "text-foreground"
-                              }`}
-                            >
-                              {todo.title}
-                            </span>
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <span
+                                  className={`text-sm cursor-pointer ${
+                                    todo.status === "completed"
+                                      ? "line-through text-gray-500"
+                                      : "text-foreground"
+                                  }`}
+                                >
+                                  {todo.title}
+                                </span>
+                              </DialogTrigger>
+                              <DialogContent>
+                                <TaskDetailModal task={todo} />
+                              </DialogContent>
+                            </Dialog>
 
                             {todo.todo && (
                               <p className="text-xs text-accent-foreground line-clamp-3">
