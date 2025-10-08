@@ -1,17 +1,41 @@
-import { createContext, useState, useContext } from "react";
+import React, { createContext, useState, useContext, useEffect } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../Config/firbase";
+import Loader from "@/components/Loader";
 
 type UserContextIdType = {
   userContextId: string | null;
-  setUserId: (id: string) => void;
+  setUserId: (id: string | null) => void;
+  loading: boolean;
 };
 
 const UserContextId = createContext<UserContextIdType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [userContextId, setUserId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserId(user.uid);
+      } else {
+        setUserId(null);
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (loading)
+    return (
+      <div className="h-full w-full flex justify-center items-center">
+        <Loader />
+      </div>
+    );
 
   return (
-    <UserContextId.Provider value={{ userContextId, setUserId }}>
+    <UserContextId.Provider value={{ userContextId, setUserId, loading }}>
       {children}
     </UserContextId.Provider>
   );

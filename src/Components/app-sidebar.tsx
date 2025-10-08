@@ -28,7 +28,8 @@ const items = [{ title: "Home", url: "/home", icon: IoHomeOutline }];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { userContextId } = useUserContextId();
-  const { projects, fetchUserProjects, deleteProject } = useTaskContext();
+  const { userData, projects, fetchUserProjects, deleteProject } =
+    useTaskContext();
   const { setOpen, state } = useSidebar();
 
   React.useEffect(() => {
@@ -48,13 +49,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           } w-full`}
         >
           <Avatar className="h-6 w-6 ">
-            <AvatarImage src="https://github.com/shadcn.png" alt="@hasnain" />
+            <AvatarImage src={userData.avatar || ""} alt="profile pic" />
             <AvatarFallback>H</AvatarFallback>
           </Avatar>
 
           {state === "expanded" && (
             <div className="flex flex-col leading-tight">
-              <span className="text-sm font-medium">Hasnain</span>
+              <span className="text-sm font-medium">{userData.name}</span>
             </div>
           )}
         </div>
@@ -217,7 +218,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 ))
               ) : (
                 <div className="px-3 py-2 text-sm text-muted-foreground">
-                  {state === "expanded" ? <Loader /> : null}
+                  {state === "expanded" && projects.length > 0 ? (
+                    <span>No projects found.</span>
+                  ) : projects.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center">
+                      <span>No projects</span>
+                      <span>Add a project</span>
+                    </div>
+                  ) : (
+                    <Loader />
+                  )}
                 </div>
               )}
             </SidebarMenu>

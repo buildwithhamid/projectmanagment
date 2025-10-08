@@ -1,13 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { ProjectCard } from "@/components/ProjectCard";
-import {
-  CheckCircle,
-  Clock,
-  FolderOpen,
-  Plus,
-  Search,
-  Tag,
-} from "lucide-react";
+import { CheckCircle, Clock, FolderOpen, Plus, Search } from "lucide-react";
 import { useTaskContext } from "@/TaskContext/TaskContext";
 import { useNavigate } from "react-router-dom";
 import { StatsCard } from "@/components/HomePageSatasCard";
@@ -24,8 +17,6 @@ import {
 } from "@/components/ui/select";
 import ProjectModol from "@/components/ProjectModol";
 import { Input } from "@/components/ui/input";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { ScrollAreaViewport } from "@radix-ui/react-scroll-area";
 
 const HomePage = () => {
   const { projects, taskCache, loading } = useTaskContext();
@@ -137,6 +128,10 @@ const HomePage = () => {
   };
 
   const handleCategoryProject = (categoryName: string) => {
+    if (categoryName === "all") {
+      setFilteredCategory("");
+      return;
+    }
     setFilteredCategory(categoryName);
   };
 
@@ -180,39 +175,8 @@ const HomePage = () => {
           <section className="flex w-full gap-2">
             <div className="w-3/4">
               <div className="mb-6">
-                <h3 className="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
-                  <Tag size={16} />
-                  Categories
-                </h3>
-
-                <ScrollArea className="w-full" aria-orientation="horizontal">
-                  <ScrollAreaViewport className="w-full pb-1">
-                    <div className="flex gap-2 min-w-max">
-                      {Categories.map((category) => (
-                        <Button
-                          key={category.id}
-                          value={category.Category}
-                          className={`px-4 py-2 rounded-lg text-sm font-medium transition whitespace-nowrap ${
-                            filteredCategory === category.Category
-                              ? "bg-primary text-white"
-                              : ""
-                          }`}
-                          variant={"outline"}
-                          onClick={() =>
-                            handleCategoryProject(category.Category)
-                          }
-                        >
-                          <span className="inline-block w-2 h-2 rounded-full bg-primary mr-2" />
-                          {category.Category}
-                        </Button>
-                      ))}
-                    </div>
-                  </ScrollAreaViewport>
-                  <ScrollBar orientation="horizontal" />
-                </ScrollArea>
-
                 <div className="flex items-center w-full gap-2 py-2 shadow-sm">
-                  <div className="relative flex items-center w-full max-w-md">
+                  <div className="relative  flex items-center w-full max-w-lg">
                     <Search
                       className="absolute left-3 text-muted-foreground"
                       size={18}
@@ -222,7 +186,7 @@ const HomePage = () => {
                       placeholder="Search projects..."
                       value={filteredProject}
                       onChange={(e) => setfilteredProject(e.target.value)}
-                      className="pl-10 pr-4 py-2 text-sm w-full"
+                      className="pl-10 pr-4 py-3 text-sm w-full"
                     />
                   </div>
 
@@ -240,6 +204,22 @@ const HomePage = () => {
                       </SelectContent>
                     </Select>
                   </div>
+                  <Select
+                    defaultValue="all"
+                    onValueChange={(value) => handleCategoryProject(value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Categories</SelectItem>
+                      {Categories.map((category) => (
+                        <SelectItem key={category.id} value={category.Category}>
+                          {category.Category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
 
                   <Dialog>
                     <DialogTrigger asChild>
@@ -271,7 +251,9 @@ const HomePage = () => {
                 </div>
               </div>
             </div>
-            <LatestUpdatedTasks latestTasks={latestTasks} />
+            <div className=" md:w-1/3 ">
+              <LatestUpdatedTasks latestTasks={latestTasks} />
+            </div>
           </section>
         </main>
       </div>

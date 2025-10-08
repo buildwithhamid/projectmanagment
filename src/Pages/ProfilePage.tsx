@@ -17,12 +17,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { useUserContextId } from "@/AuthContext/UserContext";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ThemeToggle } from "@/components/ThemeToggle";
-
+import { useTaskContext } from "@/TaskContext/TaskContext";
 const ProfilePage = () => {
   const { userContextId } = useUserContextId();
-
-  const [name, setName] = useState("Hasnain Ahmad");
-  const [email, setEmail] = useState("hasnain@example.com");
+  const { userData } = useTaskContext();
+  const [name, setName] = useState(userData.name || "");
+  const [email, setEmail] = useState(userData.email || "");
   const [profilePic, setprofilePic] = useState("");
   const [bio, setBio] = useState(
     "Frontend Developer | React & Next.js Enthusiast"

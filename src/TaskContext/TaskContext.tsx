@@ -9,6 +9,7 @@ import {
   deleteDoc,
   updateDoc,
   doc,
+  getDoc,
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -23,6 +24,14 @@ export interface Task {
   dueDate?: string;
   userId?: string | null;
   projectId?: string;
+}
+export interface User {
+  id?: string;
+  email: string | null;
+  name?: string | null;
+  avatar?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Project {
@@ -40,6 +49,7 @@ export interface Project {
 
 interface TaskContextType {
   projects: Project[];
+  userData: User;
   setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
   taskCache: { [key: string]: { title: string; tasks: Task[] } };
   setTaskCache: React.Dispatch<
@@ -75,6 +85,7 @@ interface TaskContextType {
 
   // Projects
   fetchUserProjects: (userId: string) => Promise<void>;
+  fetchUserData: (userId: string) => Promise<User | undefined>;
   addProject: (
     title: string,
     userId: string,
@@ -98,10 +109,28 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [userData, setuserData] = useState<User>({} as User);
   const [taskCache, setTaskCache] = useState<{
     [key: string]: { title: string; tasks: Task[] };
   }>({});
   const [loading, setLoading] = useState(false);
+  const fetchUserData = async (userId: string) => {
+    try {
+      const userRef = doc(db, "users", userId);
+      const userSnap = await getDoc(userRef);
+
+      if (userSnap.exists()) {
+        const userData = userSnap.data() as User;
+        setuserData(userData);
+        console.log("✅ User data fetched:", userData);
+        return userData;
+      } else {
+        console.warn("⚠️ No user data found in Firestore");
+      }
+    } catch (error) {
+      console.error("❌ Error fetching user data:", error);
+    }
+  };
 
   const fetchUserProjects = async (userId: string) => {
     try {
@@ -358,6 +387,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (user) {
         fetchUserProjects(user.uid);
+        fetchUserData(user.uid);
       } else {
         setProjects([]);
         setTaskCache({});
@@ -370,6 +400,8 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
   return (
     <TaskContext.Provider
       value={{
+        userData,
+        fetchUserData,
         projects,
         setProjects,
         taskCache,

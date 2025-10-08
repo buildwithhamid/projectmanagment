@@ -16,12 +16,23 @@ import { TaskProvider } from "./TaskContext/TaskContext";
 import ProjectPage from "./Pages/ProjectPage";
 import { ThemeProvider } from "./ThemeContext/theme-provider";
 import HomePage from "./Pages/HomePage";
+import ProtectedRoute from "./components/ProtectedRoute";
+import SignUpPage from "./Pages/SignUpPage";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/" element={<Layout />}>
+      <Route path="/signup" element={<SignUpPage />} />
+
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }
+      >
         <Route index element={<HomePage />} />
         <Route path="/dashboard/:projectId" element={<DashboarPage />} />
         <Route path="/home" element={<HomePage />} />
