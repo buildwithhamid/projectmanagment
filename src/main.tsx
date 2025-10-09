@@ -22,22 +22,14 @@ import SignUpPage from "./Pages/SignUpPage";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/signup" element={<SignUpPage />} />
-
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <Layout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<HomePage />} />
-        <Route path="/dashboard/:projectId" element={<DashboarPage />} />
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/projects/:projectId" element={<ProjectPage />} />
+      <Route path="/login" element={<LoginPage />} />{" "}
+      <Route path="/signup" element={<SignUpPage />} />{" "}
+      <Route path="/" element={<ProtectedRoute />}>
+        <Route element={<HomePage />} />
+        <Route path="/dashboard/:projectId" element={<DashboarPage />} />{" "}
+        <Route path="/home" element={<HomePage />} />{" "}
+        <Route path="/profile" element={<ProfilePage />} />{" "}
+        <Route path="/projects/:projectId" element={<ProjectPage />} />{" "}
       </Route>
     </>
   )

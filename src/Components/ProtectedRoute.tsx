@@ -1,14 +1,14 @@
 import { Navigate } from "react-router-dom";
 import { useUserContextId } from "../AuthContext/UserContext";
-import Loader from "./Loader";
+import Layout from "../Pages/Layout";
+const ProtectedRoute = () => {
+  const { userContextId } = useUserContextId();
 
-const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-  const { userContextId, loading } = useUserContextId();
+  if (!userContextId) {
+    return <Navigate to="/login" replace />;
+  }
 
-  if (loading) return <Loader />;
-  if (!userContextId) return <Navigate to="/login" replace />;
-
-  return children;
+  return <Layout />;
 };
 
 export default ProtectedRoute;

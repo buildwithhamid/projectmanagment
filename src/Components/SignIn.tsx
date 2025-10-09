@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { auth } from "../Config/firbase";
-import {
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-  type User,
-} from "firebase/auth";
+import { signInWithEmailAndPassword, type User } from "firebase/auth";
 import { useNavigate, Link } from "react-router-dom";
 import { useUserContextId } from "../AuthContext/UserContext";
 
@@ -19,23 +15,20 @@ import {
 import { Input } from "@/components/ui/input";
 
 const SignIn: React.FC = () => {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
-  const [user, setUser] = useState<User | null>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { setUserId } = useUserContextId();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      if (currentUser && currentUser.email) {
+    const unsubscribe = auth.onAuthStateChanged((currentUser: User | null) => {
+      if (currentUser) {
         setUserId(currentUser.uid);
-        navigate("/");
       }
     });
     return () => unsubscribe();
-  }, [navigate]);
+  }, [setUserId]);
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,10 +40,8 @@ const SignIn: React.FC = () => {
         password
       );
       setUserId(userCredential.user.uid);
-      console.log("✅ Logged in:", userCredential.user.uid);
       navigate("/");
     } catch (error: any) {
-      console.error("❌ Login error:", error.message);
       alert("Invalid email or password");
     } finally {
       setLoading(false);

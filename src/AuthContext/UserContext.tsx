@@ -27,13 +27,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
-  if (loading)
-    return (
-      <div className="h-full w-full flex justify-center items-center">
-        <Loader />
-      </div>
-    );
-
   return (
     <UserContextId.Provider value={{ userContextId, setUserId, loading }}>
       {children}
