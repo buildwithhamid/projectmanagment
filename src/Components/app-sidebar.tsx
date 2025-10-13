@@ -3,7 +3,8 @@ import { NavLink } from "react-router-dom";
 import { IoHomeOutline } from "react-icons/io5";
 import { AiOutlinePlus, AiOutlineDelete } from "react-icons/ai";
 import { Separator } from "./ui/separator";
-import { Dialog, DialogTrigger, DialogContent } from "@radix-ui/react-dialog";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { Bot } from "lucide-react";
 import ProjectModol from "./ProjectModol";
 import {
   Sidebar,
@@ -20,21 +21,18 @@ import {
 import { Card } from "./ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useTaskContext } from "@/TaskContext/TaskContext";
-import { useUserContextId } from "@/AuthContext/UserContext";
+
 import SidebarFooter from "./sidebar-footer";
 import Loader from "./Loader";
 
-const items = [{ title: "Home", url: "/home", icon: IoHomeOutline }];
+const items = [
+  { title: "Home", url: "/home", icon: IoHomeOutline },
+  { title: "Ai Talk", url: "/ai-talk", icon: Bot },
+];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { userContextId } = useUserContextId();
-  const { userData, projects, fetchUserProjects, deleteProject } =
-    useTaskContext();
+  const { userData, projects, deleteProject, loading } = useTaskContext();
   const { setOpen, state } = useSidebar();
-
-  React.useEffect(() => {
-    if (userContextId) fetchUserProjects(userContextId);
-  }, [userContextId]);
 
   return (
     <Sidebar
@@ -42,24 +40,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {...props}
       className="flex flex-col h-full bg-sidebar"
     >
-      <Card className="flex items-center justify-center mt-2 ml-2 mr-2 px-1.5 py-1 bg-muted/40 rounded-lg ">
-        <div
-          className={`flex items-center ${
-            state === "expanded" ? "gap-3" : "justify-center"
-          } w-full`}
-        >
-          <Avatar className="h-6 w-6 ">
-            <AvatarImage src={userData.avatar || ""} alt="profile pic" />
-            <AvatarFallback>H</AvatarFallback>
-          </Avatar>
-
-          {state === "expanded" && (
-            <div className="flex flex-col leading-tight">
-              <span className="text-sm font-medium">{userData.name}</span>
-            </div>
-          )}
-        </div>
-      </Card>
       <div className="md:hidden flex items-center justify-between p-2 border-b">
         <span className="font-semibold">Menu</span>
         <SidebarTrigger />
@@ -137,9 +117,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         <AiOutlinePlus size={18} />
                       </button>
                     </DialogTrigger>
-                    <DialogContent className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                      <ProjectModol />
-                    </DialogContent>
+
+                    <ProjectModol />
                   </Dialog>
                 </>
               ) : (
@@ -152,9 +131,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       <AiOutlinePlus size={18} />
                     </button>
                   </DialogTrigger>
-                  <DialogContent className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                    <ProjectModol />
-                  </DialogContent>
+
+                  <ProjectModol />
                 </Dialog>
               )}
             </div>
@@ -217,16 +195,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   </SidebarMenuItem>
                 ))
               ) : (
-                <div className="px-3 py-2 text-sm text-muted-foreground">
-                  {state === "expanded" && projects.length > 0 ? (
-                    <span>No projects found.</span>
-                  ) : projects.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center">
-                      <span>No projects</span>
-                      <span>Add a project</span>
-                    </div>
-                  ) : (
+                <div className="px-3 py-2 text-sm text-muted-foreground flex flex-col items-center justify-center">
+                  {loading ? (
                     <Loader />
+                  ) : (
+                    <>
+                      {state === "expanded" ? (
+                        <>
+                          <span>No projects</span>
+                          <span>Add a project</span>
+                        </>
+                      ) : null}
+                    </>
                   )}
                 </div>
               )}

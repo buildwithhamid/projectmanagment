@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { FaEdit } from "react-icons/fa";
 import TodoModel from "./TodoModel";
 import { Badge } from "./ui/badge";
@@ -30,7 +30,7 @@ const LatestUpdatedTasks: React.FC<LatestUpdatedTasksProps> = ({
 }) => {
   return (
     <Card
-      className={`w-full  pb-1 pt-1 min-h-min -h-[400px] rounded-lg mt-2 bg-card transition-all duration-300 `}
+      className={`w-full  pb-1 pt-1 min-h-min  rounded-lg mt-2 bg-card transition-all duration-300 `}
     >
       <CardHeader className="flex justify-between -ml-3">
         <CardTitle className="text-md">Recently Updated Tasks</CardTitle>
@@ -41,7 +41,7 @@ const LatestUpdatedTasks: React.FC<LatestUpdatedTasksProps> = ({
 
       {latestTasks.length > 0 && (
         <ScrollArea className=" w-full pr-1">
-          <CardContent className="max-h-[300px] p-0 -mt-1">
+          <CardContent className="max-h-[258px] p-0 -mt-1">
             <div className="flex flex-col gap-2 p-1">
               {latestTasks.map((task) => (
                 <Card
@@ -73,9 +73,8 @@ const LatestUpdatedTasks: React.FC<LatestUpdatedTasksProps> = ({
                               className="text-muted-foreground hover:text-primary cursor-pointer"
                             />
                           </DialogTrigger>
-                          <DialogContent>
-                            <TaskDetailModal task={task} />
-                          </DialogContent>
+
+                          <TaskDetailModal task={task} />
                         </Dialog>
 
                         <Dialog>
@@ -85,12 +84,11 @@ const LatestUpdatedTasks: React.FC<LatestUpdatedTasksProps> = ({
                               className="text-muted-foreground hover:text-primary cursor-pointer"
                             />
                           </DialogTrigger>
-                          <DialogContent>
-                            <TodoModel
-                              projectId={task.projectId}
-                              taskToEdit={task}
-                            />
-                          </DialogContent>
+
+                          <TodoModel
+                            projectId={task.projectId}
+                            taskToEdit={task}
+                          />
                         </Dialog>
                       </div>
                     </div>

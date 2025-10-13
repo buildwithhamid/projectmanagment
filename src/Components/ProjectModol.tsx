@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,22 +13,22 @@ import { Button } from "@/components/ui/button";
 import { useTaskContext } from "@/TaskContext/TaskContext";
 import { useUserContextId } from "@/AuthContext/UserContext";
 
-type Project = {
+type ProjectToEdit = {
   id?: string;
   title: string;
   description: string;
-  Category: string;
-  attachments: string[];
+  Category?: string;
+  attachments?: string[];
 };
 
 export default function ProjectModol({
-  project,
+  ProjectToEdit,
   onClose,
 }: {
-  project?: Project;
+  ProjectToEdit?: ProjectToEdit;
   onClose?: () => void;
 }) {
-  const [formData, setFormData] = useState<Project>({
+  const [formData, setFormData] = useState<ProjectToEdit>({
     title: "",
     description: "",
     Category: "",
@@ -38,25 +39,25 @@ export default function ProjectModol({
   const { loading, addProject, updateProject } = useTaskContext();
 
   useEffect(() => {
-    if (project) {
+    if (ProjectToEdit) {
       setFormData({
-        title: project.title,
-        description: project.description,
-        attachments: project.attachments || [],
-        Category: project.Category || "",
-        id: project.id,
+        title: ProjectToEdit.title,
+        description: ProjectToEdit.description || "",
+        attachments: ProjectToEdit.attachments || [],
+        Category: ProjectToEdit.Category || "",
+        id: ProjectToEdit.id,
       });
     }
-  }, [project]);
+  }, [ProjectToEdit]);
 
   const handleSubmit = async () => {
     if (!formData.title.trim()) return;
 
-    if (project) {
+    if (ProjectToEdit) {
       await updateProject(
-        project.id || "",
+        ProjectToEdit.id || "",
         formData.title,
-        formData.description,
+        formData.description || "",
         formData.Category,
         formData.attachments
       );
@@ -65,8 +66,8 @@ export default function ProjectModol({
         formData.title,
         userContextId || "",
         formData.description,
-        formData.Category,
-        formData.attachments
+        formData.Category || "",
+        formData.attachments || []
       );
     }
 
@@ -77,7 +78,12 @@ export default function ProjectModol({
   return (
     <DialogContent className="sm:max-w-md">
       <DialogHeader>
-        <DialogTitle>{project ? "Edit Project" : "Add Project"}</DialogTitle>
+        <DialogTitle>
+          {ProjectToEdit ? "Edit Project" : "Add Project"}
+        </DialogTitle>
+        <DialogDescription>
+          {ProjectToEdit ? "You can edit your project" : "You can add project"}
+        </DialogDescription>
       </DialogHeader>
 
       <div className="space-y-4">
@@ -120,10 +126,10 @@ export default function ProjectModol({
       <DialogFooter className="flex justify-center gap-2">
         <Button onClick={handleSubmit} disabled={loading}>
           {loading
-            ? project
+            ? ProjectToEdit
               ? "Updating..."
               : "Adding..."
-            : project
+            : ProjectToEdit
             ? "Update"
             : "Add"}
         </Button>

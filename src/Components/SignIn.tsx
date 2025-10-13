@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { auth } from "../Config/firbase";
-import { signInWithEmailAndPassword, type User } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate, Link } from "react-router-dom";
 import { useUserContextId } from "../AuthContext/UserContext";
 
@@ -20,15 +20,6 @@ const SignIn: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { setUserId } = useUserContextId();
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((currentUser: User | null) => {
-      if (currentUser) {
-        setUserId(currentUser.uid);
-      }
-    });
-    return () => unsubscribe();
-  }, [setUserId]);
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,7 +42,7 @@ const SignIn: React.FC = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-2xl text-center">Login here</CardTitle>
+        <CardTitle className="text-2xl text-center">Sign In</CardTitle>
         <CardDescription className="text-center mb-2">
           Welcome back! Please enter your details.
         </CardDescription>
@@ -75,12 +66,12 @@ const SignIn: React.FC = () => {
             disabled={loading}
           />
           <Button type="submit" disabled={loading}>
-            {loading ? "Signing in..." : "Login"}
+            {loading ? "Signing in..." : "Sign In"}
           </Button>
         </form>
 
         <p className="text-sm text-center mt-2">
-          Don’t have an account?{" "}
+          Don’t have an account?
           <Link to="/signup" className="text-primary">
             Sign up
           </Link>

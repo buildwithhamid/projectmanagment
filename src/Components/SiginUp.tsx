@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { auth, db } from "../Config/firbase";
+import { auth } from "../Config/firbase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { useUserContextId } from "../AuthContext/UserContext";
 
@@ -19,7 +18,6 @@ const SignUp: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [fullname, setFullname] = useState<string>("");
-  const [photoURL, setPhotoURL] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
   const { setUserId } = useUserContextId();
@@ -37,13 +35,7 @@ const SignUp: React.FC = () => {
       const user = userCredential.user;
       console.log("✅ User signed up:", user.uid);
       setUserId(user.uid);
-      await setDoc(doc(db, "users", user.uid), {
-        email,
-        name: fullname,
-        avatar:
-          photoURL || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-        createdAt: serverTimestamp(),
-      });
+
       navigate("/");
     } catch (error: any) {
       console.error("❌ Signup error:", error.message);
@@ -87,13 +79,7 @@ const SignUp: React.FC = () => {
             required
             disabled={loading}
           />
-          <Input
-            type="file"
-            placeholder="Profile Picture URL (optional)"
-            value={photoURL}
-            onChange={(e) => setPhotoURL(e.target.value)}
-            disabled={loading}
-          />
+
           <Button
             type="submit"
             disabled={loading || !email.trim() || !password.trim()}

@@ -38,12 +38,12 @@ export interface Project {
   id?: string;
   title: string;
   Category: string;
-  discription?: string;
+  description: string;
   url?: string;
   userId?: string;
-  createdAt?: string;
+  createdAt: string;
   updatedAt?: string;
-  attachemnts?: string[];
+  attachments?: string[];
   dueDate?: string;
 }
 
@@ -184,7 +184,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
 
       const projectData = {
         title,
-        description: description,
+        description: description || "",
         Category: Category || "",
         attachments,
         userId,
@@ -196,8 +196,6 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
 
       console.log("✅ Project created:", projectData);
       setProjects((prev) => [...prev, { id: docRef.id, ...projectData }]);
-
-      await fetchUserProjects(userId);
 
       return docRef.id;
     } catch (err) {
@@ -387,8 +385,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (user) {
         fetchUserProjects(user.uid);
-        fetchUserData(user.uid);
-      } else {
+      } else if (!user) {
         setProjects([]);
         setTaskCache({});
       }

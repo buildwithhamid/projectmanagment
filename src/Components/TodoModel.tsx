@@ -30,7 +30,7 @@ export interface TaskFormData {
 }
 
 interface TodoModelProps {
-  projectId: string;
+  projectId: string | undefined;
   taskToEdit?: Task;
 }
 

@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Card,
   CardHeader,
@@ -10,22 +9,23 @@ import {
 import { Progress } from "./ui/progress";
 import { Calendar, Paperclip, MessagesSquare } from "lucide-react";
 import { FaEdit } from "react-icons/fa";
-import { Dialog, DialogTrigger, DialogContent } from "@radix-ui/react-dialog";
+import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 
 import ProjectModol from "./ProjectModol";
 
 interface Task {
-  id: string;
+  id?: string;
   title: string;
-  status: "completed" | "in-progress" | "pending";
+  status: string;
 }
 
 interface Project {
-  id: string;
+  id?: string;
   title: string;
-  description?: string;
+  description: string;
   url?: string;
-  createdAt?: string;
+  createdAt: string;
+  Category: string;
   dueDate?: string;
   label?: string;
   priority?: string;
@@ -35,17 +35,17 @@ interface Project {
 }
 
 interface ProjectCardProps {
-  project: Project;
+  projectToShow: Project;
   tasks: Task[];
   onClick?: (projectId: string) => void;
 }
 
 const getTaskStats = (tasks: Task[]) => {
-  const completed = tasks.filter((task) => task.status === "completed").length;
-  const inProgress = tasks.filter(
+  const completed = tasks?.filter((task) => task.status === "completed").length;
+  const inProgress = tasks?.filter(
     (task) => task.status === "in-progress"
   ).length;
-  const pending = tasks.filter((task) => task.status === "pending").length;
+  const pending = tasks?.filter((task) => task.status === "pending").length;
   const total = tasks.length;
 
   return { completed, inProgress, pending, total };
@@ -56,23 +56,28 @@ const calculateProgress = (completed: number, total: number): number => {
   return Math.round((completed / total) * 100);
 };
 
-export const ProjectCard = ({ project, tasks, onClick }: ProjectCardProps) => {
+export const ProjectCard = ({
+  projectToShow,
+  tasks,
+  onClick,
+}: ProjectCardProps) => {
   const { completed, total } = getTaskStats(tasks);
   const percentage = calculateProgress(completed, total);
 
   const handleCardClick = () => {
-    if (project.id) {
-      onClick?.(project.id);
+    if (projectToShow.id) {
+      onClick?.(projectToShow.id);
     }
   };
+  console.log("Render ProjectCard", projectToShow.id);
 
   return (
     <Card className="w-full relative border border-border/50 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer overflow-hidden pb-1">
-      {project?.attachments?.length > 0 && (
+      {projectToShow?.attachments && projectToShow.attachments.length > 0 && (
         <div className="w-full h-12 -mt-3">
           <img
-            src={project.attachments[0]}
-            alt={project.title}
+            src={projectToShow.attachments[0]}
+            alt={projectToShow.title}
             className="w-full h-full object-cover "
           />
         </div>
@@ -88,7 +93,7 @@ export const ProjectCard = ({ project, tasks, onClick }: ProjectCardProps) => {
               />
             </DialogTrigger>
             <DialogContent>
-              <ProjectModol project={project} />
+              <ProjectModol ProjectToEdit={projectToShow} />
             </DialogContent>
           </Dialog>
         </div>
@@ -99,19 +104,20 @@ export const ProjectCard = ({ project, tasks, onClick }: ProjectCardProps) => {
         onClick={handleCardClick}
       >
         <CardTitle className="text-base font-semibold line-clamp-2">
-          {project?.title.charAt(0).toUpperCase() + project?.title.slice(1)}
+          {projectToShow?.title.charAt(0).toUpperCase() +
+            projectToShow?.title.slice(1)}
         </CardTitle>
 
         <p className="text-sm text-muted-foreground line-clamp-2 ">
-          {project.description}
+          {projectToShow.description}
         </p>
 
         <div className="flex items-center flex-wrap gap-2 text-xs">
           <span className="text-xs text-gray-500 flex gap-0.5">
             <Calendar size={14} />
             <p className="text-xs text-gray-500">
-              {project?.createdAt
-                ? new Date(project.createdAt).toLocaleDateString()
+              {projectToShow?.createdAt
+                ? new Date(projectToShow.createdAt).toLocaleDateString()
                 : "No date"}
             </p>
           </span>
@@ -119,10 +125,11 @@ export const ProjectCard = ({ project, tasks, onClick }: ProjectCardProps) => {
           <div className="flex gap-2">
             <span className="flex items-center gap-1 text-muted-foreground">
               <Paperclip className="w-3 h-3" />{" "}
-              {project?.attachments?.length || 0}
+              {projectToShow?.attachments?.length || 0}
             </span>
             <span className="flex items-center gap-1 text-muted-foreground">
-              <MessagesSquare className="w-3 h-3" /> {project?.comments || 0}
+              <MessagesSquare className="w-3 h-3" />{" "}
+              {projectToShow?.comments || 0}
             </span>
           </div>
         </div>
@@ -136,9 +143,9 @@ export const ProjectCard = ({ project, tasks, onClick }: ProjectCardProps) => {
           </span>
         </div>
 
-        {project?.members && project.members.length > 0 && (
+        {projectToShow?.members && projectToShow.members.length > 0 && (
           <div className="flex -space-x-2 ml-2">
-            {project.members.slice(0, 3).map((m, i) => (
+            {projectToShow.members.slice(0, 3).map((m, i) => (
               <img
                 key={i}
                 src={m.avatar}
@@ -146,9 +153,9 @@ export const ProjectCard = ({ project, tasks, onClick }: ProjectCardProps) => {
                 className="w-6 h-6 rounded-full border-2 border-background object-cover"
               />
             ))}
-            {project.members.length > 3 && (
+            {projectToShow.members.length > 3 && (
               <span className="w-6 h-6 flex items-center justify-center rounded-full bg-muted text-[10px] font-medium border border-background">
-                +{project.members.length - 3}
+                +{projectToShow.members.length - 3}
               </span>
             )}
           </div>

@@ -1,13 +1,10 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { ProjectCard } from "@/components/ProjectCard";
-import { CheckCircle, Clock, FolderOpen, Plus, Search } from "lucide-react";
+import { CheckCircle, Clock, FolderOpen, Search } from "lucide-react";
 import { useTaskContext } from "@/TaskContext/TaskContext";
 import { useNavigate } from "react-router-dom";
 import { StatsCard } from "@/components/HomePageSatasCard";
-import Loader from "@/components/Loader";
 import LatestUpdatedTasks from "@/components/LatestUpdatedTasks";
-import { Dialog, DialogContent, DialogTrigger } from "@radix-ui/react-dialog";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectTrigger,
@@ -15,168 +12,163 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
-import ProjectModol from "@/components/ProjectModol";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import ProjectModol from "@/components/ProjectModol";
+import { Plus } from "lucide-react";
+import Loader from "@/components/Loader";
+import DailyCalendar from "@/components/TodayDate";
 
 const HomePage = () => {
   const { projects, taskCache, loading } = useTaskContext();
+  const navigate = useNavigate();
+
   const [filteredProject, setfilteredProject] = useState("");
   const [filter, setFilter] = useState("all");
   const [filteredCategory, setFilteredCategory] = useState("");
 
-  const navigate = useNavigate();
+  const LatestProject = useMemo(() => {
+    if (!projects?.length) return null;
+    return [...projects]
+      .filter((p) => p.createdAt)
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )[0];
+  }, [projects]);
 
-  const LatestProject = useMemo(
-    () =>
-      [...projects]
-        .filter((project) => project.createdAt)
-        .sort(
-          (a, b) =>
-            new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
-        )[0],
-    [projects]
-  );
-
-  const LastUpdatedProject = useMemo(
-    () =>
-      [...projects]
-        .filter((project) => project.updatedAt)
-        .sort(
-          (a, b) =>
-            new Date(b.updatedAt!).getTime() - new Date(a.updatedAt!).getTime()
-        )[0],
-    [projects]
-  );
+  const LastUpdatedProject = useMemo(() => {
+    if (!projects?.length) return null;
+    return [...projects]
+      .filter((p) => p.updatedAt)
+      .sort(
+        (a, b) =>
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      )[0];
+  }, [projects]);
 
   const filteredProjects = useMemo(() => {
     return projects.filter((project) => {
-      const matchSearch = filteredProject
-        ? project.title.toLowerCase().includes(filteredProject.toLowerCase())
-        : true;
-
-      const matchCategory = filteredCategory
+      const titleMatch = project.title
+        .toLowerCase()
+        .includes(filteredProject.toLowerCase());
+      const categoryMatch = filteredCategory
         ? project.Category?.toLowerCase() === filteredCategory.toLowerCase()
         : true;
 
-      const matchDropdown =
+      const dropdownMatch =
         filter === "recent"
           ? project.id === LatestProject?.id
           : filter === "lastupdated"
           ? project.id === LastUpdatedProject?.id
-          : filter === "all"
-          ? projects
           : true;
 
-      return matchSearch && matchCategory && matchDropdown;
+      return titleMatch && categoryMatch && dropdownMatch;
     });
   }, [
     projects,
     filteredProject,
-    filter,
     filteredCategory,
+    filter,
     LatestProject,
     LastUpdatedProject,
   ]);
+  console.log("Render ProjectCard", filteredProjects.length);
 
-  const Categories = useMemo(
-    () => projects.filter((project) => project.Category !== undefined),
-    [projects]
-  );
+  const Categories = useMemo(() => {
+    const unique = new Set();
+    return projects.filter((p) => {
+      if (p.Category && !unique.has(p.Category)) {
+        unique.add(p.Category);
+        return true;
+      }
+      return false;
+    });
+  }, [projects]);
 
-  const totalTasks = useMemo(() => {
-    return Object.values(taskCache).reduce(
-      (acc, project) => acc + project.tasks.length,
-      0
-    );
-  }, [taskCache]);
+  const { totalTasks, totalActive, totalCompleted, latestTasks } =
+    useMemo(() => {
+      let total = 0,
+        active = 0,
+        completed = 0;
+      const allTasks = [];
 
-  const totalActiveTasks = useMemo(() => {
-    return Object.values(taskCache).reduce(
-      (acc, project) =>
-        acc + project.tasks.filter((task) => task.status === "active").length,
-      0
-    );
-  }, [taskCache]);
+      for (const [projectId, project] of Object.entries(taskCache)) {
+        const tasks = project.tasks || [];
+        total += tasks.length;
+        active += tasks.filter((t) => t.status === "active").length;
+        completed += tasks.filter((t) => t.status === "completed").length;
 
-  const totalCompletedTasks = useMemo(() => {
-    return Object.values(taskCache).reduce(
-      (acc, project) =>
-        acc +
-        project.tasks.filter((task) => task.status === "completed").length,
-      0
-    );
-  }, [taskCache]);
+        for (const task of tasks) {
+          if (task.updatedAt) {
+            allTasks.push({
+              ...task,
+              projectId,
+              projectTitle: project.title,
+            });
+          }
+        }
+      }
 
-  const latestTasks = useMemo(() => {
-    return Object.entries(taskCache)
-      .flatMap(([projectId, project]) =>
-        project.tasks.map((task) => ({
-          ...task,
-          projectId,
-          projectTitle: project.title,
-        }))
-      )
-      .filter((task) => task.updatedAt)
-      .sort(
+      allTasks.sort(
         (a, b) =>
-          new Date(b.updatedAt!).getTime() - new Date(a.updatedAt!).getTime()
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
       );
-  }, [taskCache]);
 
-  const handleProjectClick = (projectId: string) => {
-    navigate(`/projects/${projectId}`);
-  };
+      return {
+        totalTasks: total,
+        totalActive: active,
+        totalCompleted: completed,
+        latestTasks: allTasks,
+      };
+    }, [taskCache]);
 
-  const handleCategoryProject = (categoryName: string) => {
-    if (categoryName === "all") {
-      setFilteredCategory("");
-      return;
-    }
-    setFilteredCategory(categoryName);
-  };
+  const handleProjectClick = (id: string) => navigate(`/projects/${id}`);
 
-  if (loading) {
-    return <Loader />;
-  }
+  const handleCategoryProject = (value: string) =>
+    setFilteredCategory(value === "all" ? "" : value);
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="flex flex-1">
-        <main className="max-w-7xl mx-auto p-3 flex-1">
-          <section className="mb-2">
-            <div className="grid auto-rows-min gap-2 md:grid-cols-4">
-              <StatsCard
-                title="Projects"
-                value={projects.length}
-                icon={FolderOpen}
-                color="bg-gradient-to-br from-sky-500 to-sky-600"
-              />
-              <StatsCard
-                title="Total Tasks"
-                value={totalTasks}
-                icon={CheckCircle}
-                color="bg-gradient-to-br from-teal-500 to-teal-600"
-              />
-              <StatsCard
-                title="Active"
-                value={totalActiveTasks}
-                icon={Clock}
-                color="bg-gradient-to-br from-amber-500 to-amber-600"
-              />
-              <StatsCard
-                title="Completed"
-                value={totalCompletedTasks}
-                icon={CheckCircle}
-                color="bg-gradient-to-br from-violet-500 to-violet-600"
-              />
-            </div>
-          </section>
+    <>
+      {loading ? (
+        <Loader />
+      ) : (
+        <div className="min-h-screen bg-background">
+          <main className="max-w-7xl mx-auto p-3 flex-1">
+            <section className="mb-2">
+              <div className="grid auto-rows-min gap-2 md:grid-cols-4">
+                <StatsCard
+                  title="Projects"
+                  value={projects.length}
+                  icon={FolderOpen}
+                  color="bg-gradient-to-br from-sky-500 to-sky-600"
+                />
+                <StatsCard
+                  title="Total Tasks"
+                  value={totalTasks}
+                  icon={CheckCircle}
+                  color="bg-gradient-to-br from-teal-500 to-teal-600"
+                />
+                <StatsCard
+                  title="Active"
+                  value={totalActive}
+                  icon={Clock}
+                  color="bg-gradient-to-br from-amber-500 to-amber-600"
+                />
+                <StatsCard
+                  title="Completed"
+                  value={totalCompleted}
+                  icon={CheckCircle}
+                  color="bg-gradient-to-br from-violet-500 to-violet-600"
+                />
+              </div>
+            </section>
 
-          <section className="flex w-full gap-2">
-            <div className="w-3/4">
-              <div className="mb-6">
+            <section className="flex w-full gap-2">
+              <div className="w-3/4">
                 <div className="flex items-center w-full gap-2 py-2 shadow-sm">
-                  <div className="relative  flex items-center w-full max-w-lg">
+                  <div className="relative flex items-center w-full max-w-lg">
                     <Search
                       className="absolute left-3 text-muted-foreground"
                       size={18}
@@ -190,37 +182,33 @@ const HomePage = () => {
                     />
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    <Select defaultValue="all" onValueChange={setFilter}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="All Projects" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Projects</SelectItem>
-                        <SelectItem value="recent">Recent</SelectItem>
-                        <SelectItem value="lastupdated">
-                          Last Updated
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <Select defaultValue="all" onValueChange={setFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Projects" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Projects</SelectItem>
+                      <SelectItem value="recent">Recent</SelectItem>
+                      <SelectItem value="lastupdated">Last Updated</SelectItem>
+                    </SelectContent>
+                  </Select>
+
                   <Select
                     defaultValue="all"
-                    onValueChange={(value) => handleCategoryProject(value)}
+                    onValueChange={handleCategoryProject}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select Category" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Categories</SelectItem>
-                      {Categories.map((category) => (
-                        <SelectItem key={category.id} value={category.Category}>
-                          {category.Category}
+                      {Categories.map((c) => (
+                        <SelectItem key={c.id} value={c.Category}>
+                          {c.Category}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button
@@ -238,26 +226,33 @@ const HomePage = () => {
                   </Dialog>
                 </div>
 
-                <div className="mt-1 grid gap-2 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
-                  {filteredProjects.length > 0 &&
+                <div className="mt-2 grid gap-2 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                  {filteredProjects.length > 0 ? (
                     filteredProjects.map((project) => (
                       <ProjectCard
                         key={project.id}
-                        project={project}
-                        tasks={taskCache[project?.id]?.tasks || []}
+                        projectToShow={project}
+                        tasks={project.id ? taskCache[project.id]?.tasks : []}
                         onClick={handleProjectClick}
                       />
-                    ))}
+                    ))
+                  ) : (
+                    <p className="text-muted-foreground text-center ml-30">
+                      No projects found Add new projects to get started.
+                    </p>
+                  )}
                 </div>
               </div>
-            </div>
-            <div className=" md:w-1/3 ">
-              <LatestUpdatedTasks latestTasks={latestTasks} />
-            </div>
-          </section>
-        </main>
-      </div>
-    </div>
+
+              <div className="md:w-1/3 flex flex-col gap-2 ">
+                <LatestUpdatedTasks latestTasks={latestTasks} />
+                <DailyCalendar />
+              </div>
+            </section>
+          </main>
+        </div>
+      )}
+    </>
   );
 };
 

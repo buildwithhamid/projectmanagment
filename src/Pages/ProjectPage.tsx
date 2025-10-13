@@ -1,7 +1,4 @@
-"use client";
-import React, { useState } from "react";
 import { useParams } from "react-router-dom";
-import TodoModel from "@/components/TodoModel";
 import TaskAccordionTable from "@/components/TaskAccordionTable ";
 import { useTaskContext } from "../TaskContext/TaskContext";
 import Loader from "@/components/Loader";
@@ -9,7 +6,6 @@ import Loader from "@/components/Loader";
 const ProjectPage: React.FC = () => {
   const { projectId } = useParams();
   const { taskCache, loading } = useTaskContext();
-  const [showPopup, setShowPopup] = useState(false);
 
   const projectDocId = Object.keys(taskCache).find((id) => id === projectId);
   const specificTasks = projectDocId ? taskCache[projectDocId].tasks : [];
@@ -25,13 +21,10 @@ const ProjectPage: React.FC = () => {
           <TaskAccordionTable
             tasks={specificTasks}
             loading={loading}
-            handleshowpop={() => setShowPopup(true)}
             projectId={projectId}
           />
         )}
       </div>
-
-      {showPopup && <TodoModel projectId={projectId!} />}
     </div>
   );
 };

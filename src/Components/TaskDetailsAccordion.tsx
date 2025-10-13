@@ -5,7 +5,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Eye, FileText } from "lucide-react";
-import { useState } from "react";
 import TaskDetailModal from "./TrelloDetailPage";
 import { MdDeleteOutline } from "react-icons/md";
 import { FaEdit } from "react-icons/fa";
@@ -13,7 +12,6 @@ import type { Task } from "@/TaskContext/TaskContext";
 import { useTaskContext } from "@/TaskContext/TaskContext";
 import TodoModel from "./TodoModel";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Button } from "./ui/button";
 
 const TaskDetailsAccordion = ({
   task,
@@ -24,10 +22,10 @@ const TaskDetailsAccordion = ({
 }) => {
   const { deleteTaskFromProject } = useTaskContext();
 
-  const handleDelChange = async () => {
+  const handleDelChange = async (taskId: string) => {
     try {
       if (window.confirm("Are you sure you want to delete this task?")) {
-        await deleteTaskFromProject(projectid ?? null, task.id ?? "");
+        await deleteTaskFromProject(projectid, taskId || "");
       }
     } catch (error) {
       console.log("err: ", error);
@@ -95,7 +93,7 @@ const TaskDetailsAccordion = ({
               <MdDeleteOutline
                 size={18}
                 className="absolute top-2 right-8 text-muted-foreground hover:text-primary cursor-pointer"
-                onClick={handleDelChange}
+                onClick={() => handleDelChange(task.id || "")}
               />
             </div>
           </AccordionContent>

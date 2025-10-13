@@ -14,14 +14,13 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import TaskDetailsAccordion from "./TaskDetailsAccordion";
-import { Dialog, DialogTrigger, DialogContent } from "@radix-ui/react-dialog";
-import { useUserContextId } from "@/AuthContext/UserContext";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import TodoModel from "./TodoModel";
+import ProjectDetails from "./ProjectDetails";
 interface TaskAccordionTableProps {
   tasks: Task[];
   loading: boolean;
-  handleshowpop: () => void;
-  projectId: string;
+  projectId: string | undefined;
 }
 
 const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
@@ -30,7 +29,7 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
   projectId,
 }) => {
   const navigate = useNavigate();
-  const userContextId = useUserContextId();
+
   const { projects } = useTaskContext();
   const specifictaskdata = projects.find((project) => project.id === projectId);
 
@@ -116,9 +115,7 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
                   </Button>
                 </DialogTrigger>
 
-                <DialogContent>
-                  <TodoModel projectId={projectId} />
-                </DialogContent>
+                <TodoModel projectId={projectId} />
               </Dialog>
 
               <Button
@@ -132,16 +129,16 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
           )}
         </CardTitle>
       </CardHeader>
-
       <CardContent>
         <div className="relative">
-          {specifictaskdata?.attachments?.length > 0 && (
-            <img
-              src={specifictaskdata?.attachments[0]}
-              alt={specifictaskdata?.title ?? "Project image"}
-              className="w-full h-36 object-cover rounded-lg mb-2"
-            />
-          )}
+          {specifictaskdata?.attachments &&
+            specifictaskdata?.attachments.length > 0 && (
+              <img
+                src={specifictaskdata?.attachments[0]}
+                alt={specifictaskdata?.title ?? "Project image"}
+                className="w-full h-36 object-cover rounded-lg mb-2"
+              />
+            )}
 
           <p className="line-clamp-4 text-gray-300">
             {specifictaskdata?.description ?? "No description available"}
@@ -194,7 +191,7 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
                         <div className="col-span-5 ">
                           <TaskDetailsAccordion
                             task={task}
-                            projectid={projectId}
+                            projectid={projectId ?? ""}
                           />
                         </div>
                         <div className="col-span-2 flex items-center">
@@ -223,7 +220,7 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
                       <div className="sm:hidden flex flex-col gap-1 px-3 py-2">
                         <TaskDetailsAccordion
                           task={task}
-                          projectid={projectId}
+                          projectid={projectId ?? ""}
                         />
                         <div className="flex justify-between text-sm">
                           <span className="font-medium">Priority:</span>

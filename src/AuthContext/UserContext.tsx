@@ -1,7 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../Config/firbase";
-import Loader from "@/components/Loader";
 
 type UserContextIdType = {
   userContextId: string | null;
