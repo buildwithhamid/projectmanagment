@@ -12,7 +12,8 @@ type Message = {
   content: string;
 };
 const openai = new OpenAI({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+  apiKey:
+    "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",
   dangerouslyAllowBrowser: true,
 });
 
