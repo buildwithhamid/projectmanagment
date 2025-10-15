@@ -1,5 +1,6 @@
 "use client";
-import React, { useState, useEffect } from "react";
+
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useTaskContext, type Task } from "../TaskContext/TaskContext";
 import {
   DialogContent,
@@ -30,13 +31,15 @@ export interface TaskFormData {
 }
 
 interface TodoModelProps {
-  projectId: string | undefined;
+  projectId?: string;
   taskToEdit?: Task;
 }
 
 const TodoModel: React.FC<TodoModelProps> = ({ projectId, taskToEdit }) => {
   const { addTaskToProject, updateTaskInProject } = useTaskContext();
   const { projectid } = useParams();
+
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<TaskFormData>({
     title: "",
     todo: "",
@@ -46,8 +49,7 @@ const TodoModel: React.FC<TodoModelProps> = ({ projectId, taskToEdit }) => {
     createdAt: "",
   });
 
-  const [loading, setLoading] = useState(false);
-
+  // ✅ Set task data only when editing
   useEffect(() => {
     if (taskToEdit) {
       setFormData({
@@ -58,10 +60,41 @@ const TodoModel: React.FC<TodoModelProps> = ({ projectId, taskToEdit }) => {
         dueDate: taskToEdit.dueDate || "",
         createdAt: taskToEdit.createdAt || "",
       });
+    } else {
+      setFormData({
+        title: "",
+        todo: "",
+        status: "backlog",
+        attachments: [],
+        dueDate: "",
+        createdAt: "",
+      });
     }
   }, [taskToEdit]);
 
-  const handleSubmit = async () => {
+  // ✅ Efficient handlers
+  const handleInputChange = useCallback(
+    (field: keyof TaskFormData, value: string) => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+    },
+    []
+  );
+
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        const fileUrl = URL.createObjectURL(file);
+        setFormData((prev) => ({ ...prev, attachments: [fileUrl] }));
+
+        // Clean up to prevent memory leak
+        return () => URL.revokeObjectURL(fileUrl);
+      }
+    },
+    []
+  );
+
+  const handleSubmit = useCallback(async () => {
     if (!formData.title.trim()) return;
     setLoading(true);
 
@@ -75,79 +108,91 @@ const TodoModel: React.FC<TodoModelProps> = ({ projectId, taskToEdit }) => {
         await addTaskToProject(activeProjectId, formData);
       }
 
+      // Reset form after success
       setFormData({
         title: "",
         todo: "",
         status: "backlog",
         attachments: [],
         dueDate: "",
+        createdAt: "",
       });
     } catch (err) {
       console.error("❌ Error saving task:", err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [
+    addTaskToProject,
+    updateTaskInProject,
+    projectId,
+    projectid,
+    formData,
+    taskToEdit,
+  ]);
+
+  const statusOptions = useMemo(
+    () => [
+      "pending",
+      "active",
+      "inactive",
+      "cancelled",
+      "completed",
+      "backlog",
+    ],
+    []
+  );
 
   return (
-    <DialogContent className="sm:max-w-md rounded-xl shadow-2xl">
+    <DialogContent className="sm:max-w-md rounded-xl  border border-border">
       <DialogHeader>
-        <DialogTitle>{taskToEdit ? "Edit Task" : "Add Task"}</DialogTitle>
+        <DialogTitle className="text-lg font-semibold">
+          {taskToEdit ? "Edit Task" : "Add Task"}
+        </DialogTitle>
       </DialogHeader>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         <Input
           placeholder="Enter title"
           value={formData.title}
-          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+          onChange={(e) => handleInputChange("title", e.target.value)}
         />
+
         <Textarea
           placeholder="Enter description"
           rows={6}
           value={formData.todo}
-          onChange={(e) => setFormData({ ...formData, todo: e.target.value })}
-          className=" h-32  overflow custom-scroll "
+          onChange={(e) => handleInputChange("todo", e.target.value)}
+          className="h-32 overflow-auto custom-scroll"
         />
-        <div className="grid grid-cols-2 gap-2">
+
+        <div className="flex flex-row gap-2 w-full">
           <Select
             value={formData.status}
-            onValueChange={(v) => setFormData({ ...formData, status: v })}
+            onValueChange={(v) => handleInputChange("status", v)}
           >
-            <SelectTrigger className="w-48">
+            <SelectTrigger>
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="inactive">Inactive</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
-              <SelectItem value="backlog">Backlog</SelectItem>
+              {statusOptions.map((status) => (
+                <SelectItem key={status} value={status}>
+                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
 
           <DatePicker
             value={formData.dueDate || null}
-            onChange={(date) =>
-              setFormData({ ...formData, dueDate: date || "" })
-            }
+            onChange={(date) => handleInputChange("dueDate", date || "")}
           />
         </div>
 
-        <Input
-          type="file"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file)
-              setFormData({
-                ...formData,
-                attachments: [URL.createObjectURL(file)],
-              });
-          }}
-        />
+        <Input type="file" onChange={handleFileChange} />
       </div>
 
-      <DialogFooter className="flex justify-center gap-2">
+      <DialogFooter className="flex justify-center gap-2 mt-4">
         <Button onClick={handleSubmit} disabled={loading}>
           {loading
             ? taskToEdit
@@ -162,4 +207,4 @@ const TodoModel: React.FC<TodoModelProps> = ({ projectId, taskToEdit }) => {
   );
 };
 
-export default TodoModel;
+export default React.memo(TodoModel);

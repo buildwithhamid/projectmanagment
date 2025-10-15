@@ -14,11 +14,14 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import ProjectModol from "@/components/ProjectModol";
 import { Plus } from "lucide-react";
 import Loader from "@/components/Loader";
 import DailyCalendar from "@/components/TodayDate";
+import { ProductivityInsights } from "@/components/ProductivityTaks";
+import { UpcomingDeadlines } from "@/components/UpCommingDeadline";
+import { AITipCard } from "@/components/AiTipsCard.";
 
 const HomePage = () => {
   const { projects, taskCache, loading } = useTaskContext();
@@ -134,8 +137,8 @@ const HomePage = () => {
       {loading ? (
         <Loader />
       ) : (
-        <div className="min-h-screen bg-background">
-          <main className="max-w-7xl mx-auto p-3 flex-1">
+        <div className=" bg-background">
+          <main className="max-w-7xl mx-auto p-2 flex-1">
             <section className="mb-2">
               <div className="grid auto-rows-min gap-2 md:grid-cols-4">
                 <StatsCard
@@ -167,84 +170,95 @@ const HomePage = () => {
 
             <section className="flex w-full gap-2">
               <div className="w-3/4">
-                <div className="flex items-center w-full gap-2 py-2 shadow-sm">
-                  <div className="relative flex items-center w-full max-w-lg">
-                    <Search
-                      className="absolute left-3 text-muted-foreground"
-                      size={18}
-                    />
-                    <Input
-                      type="text"
-                      placeholder="Search projects..."
-                      value={filteredProject}
-                      onChange={(e) => setfilteredProject(e.target.value)}
-                      className="pl-10 pr-4 py-3 text-sm w-full"
-                    />
+                {" "}
+                <div>
+                  <div className="flex items-center w-full gap-2 py-2 shadow-sm">
+                    <div className="relative flex items-center w-full max-w-lg">
+                      <Search
+                        className="absolute left-3 text-muted-foreground"
+                        size={18}
+                      />
+                      <Input
+                        type="text"
+                        placeholder="Search projects..."
+                        value={filteredProject}
+                        onChange={(e) => setfilteredProject(e.target.value)}
+                        className="pl-10 pr-4 py-3 text-sm w-full"
+                      />
+                    </div>
+
+                    <Select defaultValue="all" onValueChange={setFilter}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="All Projects" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Projects</SelectItem>
+                        <SelectItem value="recent">Recent</SelectItem>
+                        <SelectItem value="lastupdated">
+                          Last Updated
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <Select
+                      defaultValue="all"
+                      onValueChange={handleCategoryProject}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Categories</SelectItem>
+                        {Categories.map((c) => (
+                          <SelectItem key={c.id} value={c.Category}>
+                            {c.Category}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="default"
+                          className="flex items-center gap-2 font-medium"
+                        >
+                          <Plus size={18} />
+                          Add Project
+                        </Button>
+                      </DialogTrigger>
+
+                      <ProjectModol />
+                    </Dialog>
                   </div>
 
-                  <Select defaultValue="all" onValueChange={setFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="All Projects" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Projects</SelectItem>
-                      <SelectItem value="recent">Recent</SelectItem>
-                      <SelectItem value="lastupdated">Last Updated</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  <Select
-                    defaultValue="all"
-                    onValueChange={handleCategoryProject}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Categories</SelectItem>
-                      {Categories.map((c) => (
-                        <SelectItem key={c.id} value={c.Category}>
-                          {c.Category}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="default"
-                        className="flex items-center gap-2 font-medium"
-                      >
-                        <Plus size={18} />
-                        Add Project
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <ProjectModol />
-                    </DialogContent>
-                  </Dialog>
-                </div>
-
-                <div className="mt-2 grid gap-2 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                  {filteredProjects.length > 0 ? (
-                    filteredProjects.map((project) => (
-                      <ProjectCard
-                        key={project.id}
-                        projectToShow={project}
-                        tasks={project.id ? taskCache[project.id]?.tasks : []}
-                        onClick={handleProjectClick}
-                      />
-                    ))
-                  ) : (
-                    <p className="text-muted-foreground text-center ml-30">
-                      No projects found Add new projects to get started.
-                    </p>
-                  )}
+                  <div className="w-full mt-1 grid gap-2 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                    {filteredProjects.length > 0 ? (
+                      filteredProjects.map((project) => (
+                        <div key={project.id} className="w-full h-full">
+                          <ProjectCard
+                            projectToShow={project}
+                            tasks={
+                              project.id ? taskCache[project.id]?.tasks : []
+                            }
+                            onClick={handleProjectClick}
+                          />
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-muted-foreground text-center col-span-full">
+                        No projects found. Add new projects to get started.
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
-
-              <div className="md:w-1/3 flex flex-col gap-2 ">
+              <div className="w-[35%] mt-2 rounded-xl flex flex-col gap-2">
+                <UpcomingDeadlines />
+                <ProductivityInsights />
+                <AITipCard />
+              </div>
+              <div className="md:w-1/4 flex flex-col gap-2 ">
                 <LatestUpdatedTasks latestTasks={latestTasks} />
                 <DailyCalendar />
               </div>

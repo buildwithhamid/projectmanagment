@@ -71,7 +71,7 @@ const SignIn: React.FC = () => {
         </form>
 
         <p className="text-sm text-center mt-2">
-          Don’t have an account?
+          Don't have an account?
           <Link to="/signup" className="text-primary">
             Sign up
           </Link>
