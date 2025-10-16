@@ -91,7 +91,7 @@ const DashboardPage: React.FC = () => {
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <div>
-        <div className="w-full flex justify-between items-center px-4 py-1  shadow-sm rounded-md ">
+        <div className="w-full flex justify-between items-center px-4 py-1  rounded-md ">
           <h2 className="text-lg font-semibold">Trello</h2>
           <div className=" flex justify-items-end">
             <Button

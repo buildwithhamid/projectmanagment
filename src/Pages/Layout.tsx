@@ -21,7 +21,7 @@ export default function Page() {
               orientation="vertical"
               className="data-[orientation=vertical]:h-4"
             />
-            <Breadcrumb>Task Manager</Breadcrumb>
+            <Breadcrumb>Project Manager</Breadcrumb>
           </div>
           {/* <div className="ml-auto mr-3 flex items-center">
             <ThemeToggle />

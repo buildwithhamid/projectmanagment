@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { ProjectCard } from "@/components/ProjectCard";
-import { CheckCircle, Clock, FolderOpen, Search } from "lucide-react";
+import { CheckCircle, Clock, FolderOpen, Loader, Search } from "lucide-react";
 import { useTaskContext } from "@/TaskContext/TaskContext";
 import { useNavigate } from "react-router-dom";
 import { StatsCard } from "@/components/HomePageSatasCard";
@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import ProjectModol from "@/components/ProjectModol";
 import { Plus } from "lucide-react";
-import Loader from "@/components/Loader";
+
 import DailyCalendar from "@/components/TodayDate";
 import { ProductivityInsights } from "@/components/ProductivityTaks";
 import { UpcomingDeadlines } from "@/components/UpCommingDeadline";
@@ -135,7 +135,9 @@ const HomePage = () => {
   return (
     <>
       {loading ? (
-        <Loader />
+        <div className="flex items-center justify-center h-screen">
+          <Loader />
+        </div>
       ) : (
         <div className=" bg-background">
           <main className="max-w-7xl mx-auto p-2 flex-1">

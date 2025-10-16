@@ -4,9 +4,7 @@ import Layout from "../Pages/Layout";
 const ProtectedRoute = () => {
   const { userContextId } = useUserContextId();
 
-  if (!userContextId) {
-    return <Navigate to="/login" replace />;
-  }
+  if (!userContextId) return <Navigate to="/login" replace />;
 
   return <Layout />;
 };

@@ -2,9 +2,8 @@ import React, { useState } from "react";
 import { auth } from "../Config/firbase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate, Link } from "react-router-dom";
-import { useUserContextId } from "../AuthContext/UserContext";
-
 import { Button } from "@/components/ui/button";
+import { useUserContextId } from "../AuthContext/UserContext";
 import {
   Card,
   CardContent,
@@ -13,13 +12,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { useTaskContext } from "@/TaskContext/TaskContext";
 
 const SignIn: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const { loading, setLoading } = useTaskContext();
   const { setUserId } = useUserContextId();
+  const navigate = useNavigate();
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +30,6 @@ const SignIn: React.FC = () => {
         email,
         password
       );
-      setUserId(userCredential.user.uid);
       navigate("/");
     } catch (error: any) {
       alert("Invalid email or password");

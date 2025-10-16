@@ -41,14 +41,25 @@ interface ProjectCardProps {
 }
 
 const getTaskStats = (tasks: Task[]) => {
-  const completed = tasks?.filter((task) => task.status === "completed").length;
-  const inProgress = tasks?.filter(
-    (task) => task.status === "in-progress"
-  ).length;
-  const pending = tasks?.filter((task) => task.status === "pending").length;
-  const total = tasks.length;
+  const stats = tasks.reduce(
+    (acc, task) => {
+      switch (task.status) {
+        case "completed":
+          acc.completed++;
+          break;
+        case "in-progress":
+          acc.inProgress++;
+          break;
+        case "pending":
+          acc.pending++;
+          break;
+      }
+      return acc;
+    },
+    { completed: 0, inProgress: 0, pending: 0 }
+  );
 
-  return { completed, inProgress, pending, total };
+  return { ...stats, total: tasks.length };
 };
 
 const calculateProgress = (completed: number, total: number): number => {

@@ -13,13 +13,10 @@ const UserContextId = createContext<UserContextIdType | undefined>(undefined);
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [userContextId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserId(user.uid);
-      } else {
-        setUserId(null);
-      }
+      setUserId(user?.uid ? user?.uid : null);
       setLoading(false);
     });
 

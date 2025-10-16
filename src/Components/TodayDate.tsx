@@ -24,7 +24,7 @@ export default function DailyCalendar() {
   const [selectedDay, setSelectedDay] = useState<number>(7);
 
   return (
-    <Card className="h-22 shadow-lg border border-border rounded-lg ">
+    <Card className="h-22 w-full shadow-lg border border-border rounded-lg ">
       <CardContent className="p-0 -mt-2">
         <ScrollArea aria-orientation="horizontal" className="w-full">
           <div className="flex gap-2 overflow-x-auto p-2">

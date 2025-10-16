@@ -18,20 +18,17 @@ import {
   useSidebar,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Card } from "./ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useTaskContext } from "@/TaskContext/TaskContext";
-
 import SidebarFooter from "./sidebar-footer";
 import Loader from "./Loader";
-
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 const items = [
   { title: "Home", url: "/home", icon: IoHomeOutline },
   { title: "Ai Talk", url: "/ai-talk", icon: Bot },
 ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { userData, projects, deleteProject, loading } = useTaskContext();
+  const { projects, deleteProject, loading } = useTaskContext();
   const { setOpen, state } = useSidebar();
 
   return (
@@ -44,7 +41,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <span className="font-semibold">Menu</span>
         <SidebarTrigger />
       </div>
-
+      <div className="relative pt-2  flex items-center justify-center">
+        <Avatar className="cursor-pointer">
+          <AvatarImage
+            src="/todo-list-svgrepo-com.svg"
+            alt="User Avatar"
+            className=" ml-1 h-6 w-6"
+          />
+          <AvatarFallback>U</AvatarFallback>
+        </Avatar>
+      </div>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>

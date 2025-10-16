@@ -87,7 +87,9 @@ const TaskDetailsAccordion = ({
                     className="absolute top-2 right-14 text-muted-foreground hover:text-primary cursor-pointer"
                   />
                 </DialogTrigger>
-                <TodoModel projectId={projectid} taskToEdit={task} />
+                <DialogContent>
+                  <TodoModel projectId={projectid} taskToEdit={task} />
+                </DialogContent>
               </Dialog>
 
               <MdDeleteOutline
