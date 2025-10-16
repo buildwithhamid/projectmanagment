@@ -91,49 +91,55 @@ const DashboardPage: React.FC = () => {
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <div>
-        <div className="w-full flex justify-between items-center px-4 py-1  rounded-md ">
-          <h2 className="text-lg font-semibold">Trello</h2>
-          <div className=" flex justify-items-end">
+        <div className="w-full flex justify-between items-center px-4 py-2  border-b border-accent/35 rounded-t-md">
+          <h2 className="text-lg font-semibold text-foreground">Trello</h2>
+          <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="sm"
-              className="p-1"
+              className="p-1 text-muted-foreground hover:text-foreground hover:bg-accent"
               onClick={(e) => {
                 e.stopPropagation();
                 setcardWidth((prev) => !prev);
               }}
             >
-              <ChevronsRightLeft size={20} />
+              <ChevronsRightLeft size={18} />
             </Button>
-            <Button variant="outline" size="sm" onClick={handleListView}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="hover:bg-accent hover:text-accent-foreground"
+              onClick={handleListView}
+            >
               View List
             </Button>
           </div>
         </div>
       </div>
-      <div className="flex gap-2 p-2 h-full w-full  relative overflow-y-auto scrollbar-thin -mt-2">
+
+      <div className="flex gap-3 p-3 h-full w-full overflow-y-auto scrollbar-thin  rounded-b-md">
         {statuses.map((statusKey) => (
           <Droppable droppableId={statusKey} type="TASK" key={statusKey}>
             {(provided) => (
               <div
-                className={`flex-none rounded-2xl shadow-md transition-all duration-300 transform hover:scale-[1.02] p-2.5 
-    ${
-      cardWidth
-        ? "min-w-[60px] max-w-[60px] h-[50px]"
-        : "min-w-[200px] max-w-[245px]"
-    } 
-    max-h-min overflow-y-auto bg-background text-foreground`}
                 ref={provided.innerRef}
                 {...provided.droppableProps}
+                className={`flex-none rounded-xl border  shadow-sm transition-all duration-300 p-2.5 hover:shadow-md hover:border-accent/50
+              ${
+                cardWidth
+                  ? "min-w-[60px] max-w-[60px] h-[50px]"
+                  : "min-w-[230px] max-w-[260px]"
+              } 
+              max-h-min overflow-y-auto`}
               >
                 {!cardWidth ? (
-                  <div className="flex justify-between relative items-center">
-                    <h2 className="font-bold text-lg mb-2 capitalize text-card-foreground truncate">
+                  <div className="flex justify-between items-center mb-1">
+                    <h2 className="font-semibold text-base capitalize text-foreground truncate">
                       {statusKey}
                     </h2>
                   </div>
                 ) : (
-                  <h3 className="text-sm font-semibold mb-2 text-center  whitespace-nowrap w-8">
+                  <h3 className="text-sm font-semibold mb-1 text-center text-muted-foreground whitespace-nowrap w-8">
                     {statusKey.charAt(0).toUpperCase() + statusKey.slice(-1)}
                   </h3>
                 )}
@@ -141,7 +147,9 @@ const DashboardPage: React.FC = () => {
                 {!cardWidth && (
                   <div className="flex flex-col gap-2">
                     {loading ? (
-                      <p>Loading...</p>
+                      <p className="text-sm text-muted-foreground text-center">
+                        Loading...
+                      </p>
                     ) : (
                       (statusTasks[statusKey] || []).map((todo, index) => (
                         <Draggable
@@ -151,11 +159,12 @@ const DashboardPage: React.FC = () => {
                         >
                           {(provided) => (
                             <div
-                              className={`relative p-2 flex flex-col gap-2 bg-accent text-accent-foreground rounded-lg shadow-sm hover:shadow-md transition cursor-pointer hover:border border-white`}
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
+                              className="relative p-2 flex flex-col gap-2 bg-card text-accent-foreground rounded-lg border border-transparent hover:border-accent shadow-sm hover:shadow-md transition cursor-pointer"
                             >
+                              {/* Attachment */}
                               {todo.attachments?.length > 0 && (
                                 <img
                                   src={todo.attachments[0]}
@@ -164,12 +173,13 @@ const DashboardPage: React.FC = () => {
                                 />
                               )}
 
+                              {/* Task Title */}
                               <Dialog>
                                 <DialogTrigger asChild>
                                   <span
-                                    className={`text-sm cursor-pointer ${
+                                    className={`text-sm font-medium cursor-pointer ${
                                       todo.status === "completed"
-                                        ? "line-through text-gray-500"
+                                        ? "line-through text-muted-foreground"
                                         : "text-foreground"
                                     }`}
                                   >
@@ -182,7 +192,7 @@ const DashboardPage: React.FC = () => {
                               </Dialog>
 
                               {todo.todo && (
-                                <p className="text-xs text-accent-foreground line-clamp-3">
+                                <p className="text-xs text-muted-foreground line-clamp-3">
                                   {todo.todo}
                                 </p>
                               )}
@@ -209,15 +219,16 @@ const DashboardPage: React.FC = () => {
                       ))
                     )}
 
-                    <div className="w-full flex justify-end">
+                    <div className="w-full flex justify-end mt-2">
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="cursor-pointer"
+                            className="text-sm text-muted-foreground hover:text-primary hover:bg-accent/30 flex items-center gap-1"
                           >
-                            Add <Plus className="h-2 w-3" />
+                            <Plus className="h-3 w-3" />
+                            Add
                           </Button>
                         </DialogTrigger>
                         <DialogContent>

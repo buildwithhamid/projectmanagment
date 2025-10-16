@@ -1,8 +1,6 @@
 import React, { useState } from "react";
-import { auth } from "../Config/firbase";
-import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { useUserContextId } from "../AuthContext/UserContext";
+import { useUserContextId } from "@/AuthContext/UserContext";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,22 +18,16 @@ const SignUp: React.FC = () => {
   const [fullname, setFullname] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
-  const { setUserId } = useUserContextId();
+
+  const { signUp } = useUserContextId();
 
   const handleSignUpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-
-      const user = userCredential.user;
-      console.log("✅ User signed up:", user.uid);
-      setUserId(user.uid);
-
+      await signUp(email, password);
+      console.log("✅ User signed up successfully!");
       navigate("/");
     } catch (error: any) {
       console.error("❌ Signup error:", error.message);
@@ -46,15 +38,16 @@ const SignUp: React.FC = () => {
   };
 
   return (
-    <Card className="w-[90%] max-w-sm shadow-lg">
+    <Card className="w-[90%] max-w-sm shadow-lg mx-auto mt-10">
       <CardHeader>
         <CardTitle className="text-2xl text-center">Create Account</CardTitle>
         <CardDescription className="text-center mb-2">
           Sign up with your email and password
         </CardDescription>
       </CardHeader>
+
       <CardContent>
-        <form onSubmit={handleSignUpSubmit} className="flex flex-col gap-2">
+        <form onSubmit={handleSignUpSubmit} className="flex flex-col gap-3">
           <Input
             type="text"
             placeholder="Full Name"
@@ -63,6 +56,7 @@ const SignUp: React.FC = () => {
             required
             disabled={loading}
           />
+
           <Input
             type="email"
             placeholder="example123@gmail.com"
@@ -71,6 +65,7 @@ const SignUp: React.FC = () => {
             required
             disabled={loading}
           />
+
           <Input
             type="password"
             placeholder="********"

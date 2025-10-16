@@ -11,7 +11,7 @@ const ProjectPage: React.FC = () => {
   const specificTasks = projectDocId ? taskCache[projectDocId].tasks : [];
   console.log(`Tasks for ${projectId} are ${specificTasks}`);
   return (
-    <div className="min-h-screen w-full p-2 space-y-4 flex flex-col bg-background text-foreground">
+    <div className="min-h-screen w-full space-y-4 flex flex-col bg-background text-foreground">
       <div className="flex-1 overflow-auto">
         {loading ? (
           <div className="flex justify-center items-center h-full py-20">

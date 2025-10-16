@@ -1,20 +1,20 @@
 import { Outlet } from "react-router-dom";
 import { AppSidebar } from "../components/app-sidebar";
-import { Breadcrumb } from "../components/ui/breadcrumb";
+import { SidebarTrigger } from "../components/ui/sidebar";
 import { Separator } from "../components/ui/separator";
+import { Breadcrumb } from "../components/ui/breadcrumb";
+import { SidebarInset, SidebarProvider } from "../components/ui/sidebar";
 
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "../components/ui/sidebar";
-
-export default function Page() {
+const Layout = () => {
   return (
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-10 shrink-0 items-center gap-2 border-b  text-foreground transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-10">
+        <header
+          className="flex h-10 shrink-0 items-center gap-2 border-b text-foreground transition-[width,height] ease-linear 
+                   group-has-data-[collapsible=icon]/sidebar-wrapper:h-10 
+                   lg:hidden"
+        >
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger />
             <Separator
@@ -23,15 +23,13 @@ export default function Page() {
             />
             <Breadcrumb>Project Manager</Breadcrumb>
           </div>
-          {/* <div className="ml-auto mr-3 flex items-center">
-            <ThemeToggle />
-          </div> */}
         </header>
 
-        <div className="flex flex-1 flex-col  bg-muted text-foreground">
+        <div className=" h-full w-full  bg-background text-foreground">
           <Outlet />
         </div>
       </SidebarInset>
     </SidebarProvider>
   );
-}
+};
+export default Layout;

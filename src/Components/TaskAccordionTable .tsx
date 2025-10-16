@@ -96,7 +96,7 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
   };
 
   return (
-    <Card className="  border border-border/40 rounded-lg shadow-sm hover:shadow-md hover:border-border transition-all duration-300 cursor-pointer ">
+    <Card className=" cursor-pointer ">
       <CardHeader>
         <CardTitle className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 text-lg">
           <div className="flex items-center gap-2">
@@ -119,8 +119,9 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
               </Dialog>
 
               <Button
+                variant="outline"
                 size="sm"
-                className="cursor-pointer"
+                className="hover:bg-accent hover:text-accent-foreground"
                 onClick={() => handleTrelloLink(specifictaskdata?.id || "")}
               >
                 View Trello
