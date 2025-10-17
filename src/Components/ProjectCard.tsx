@@ -40,41 +40,43 @@ interface ProjectCardProps {
   onClick?: (projectId: string) => void;
 }
 
-const getTaskStats = (tasks: Task[]) => {
-  const stats = tasks.reduce(
-    (acc, task) => {
-      switch (task.status) {
-        case "completed":
-          acc.completed++;
-          break;
-        case "in-progress":
-          acc.inProgress++;
-          break;
-        case "pending":
-          acc.pending++;
-          break;
-      }
-      return acc;
-    },
-    { completed: 0, inProgress: 0, pending: 0 }
-  );
-
-  return { ...stats, total: tasks.length };
-};
-
-const calculateProgress = (completed: number, total: number): number => {
-  if (total === 0) return 0;
-  return Math.round((completed / total) * 100);
-};
-
 export const ProjectCard = ({
   projectToShow,
   tasks,
   onClick,
 }: ProjectCardProps) => {
+  const calculateProgress = (completed: number, total: number): number => {
+    if (total === 0) return 0;
+    return Math.round((completed / total) * 100);
+  };
+
+  const getTaskStats = (tasks?: Task[]) => {
+    if (!tasks || !Array.isArray(tasks)) {
+      return { completed: 0, inProgress: 0, pending: 0, total: 0 };
+    }
+
+    const stats = tasks.reduce(
+      (acc, task) => {
+        switch (task.status) {
+          case "completed":
+            acc.completed++;
+            break;
+          case "in-progress":
+            acc.inProgress++;
+            break;
+          case "pending":
+            acc.pending++;
+            break;
+        }
+        return acc;
+      },
+      { completed: 0, inProgress: 0, pending: 0 }
+    );
+
+    return { ...stats, total: tasks.length };
+  };
   const { completed, total } = getTaskStats(tasks);
   const percentage = calculateProgress(completed, total);
-
   const handleCardClick = () => {
     if (projectToShow.id) {
       onClick?.(projectToShow.id);

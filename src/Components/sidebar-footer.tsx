@@ -10,8 +10,7 @@ import {
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
 import { FaUser, FaSignOutAlt } from "react-icons/fa";
-import { auth } from "../Config/firbase";
-import { signOut } from "firebase/auth";
+
 import { useNavigate } from "react-router-dom";
 import { useUserContextId } from "@/AuthContext/UserContext";
 import { ChevronUp } from "lucide-react";
@@ -22,16 +21,10 @@ interface SidebarFooterProps {
 
 const SidebarFooter: React.FC<SidebarFooterProps> = ({ setopen, state }) => {
   const navigate = useNavigate();
-  const { userContextId } = useUserContextId();
+  const { logout } = useUserContextId();
 
   const handleLogout = async () => {
-    try {
-      console.log(userContextId, "user logout Successfully");
-      await signOut(auth);
-      navigate("/login");
-    } catch (error: any) {
-      console.error("Logout error:", error.message);
-    }
+    logout();
   };
 
   return (

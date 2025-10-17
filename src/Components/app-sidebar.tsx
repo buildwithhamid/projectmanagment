@@ -17,7 +17,6 @@ import {
   SidebarMenuItem,
   useSidebar,
   SidebarTrigger,
-  SidebarHeader,
 } from "@/components/ui/sidebar";
 import { useTaskContext } from "@/TaskContext/TaskContext";
 import SidebarFooter from "./sidebar-footer";

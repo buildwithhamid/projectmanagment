@@ -77,7 +77,7 @@ interface TaskContextType {
       todo: string;
       status: string;
       attachments?: string[] | undefined;
-      dueDate?: string | undefined;
+      dueDate?: string;
     }
   ) => Promise<void>;
   deleteTaskFromProject: (projectId: string, taskId: string) => Promise<void>;
@@ -91,14 +91,16 @@ interface TaskContextType {
     userId: string,
     discription: string,
     Category: string,
-    attachments: string[]
+    attachments: string[],
+    dueDate?: string
   ) => Promise<string>;
   updateProject: (
     projectId: string,
     title: string,
     description?: string,
     Category?: string,
-    attachments?: string[]
+    attachments?: string[],
+    dueDate?: string
   ) => Promise<boolean>;
   deleteProject: (projectId: string) => Promise<void>;
 }
@@ -175,7 +177,8 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     userId: string,
     description?: string,
     Category?: string,
-    attachments?: string[]
+    attachments?: string[],
+    dueDate?: string
   ) => {
     try {
       setLoading(true);
@@ -190,6 +193,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         userId,
         url: `/projects/${title.toLowerCase().replace(/\s+/g, "-")}`,
         createdAt: new Date().toISOString(),
+        dueDate: dueDate || "",
       };
 
       const docRef = await addDoc(collection(db, "Projects"), projectData);
@@ -211,7 +215,8 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     title: string,
     description?: string,
     Category?: string,
-    attachments?: string[]
+    attachments?: string[],
+    dueDate?: string
   ) => {
     try {
       setLoading(true);
@@ -225,6 +230,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         Category: Category || "",
         url: `/projects/${title.toLowerCase().replace(/\s+/g, "-")}`,
         updatedAt: new Date().toISOString(),
+        dueDate: dueDate || "",
       };
 
       const projectRef = doc(db, "Projects", projectId);

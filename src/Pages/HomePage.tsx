@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { ProjectCard } from "@/components/ProjectCard";
-import { CheckCircle, Clock, FolderOpen, Loader, Search } from "lucide-react";
+import { CheckCircle, Clock, FolderOpen, Search } from "lucide-react";
 import { useTaskContext } from "@/TaskContext/TaskContext";
 import { useNavigate } from "react-router-dom";
 import { StatsCard } from "@/components/HomePageSatasCard";
@@ -17,11 +17,21 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import ProjectModol from "@/components/ProjectModol";
 import { Plus } from "lucide-react";
-
+import Loader from "@/components/Loader";
 import DailyCalendar from "@/components/TodayDate";
 import { ProductivityInsights } from "@/components/ProductivityTaks";
 import { UpcomingDeadlines } from "@/components/UpCommingDeadline";
 import { AITipCard } from "@/components/AiTipsCard.";
+import { Card } from "@/components/ui/card";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { Separator } from "@/components/ui/separator";
 
 const HomePage = () => {
   const { projects, taskCache, loading } = useTaskContext();
@@ -131,17 +141,26 @@ const HomePage = () => {
 
   const handleCategoryProject = (value: string) =>
     setFilteredCategory(value === "all" ? "" : value);
+  const [currentPage, setCurrentPage] = useState(1);
+  const projectsPerPage = 6;
+
+  const totalPages = Math.ceil(filteredProjects.length / projectsPerPage);
+  const indexOfLastProject = currentPage * projectsPerPage;
+  const indexOfFirstProject = indexOfLastProject - projectsPerPage;
+  const currentProjects = filteredProjects.slice(
+    indexOfFirstProject,
+    indexOfLastProject
+  );
 
   return (
     <>
-      {loading ? (
-        <div className="flex items-center justify-center h-screen">
+      {loading == true ? (
+        <div className="flex justify-center items-center h-full py-20">
           <Loader />
         </div>
       ) : (
-        <div className="h-full w-full bg-background p-0">
+        <div className="h-full w-full p-2 bg-background  sm:p-2 ">
           <main className="max-w-7xl mx-auto pt-2 flex-1">
-            {/* Stats Section */}
             <section className="mb-2">
               <div className="grid auto-rows-min gap-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4">
                 <StatsCard
@@ -171,14 +190,11 @@ const HomePage = () => {
               </div>
             </section>
 
-            <section className="flex flex-col lg:flex-row h-full w-full gap-3">
-   
+            <section className="flex flex-col lg:flex-row h-full w-full gap-2">
               <div className="flex-1 min-w-0">
                 <div className="flex flex-col gap-2">
-              
-                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between w-full gap-2 py-2 shadow-sm">
-                   
-                    <div className="relative flex items-center w-full sm:max-w-sm md:max-w-md lg:max-w-[280px]">
+                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between w-full gap-2 pt-2 shadow-sm">
+                    <div className="relative flex items-center  w-full sm:max-w-sm md:max-w-md lg:max-w-[295px]">
                       <Search
                         className="absolute left-3 text-muted-foreground"
                         size={18}
@@ -194,7 +210,7 @@ const HomePage = () => {
 
                     <div className="flex flex-wrap items-center justify-start lg:justify-end gap-2 w-full lg:w-auto">
                       <Select defaultValue="all" onValueChange={setFilter}>
-                        <SelectTrigger className="min-w-[130px]">
+                        <SelectTrigger className="min-w-[125px]">
                           <SelectValue placeholder="All Projects" />
                         </SelectTrigger>
                         <SelectContent>
@@ -210,7 +226,7 @@ const HomePage = () => {
                         defaultValue="all"
                         onValueChange={handleCategoryProject}
                       >
-                        <SelectTrigger className="min-w-[130px]">
+                        <SelectTrigger className="min-w-[125px]">
                           <SelectValue placeholder="Select Category" />
                         </SelectTrigger>
                         <SelectContent>
@@ -238,10 +254,10 @@ const HomePage = () => {
                       </Dialog>
                     </div>
                   </div>
-
-                  <div className="w-full mt-1 grid gap-2 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-                    {filteredProjects.length > 0 ? (
-                      filteredProjects.map((project) => (
+                  <Separator />
+                  <div className="w-full min-h-[340px] rounded-lg  grid gap-2 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+                    {currentProjects.length > 0 ? (
+                      currentProjects.map((project) => (
                         <div key={project.id} className="w-full h-full">
                           <ProjectCard
                             projectToShow={project}
@@ -258,19 +274,73 @@ const HomePage = () => {
                       </p>
                     )}
                   </div>
+
+                  {totalPages > 1 && (
+                    <Pagination className="-mt-1">
+                      <PaginationContent>
+                        <PaginationItem>
+                          <PaginationPrevious
+                            onClick={() =>
+                              setCurrentPage((p) => Math.max(p - 1, 1))
+                            }
+                            className={
+                              currentPage === 1
+                                ? "pointer-events-none opacity-50"
+                                : ""
+                            }
+                          />
+                        </PaginationItem>
+
+                        {Array.from({ length: totalPages }, (_, i) => (
+                          <PaginationItem key={i}>
+                            <PaginationLink
+                              isActive={currentPage === i + 1}
+                              onClick={() => {
+                                setCurrentPage(i + 1);
+                                window.scrollTo({ top: 0, behavior: "smooth" });
+                              }}
+                            >
+                              {i + 1}
+                            </PaginationLink>
+                          </PaginationItem>
+                        ))}
+
+                        <PaginationItem>
+                          <PaginationNext
+                            onClick={() =>
+                              setCurrentPage((p) => Math.min(p + 1, totalPages))
+                            }
+                            className={
+                              currentPage === totalPages
+                                ? "pointer-events-none opacity-50"
+                                : ""
+                            }
+                          />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
+                  )}
                 </div>
               </div>
 
-              <div className="flex flex-col lg:flex-row lg:w-[40%] xl:w-[45%] gap-3 mt-2">
-                <div className="flex flex-col gap-3 w-full lg:w-1/2">
-                  <UpcomingDeadlines />
-                  <ProductivityInsights />
-                  <AITipCard />
+              <div
+                className="flex min-h-[340px] flex-col gap-2 mt-2 
+                lg:flex-col lg:w-[40%] xl:w-[45%]"
+              >
+                <div className="flex flex-col gap-2 sm:flex-col md:flex-row">
+                  <Card
+                    className="max-h-min bg-blend-hard-light flex p-2 rounded-lg flex-col gap-2 
+                     w-full md:w-1/2"
+                  >
+                    <UpcomingDeadlines projects={projects} />
+                    <ProductivityInsights />
+                    <AITipCard />
+                  </Card>
+                  <div className="flex h-auto md:h-[200px] flex-col gap-2 w-full md:w-1/2 md:-mt-2">
+                    <LatestUpdatedTasks latestTasks={latestTasks} />
+                  </div>
                 </div>
-                <div className="flex flex-col gap-3 w-full lg:w-1/2 -mt-2">
-                  <LatestUpdatedTasks latestTasks={latestTasks} />
-                  <DailyCalendar />
-                </div>
+                <DailyCalendar />
               </div>
             </section>
           </main>

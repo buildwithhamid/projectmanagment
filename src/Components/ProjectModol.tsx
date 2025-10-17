@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 
 import { useTaskContext } from "@/TaskContext/TaskContext";
 import { useUserContextId } from "@/AuthContext/UserContext";
+import DatePicker from "./DatePicker";
 
 type ProjectToEdit = {
   id?: string;
@@ -19,6 +20,7 @@ type ProjectToEdit = {
   description: string;
   Category?: string;
   attachments?: string[];
+  dueDate?: string;
 };
 
 export default function ProjectModol({
@@ -33,6 +35,7 @@ export default function ProjectModol({
     description: "",
     Category: "",
     attachments: [],
+    dueDate: "",
   });
 
   const { userContextId } = useUserContextId();
@@ -46,6 +49,7 @@ export default function ProjectModol({
         attachments: ProjectToEdit.attachments || [],
         Category: ProjectToEdit.Category || "",
         id: ProjectToEdit.id,
+        dueDate: ProjectToEdit.dueDate || "",
       });
     }
   }, [ProjectToEdit]);
@@ -59,7 +63,8 @@ export default function ProjectModol({
         formData.title,
         formData.description || "",
         formData.Category,
-        formData.attachments
+        formData.attachments,
+        formData.dueDate || ""
       );
     } else {
       await addProject(
@@ -67,11 +72,18 @@ export default function ProjectModol({
         userContextId || "",
         formData.description,
         formData.Category || "",
-        formData.attachments || []
+        formData.attachments || [],
+        formData.dueDate || ""
       );
     }
 
-    setFormData({ title: "", description: "", attachments: [], Category: "" });
+    setFormData({
+      title: "",
+      description: "",
+      attachments: [],
+      Category: "",
+      dueDate: "",
+    });
     if (onClose) onClose();
   };
 
@@ -102,23 +114,47 @@ export default function ProjectModol({
             setFormData({ ...formData, description: e.target.value })
           }
         />
-        <Input
-          placeholder="Project Category"
-          value={formData.Category}
-          onChange={(e) =>
-            setFormData({ ...formData, Category: e.target.value })
-          }
-        />
-
+        <div className="flex flex-row gap-2 w-full">
+          <Input
+            placeholder="Project Category"
+            value={formData.Category}
+            onChange={(e) =>
+              setFormData({ ...formData, Category: e.target.value })
+            }
+          />
+          <DatePicker
+            value={formData.dueDate || ""}
+            onChange={(date) =>
+              setFormData({ ...formData, dueDate: date || "" })
+            }
+          />
+        </div>
         <Input
           type="file"
-          onChange={(e) => {
+          accept="image/*"
+          onChange={async (e) => {
             const file = e.target.files?.[0];
-            if (file)
-              setFormData({
-                ...formData,
-                attachments: [URL.createObjectURL(file)],
+            if (!file) return;
+
+            if (file.size > 500 * 1024) {
+              alert("Image too large. Please upload under 500KB.");
+              return;
+            }
+
+            const toBase64 = (file: File) =>
+              new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result as string);
+                reader.onerror = reject;
               });
+
+            const base64String = await toBase64(file);
+
+            setFormData((prev) => ({
+              ...prev,
+              attachments: [base64String],
+            }));
           }}
         />
       </div>

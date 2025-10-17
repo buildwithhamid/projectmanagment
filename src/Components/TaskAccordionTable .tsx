@@ -16,7 +16,6 @@ import {
 import TaskDetailsAccordion from "./TaskDetailsAccordion";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import TodoModel from "./TodoModel";
-import ProjectDetails from "./ProjectDetails";
 interface TaskAccordionTableProps {
   tasks: Task[];
   loading: boolean;
@@ -96,7 +95,7 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
   };
 
   return (
-    <Card className=" cursor-pointer ">
+    <Card className=" h-full rounded-none cursor-pointer ">
       <CardHeader>
         <CardTitle className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 text-lg">
           <div className="flex items-center gap-2">
@@ -137,7 +136,7 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
               <img
                 src={specifictaskdata?.attachments[0]}
                 alt={specifictaskdata?.title ?? "Project image"}
-                className="w-full h-36 object-cover rounded-lg mb-2"
+                className="w-full h-45 object-cover rounded-lg mb-2"
               />
             )}
 
