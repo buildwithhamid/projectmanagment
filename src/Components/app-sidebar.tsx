@@ -133,6 +133,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                           className="cursor-pointer"
                           size={20} // refined icon size for consistency
                         />
+                        <span
+                          className=" md:hidden text-[14px] font-medium cursor-pointer"
+                          onClick={() => setOpen(false)}
+                        >
+                          {item.title}
+                        </span>
                         {state === "expanded" && (
                           <span
                             className="text-[14px] font-medium cursor-pointer"
@@ -160,7 +166,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >
               {state === "expanded" ? (
                 <>
-                  <SidebarGroupLabel className="text-[12px] uppercase text-muted-foreground tracking-wide font-semibold">
+                  <SidebarGroupLabel className="hidden md:flex text-[12px] uppercase text-muted-foreground tracking-wide font-semibold">
                     Projects
                   </SidebarGroupLabel>
                   <Dialog>
@@ -179,7 +185,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <Dialog>
                   <DialogTrigger asChild>
                     <button
-                      className="p-1.5 rounded hover:bg-sidebar-accent inline-flex items-center justify-center"
+                      className=" p-1.5 rounded hover:bg-sidebar-accent inline-flex items-center justify-center"
                       title="Add Project"
                     >
                       <AiOutlinePlus size={17} />
@@ -194,7 +200,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenu>
               {projects.length > 0 ? (
                 projects
-                  .slice()
+                  .slice(0, 5)
                   .reverse()
                   .map((project) => (
                     <SidebarMenuItem
@@ -207,7 +213,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     >
                       <NavLink
                         to={`/projects/${project.id}`}
-                        className="flex-1"
+                        className="flex-1 hidden md:flex "
                         onClick={() => {
                           setOpen(false);
                         }}
@@ -229,16 +235,55 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                 : "hover:bg-sidebar-accent hover:text-foreground"
                             }`}
                           >
-                            <span className="text-[13px] font-medium truncate max-w-[120px]">
+                            <span className=" text-[13px] font-medium truncate max-w-[120px]">
                               {state === "collapsed"
                                 ? project.title.toUpperCase()[0] +
                                   project.title.slice(-1)
-                                : project?.title.charAt(0).toUpperCase() +
-                                  project?.title.slice(1)}
+                                : project.title.charAt(0).toUpperCase() +
+                                  project.title.slice(1)}
                             </span>
                           </SidebarMenuButton>
                         )}
                       </NavLink>
+                      {/* Mobile Project Item (with Delete Button) */}
+                      <div className="flex items-center justify-between w-full md:hidden px-3 py-2 rounded-lg hover:bg-sidebar-accent transition-colors duration-200">
+                        <NavLink
+                          to={`/projects/${project.id}`}
+                          className="flex-1"
+                          onClick={() => setOpen(false)}
+                        >
+                          {({ isActive }) => (
+                            <SidebarMenuButton
+                              tooltip={
+                                project?.title.charAt(0).toUpperCase() +
+                                project?.title.slice(1)
+                              }
+                              isActive={isActive}
+                              className={`flex items-center justify-start gap-2 w-full rounded-md transition-colors duration-200
+          ${
+            isActive
+              ? "bg-primary text-white"
+              : "hover:bg-sidebar-accent hover:text-foreground"
+          }
+          px-3 py-2 text-[14px] font-medium truncate max-w-[180px]
+        `}
+                            >
+                              <span>
+                                {project.title.charAt(0).toUpperCase() +
+                                  project.title.slice(1)}
+                              </span>
+                            </SidebarMenuButton>
+                          )}
+                        </NavLink>
+
+                        {/* Delete button */}
+                        <button
+                          onClick={() => deleteProject(project.id!)}
+                          className="p-2 text-muted-foreground hover:bg-red-500 hover:text-white rounded-md transition"
+                        >
+                          <AiOutlineDelete size={16} />
+                        </button>
+                      </div>
 
                       {state === "expanded" && (
                         <button

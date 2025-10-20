@@ -45,6 +45,7 @@ export interface Project {
   updatedAt?: string;
   attachments?: string[];
   dueDate?: string;
+  status?: string;
 }
 
 interface TaskContextType {
@@ -92,7 +93,8 @@ interface TaskContextType {
     discription: string,
     Category: string,
     attachments: string[],
-    dueDate?: string
+    dueDate?: string,
+    status?: string
   ) => Promise<string>;
   updateProject: (
     projectId: string,
@@ -100,7 +102,8 @@ interface TaskContextType {
     description?: string,
     Category?: string,
     attachments?: string[],
-    dueDate?: string
+    dueDate?: string,
+    status?: string
   ) => Promise<boolean>;
   deleteProject: (projectId: string) => Promise<void>;
 }
@@ -178,7 +181,8 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     description?: string,
     Category?: string,
     attachments?: string[],
-    dueDate?: string
+    dueDate?: string,
+    status?: string
   ) => {
     try {
       setLoading(true);
@@ -191,9 +195,9 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         Category: Category || "",
         attachments,
         userId,
-        url: `/projects/${title.toLowerCase().replace(/\s+/g, "-")}`,
         createdAt: new Date().toISOString(),
         dueDate: dueDate || "",
+        status: status,
       };
 
       const docRef = await addDoc(collection(db, "Projects"), projectData);
@@ -216,7 +220,8 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     description?: string,
     Category?: string,
     attachments?: string[],
-    dueDate?: string
+    dueDate?: string,
+    status?: string
   ) => {
     try {
       setLoading(true);
@@ -228,9 +233,9 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         description: description || "",
         attachments: attachments || [],
         Category: Category || "",
-        url: `/projects/${title.toLowerCase().replace(/\s+/g, "-")}`,
         updatedAt: new Date().toISOString(),
         dueDate: dueDate || "",
+        status: status || "",
       };
 
       const projectRef = doc(db, "Projects", projectId);

@@ -171,7 +171,7 @@ const TodoModel: React.FC<TodoModelProps> = ({ projectId, taskToEdit }) => {
             value={formData.status}
             onValueChange={(v) => handleInputChange("status", v)}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>

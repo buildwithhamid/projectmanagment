@@ -11,7 +11,7 @@ import { FaEdit } from "react-icons/fa";
 import type { Task } from "@/TaskContext/TaskContext";
 import { useTaskContext } from "@/TaskContext/TaskContext";
 import TodoModel from "./TodoModel";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 
 const TaskDetailsAccordion = ({
   task,
@@ -75,9 +75,7 @@ const TaskDetailsAccordion = ({
                     className="absolute top-2 right-2 text-muted-foreground hover:text-primary cursor-pointer"
                   />
                 </DialogTrigger>
-                <DialogContent>
-                  <TaskDetailModal task={task} />
-                </DialogContent>
+                <TaskDetailModal task={task} />
               </Dialog>
 
               <Dialog>
@@ -87,9 +85,7 @@ const TaskDetailsAccordion = ({
                     className="absolute top-2 right-14 text-muted-foreground hover:text-primary cursor-pointer"
                   />
                 </DialogTrigger>
-                <DialogContent>
-                  <TodoModel projectId={projectid} taskToEdit={task} />
-                </DialogContent>
+                <TodoModel projectId={projectid} taskToEdit={task} />
               </Dialog>
 
               <MdDeleteOutline

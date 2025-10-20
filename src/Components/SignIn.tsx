@@ -24,15 +24,18 @@ const SignIn: React.FC = () => {
     setLoading(true);
     try {
       await login(email, password);
-      if (userContextId) {
-        navigate("/");
-      }
     } catch (error: any) {
       alert("Invalid email or password");
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (userContextId) {
+      navigate("/");
+    }
+  }, [userContextId, navigate]);
 
   return (
     <Card className="w-full max-w-sm mx-auto mt-10 shadow-lg">

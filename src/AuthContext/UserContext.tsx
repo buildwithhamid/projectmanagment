@@ -33,12 +33,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string) => {
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      setUserId(userCredential.user.uid);
+      await createUserWithEmailAndPassword(auth, email, password);
       console.log("User registered successfully!");
     } catch (error: any) {
       console.error("Signup error:", error.message);
@@ -48,12 +43,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
   const login = async (email: string, password: string) => {
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      setUserId(userCredential.user.uid);
+      await signInWithEmailAndPassword(auth, email, password);
       console.log("User logged in!");
     } catch (error: any) {
       console.error("Login error:", error.message);
@@ -63,8 +53,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = async () => {
     try {
-      await signOut(auth);
       setUserId(null);
+      await signOut(auth);
       console.log("User logged out!");
     } catch (error: any) {
       console.error("Logout error:", error.message);

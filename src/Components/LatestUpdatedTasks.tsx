@@ -56,11 +56,11 @@ const LatestUpdatedTasks: React.FC<LatestUpdatedTasksProps> = ({
                           Project: {task.projectTitle}
                         </p>
                         <p className="text-xs text-gray-500">
-                          Last updated:{" "}
-                          {new Date(task.updatedAt || "").toLocaleString()}
+                          Last updated:
+                          {new Date(task.updatedAt || "").toLocaleDateString()}
                         </p>
                         <p className="absolute bottom-0.5 right-1 text-xs text-gray-500">
-                          Status:{" "}
+                          Status:
                           {task.status.charAt(0).toUpperCase() +
                             task.status.slice(1)}
                         </p>

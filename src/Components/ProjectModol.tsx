@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   DialogContent,
   DialogHeader,
@@ -9,7 +9,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-
+import {
+  Select,
+  SelectTrigger,
+  SelectItem,
+  SelectValue,
+  SelectContent,
+} from "./ui/select";
 import { useTaskContext } from "@/TaskContext/TaskContext";
 import { useUserContextId } from "@/AuthContext/UserContext";
 import DatePicker from "./DatePicker";
@@ -21,6 +27,7 @@ type ProjectToEdit = {
   Category?: string;
   attachments?: string[];
   dueDate?: string;
+  status?: string;
 };
 
 export default function ProjectModol({
@@ -36,11 +43,17 @@ export default function ProjectModol({
     Category: "",
     attachments: [],
     dueDate: "",
+    status: "",
   });
 
   const { userContextId } = useUserContextId();
   const { loading, addProject, updateProject } = useTaskContext();
-
+  const handleInputChange = useCallback(
+    (field: keyof ProjectToEdit, value: string) => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+    },
+    []
+  );
   useEffect(() => {
     if (ProjectToEdit) {
       setFormData({
@@ -50,6 +63,7 @@ export default function ProjectModol({
         Category: ProjectToEdit.Category || "",
         id: ProjectToEdit.id,
         dueDate: ProjectToEdit.dueDate || "",
+        status: ProjectToEdit.status || "",
       });
     }
   }, [ProjectToEdit]);
@@ -64,7 +78,8 @@ export default function ProjectModol({
         formData.description || "",
         formData.Category,
         formData.attachments,
-        formData.dueDate || ""
+        formData.dueDate || "",
+        formData.status || ""
       );
     } else {
       await addProject(
@@ -73,7 +88,8 @@ export default function ProjectModol({
         formData.description,
         formData.Category || "",
         formData.attachments || [],
-        formData.dueDate || ""
+        formData.dueDate || "",
+        formData.status || ""
       );
     }
 
@@ -83,9 +99,21 @@ export default function ProjectModol({
       attachments: [],
       Category: "",
       dueDate: "",
+      status: "",
     });
     if (onClose) onClose();
   };
+  const statusOptions = useMemo(
+    () => [
+      "pending",
+      "active",
+      "inactive",
+      "cancelled",
+      "completed",
+      "backlog",
+    ],
+    []
+  );
 
   return (
     <DialogContent className="sm:max-w-md">
@@ -122,6 +150,22 @@ export default function ProjectModol({
               setFormData({ ...formData, Category: e.target.value })
             }
           />
+          <Select
+            value={formData.status}
+            onValueChange={(v) => handleInputChange("status", v)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              {statusOptions.map((status) => (
+                <SelectItem key={status} value={status}>
+                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
           <DatePicker
             value={formData.dueDate || ""}
             onChange={(date) =>

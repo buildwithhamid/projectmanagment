@@ -4,6 +4,7 @@ import { SidebarTrigger } from "../components/ui/sidebar";
 import { Separator } from "../components/ui/separator";
 import { Breadcrumb } from "../components/ui/breadcrumb";
 import { SidebarInset, SidebarProvider } from "../components/ui/sidebar";
+import LayoutFooter from "@/components/LayoutFooter";
 
 const Layout = () => {
   return (
@@ -28,6 +29,8 @@ const Layout = () => {
         <div className=" h-full w-full  bg-background text-foreground">
           <Outlet />
         </div>
+        <Separator />
+        <LayoutFooter />
       </SidebarInset>
     </SidebarProvider>
   );

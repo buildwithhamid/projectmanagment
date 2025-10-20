@@ -23,7 +23,7 @@ export const StatsCard = ({
         color
       )}
     >
-      <CardContent className="p-1 sm:p-3">
+      <CardContent className="py-2 sm:p-3">
         <div className="flex items-center justify-between mb-1 sm:mb-2">
           <h3 className="text-base sm:text-lg font-semibold text-white/90">
             {title}

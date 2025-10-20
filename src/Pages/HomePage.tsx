@@ -18,10 +18,8 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import ProjectModol from "@/components/ProjectModol";
 import { Plus } from "lucide-react";
 import Loader from "@/components/Loader";
-import DailyCalendar from "@/components/TodayDate";
-import { ProductivityInsights } from "@/components/ProductivityTaks";
 import { UpcomingDeadlines } from "@/components/UpCommingDeadline";
-import { AITipCard } from "@/components/AiTipsCard.";
+import LatestProjects from "@/components/LatesteProjects";
 import { Card } from "@/components/ui/card";
 import {
   Pagination,
@@ -124,10 +122,12 @@ const HomePage = () => {
         }
       }
 
-      allTasks.sort(
-        (a, b) =>
-          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-      );
+      allTasks
+        .sort(
+          (a, b) =>
+            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+        )
+        .slice(0, 9);
 
       return {
         totalTasks: total,
@@ -159,7 +159,7 @@ const HomePage = () => {
           <Loader />
         </div>
       ) : (
-        <div className="h-full w-full p-2 bg-background  sm:p-2 ">
+        <div className="h-full w-full p-2 bg-background md:p-1 ">
           <main className="max-w-7xl mx-auto pt-2 flex-1">
             <section className="mb-2">
               <div className="grid auto-rows-min gap-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4">
@@ -193,8 +193,8 @@ const HomePage = () => {
             <section className="flex flex-col lg:flex-row h-full w-full gap-2">
               <div className="flex-1 min-w-0">
                 <div className="flex flex-col gap-2">
-                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between w-full gap-2 pt-2 shadow-sm">
-                    <div className="relative flex items-center  w-full sm:max-w-sm md:max-w-md lg:max-w-[295px]">
+                  <div className="flex flex-col md:flex-row lg:flex-row lg:items-center lg:justify-between w-full gap-2 pt-2 shadow-sm">
+                    <div className="relative flex items-center  w-full sm:max-w-sm md:max-w-[240px] lg:max-w-[200px]">
                       <Search
                         className="absolute left-3 text-muted-foreground"
                         size={18}
@@ -208,7 +208,7 @@ const HomePage = () => {
                       />
                     </div>
 
-                    <div className="flex flex-wrap items-center justify-start lg:justify-end gap-2 w-full lg:w-auto">
+                    <div className="flex items-center justify-start lg:justify-end gap-2 w-full lg:w-auto">
                       <Select defaultValue="all" onValueChange={setFilter}>
                         <SelectTrigger className="min-w-[125px]">
                           <SelectValue placeholder="All Projects" />
@@ -244,18 +244,59 @@ const HomePage = () => {
                           <Button
                             variant="outline"
                             size="default"
-                            className="flex items-center gap-2 font-medium whitespace-nowrap"
+                            className="min-w-max md:min-w-[120px] flex items-center gap-2 font-medium whitespace-nowrap"
                           >
                             <Plus size={18} />
-                            Add Project
+
+                            <span className="hidden md:inline">
+                              Add Project
+                            </span>
+                            <span className=" md:hidden">Project</span>
                           </Button>
                         </DialogTrigger>
                         <ProjectModol />
                       </Dialog>
+                      <Card className="hidden md:block md:bg-blend-hard-light p-0 rounded-lg sticky bottom-4 left-0 right-0 mx-auto w-fit z-40">
+                        <Pagination>
+                          <PaginationContent className="flex justify-center items-center gap-3">
+                            <PaginationItem>
+                              <PaginationPrevious
+                                onClick={() =>
+                                  setCurrentPage((p) => Math.max(p - 1, 1))
+                                }
+                                className={`h-8 w-8 flex items-center justify-center rounded-full transition-all duration-200 ${
+                                  currentPage === 1
+                                    ? "pointer-events-none text-primary opacity-40"
+                                    : "hover:text-primary-foreground cursor-pointer"
+                                }`}
+                              />
+                            </PaginationItem>
+
+                            <span className="text-sm font-medium select-none text-muted-foreground">
+                              {currentPage}
+                            </span>
+
+                            <PaginationItem>
+                              <PaginationNext
+                                onClick={() =>
+                                  setCurrentPage((p) =>
+                                    Math.min(p + 1, totalPages)
+                                  )
+                                }
+                                className={`h-8 w-8 flex items-center justify-center rounded-full transition-all duration-200 ${
+                                  currentPage === totalPages
+                                    ? "pointer-events-none text-primary opacity-40"
+                                    : "hover:text-accent-foreground cursor-pointer"
+                                }`}
+                              />
+                            </PaginationItem>
+                          </PaginationContent>
+                        </Pagination>
+                      </Card>
                     </div>
                   </div>
                   <Separator />
-                  <div className="w-full min-h-[340px] rounded-lg  grid gap-2 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+                  <div className="w-full min-h-[340px] md:min-h-[500px] lg:min-h-[340px] rounded-lg  grid gap-2 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                     {currentProjects.length > 0 ? (
                       currentProjects.map((project) => (
                         <div key={project.id} className="w-full h-full">
@@ -276,7 +317,7 @@ const HomePage = () => {
                   </div>
 
                   {totalPages > 1 && (
-                    <Pagination className="-mt-1">
+                    <Pagination className="-mt-1 md:hidden lg:hidden xl:hidden">
                       <PaginationContent>
                         <PaginationItem>
                           <PaginationPrevious
@@ -329,18 +370,16 @@ const HomePage = () => {
               >
                 <div className="flex flex-col gap-2 sm:flex-col md:flex-row">
                   <Card
-                    className="max-h-min bg-blend-hard-light flex p-2 rounded-lg flex-col gap-2 
+                    className="max-h-min bg-blend-hard-light flex p-2 rounded-lg flex-col gap-1 
                      w-full md:w-1/2"
                   >
                     <UpcomingDeadlines projects={projects} />
-                    <ProductivityInsights />
-                    <AITipCard />
+                    <LatestProjects LatestProjects={projects} />
                   </Card>
                   <div className="flex h-auto md:h-[200px] flex-col gap-2 w-full md:w-1/2 md:-mt-2">
                     <LatestUpdatedTasks latestTasks={latestTasks} />
                   </div>
                 </div>
-                <DailyCalendar />
               </div>
             </section>
           </main>

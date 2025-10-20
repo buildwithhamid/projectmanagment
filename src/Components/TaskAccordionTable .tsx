@@ -16,6 +16,8 @@ import {
 import TaskDetailsAccordion from "./TaskDetailsAccordion";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import TodoModel from "./TodoModel";
+import { FaEdit } from "react-icons/fa";
+import ProjectModol from "./ProjectModol";
 interface TaskAccordionTableProps {
   tasks: Task[];
   loading: boolean;
@@ -97,16 +99,29 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
   return (
     <Card className=" h-full rounded-none cursor-pointer ">
       <CardHeader>
-        <CardTitle className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 text-lg">
-          <div className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-primary" />
-            <h4 className="font-semibold">
-              {specifictaskdata?.title.toUpperCase()}'s Tasks
-            </h4>
+        <CardTitle className=" flex sm:justify-between sm:items-center gap-3 text-lg">
+          <div className="  flex items-center gap-2">
+            <FileText className="hidden md:block h-5 w-5 text-primary" />
+
+            <h5 className="font-semibold">
+              {specifictaskdata &&
+                specifictaskdata?.title.charAt(0).toUpperCase() +
+                  specifictaskdata?.title.slice(1)}
+              's Tasks
+            </h5>
+            <Dialog>
+              <DialogTrigger asChild>
+                <FaEdit
+                  size={16}
+                  className="text-muted-foreground hover:text-primary cursor-pointer"
+                />
+              </DialogTrigger>
+              <ProjectModol ProjectToEdit={specifictaskdata} />
+            </Dialog>
           </div>
 
           {!loading && (
-            <div className="flex gap-2">
+            <div className="flex gap-2 ml-10 md:ml-0 lg:ml-0">
               <Dialog>
                 <DialogTrigger asChild>
                   <Button variant="ghost" size="sm" className="cursor-pointer">

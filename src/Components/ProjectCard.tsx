@@ -87,7 +87,7 @@ export const ProjectCard = ({
   return (
     <Card className="w-full relative border border-border/50 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer overflow-hidden pb-1">
       {projectToShow?.attachments && projectToShow.attachments.length > 0 && (
-        <div className="w-full h-12 -mt-3">
+        <div className="w-full  h-22 md:h-12 -mt-3">
           <img
             src={projectToShow.attachments[0]}
             alt={projectToShow.title}
@@ -102,7 +102,7 @@ export const ProjectCard = ({
             <DialogTrigger asChild>
               <FaEdit
                 size={16}
-                className=" absolute top-13 right-2 text-muted-foreground hover:text-primary cursor-pointer"
+                className=" absolute top-24 md:top-13 right-2 text-muted-foreground hover:text-primary cursor-pointer"
               />
             </DialogTrigger>
             <DialogContent>
