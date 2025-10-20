@@ -16,7 +16,8 @@ export function UpcomingDeadlines({ projects = [] }: { projects: Project[] }) {
   const sorted = [...projects]
     .filter((p) => p.dueDate)
     .sort(
-      (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+      (a, b) =>
+        new Date(a.dueDate ?? 0).getTime() - new Date(b.dueDate ?? 0).getTime()
     )
     .slice(0, 5);
 
@@ -43,7 +44,7 @@ export function UpcomingDeadlines({ projects = [] }: { projects: Project[] }) {
                 >
                   <span className="truncate max-w-[65%]">{p.title}</span>
                   <span className="text-foreground font-medium">
-                    {new Date(p.dueDate).toLocaleDateString("en-US", {
+                    {new Date(p.dueDate ?? 0).toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
                     })}
