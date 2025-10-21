@@ -42,7 +42,7 @@ const SignUp: React.FC = () => {
       <CardHeader>
         <CardTitle className="text-2xl text-center">Create Account</CardTitle>
         <CardDescription className="text-center mb-2">
-          Sign up with your email and password
+          Create Account with your email and password
         </CardDescription>
       </CardHeader>
 
@@ -80,7 +80,7 @@ const SignUp: React.FC = () => {
             disabled={loading || !email.trim() || !password.trim()}
             className="w-full"
           >
-            {loading ? "Creating..." : "Sign Up"}
+            {loading ? "Creating..." : "Create Account"}
           </Button>
         </form>
       </CardContent>

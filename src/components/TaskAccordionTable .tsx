@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useTaskContext, type Task } from "@/TaskContext/TaskContext";
-import { useNavigate } from "react-router-dom";
+
 import {
   Accordion,
   AccordionContent,
@@ -16,8 +16,7 @@ import {
 import TaskDetailsAccordion from "./TaskDetailsAccordion";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import TodoModel from "./TodoModel";
-import { FaEdit } from "react-icons/fa";
-import ProjectModol from "./ProjectModol";
+import ProjectOptions from "./TaskAccOption";
 interface TaskAccordionTableProps {
   tasks: Task[];
   loading: boolean;
@@ -29,8 +28,6 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
   loading,
   projectId,
 }) => {
-  const navigate = useNavigate();
-
   const { projects } = useTaskContext();
   const specifictaskdata = projects.find((project) => project.id === projectId);
 
@@ -91,55 +88,39 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
       tasks: groupedTasks[status] || [],
     };
   });
-  const handleTrelloLink = (projectId: string) => {
-    console.log(`Navigating ${projectId}  to Trello Page`);
-    navigate(`/dashboard/${projectId}`);
-  };
 
   return (
     <Card className=" h-full rounded-none cursor-pointer ">
       <CardHeader>
         <CardTitle className=" flex sm:justify-between sm:items-center gap-3 text-lg">
           <div className="  flex items-center gap-2">
-            <FileText className="hidden md:block h-5 w-5 text-primary" />
+            <FileText
+              className="
+            h-5 w-5 text-primary"
+            />
 
-            <h5 className="font-semibold">
+            <h5 className="text-[16px] md:font-semibold ">
               {specifictaskdata &&
                 specifictaskdata?.title.charAt(0).toUpperCase() +
                   specifictaskdata?.title.slice(1)}
               's Tasks
             </h5>
-            <Dialog>
-              <DialogTrigger asChild>
-                <FaEdit
-                  size={16}
-                  className="text-muted-foreground hover:text-primary cursor-pointer"
-                />
-              </DialogTrigger>
-              <ProjectModol ProjectToEdit={specifictaskdata} />
-            </Dialog>
           </div>
 
           {!loading && (
-            <div className="flex gap-2 ml-10 md:ml-0 lg:ml-0">
+            <div className="flex gap-2 ml-12  md:ml-0 lg:ml-0">
               <Dialog>
                 <DialogTrigger asChild>
                   <Button variant="ghost" size="sm" className="cursor-pointer">
-                    <Plus className="h-4 w-4" />
+                    <Plus className="h-4 w-4" />{" "}
+                    <span className="hidden md:block">Add Task</span>
                   </Button>
                 </DialogTrigger>
 
                 <TodoModel projectId={projectId} />
               </Dialog>
 
-              <Button
-                variant="outline"
-                size="sm"
-                className="hover:bg-accent hover:text-accent-foreground"
-                onClick={() => handleTrelloLink(specifictaskdata?.id || "")}
-              >
-                View Trello
-              </Button>
+              <ProjectOptions currentProjectDetails={specifictaskdata!} />
             </div>
           )}
         </CardTitle>

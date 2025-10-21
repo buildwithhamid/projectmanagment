@@ -134,12 +134,19 @@ export default function ProjectModol({
         />
 
         <Textarea
-          placeholder="Project Description"
+          placeholder="Enter description"
           rows={6}
-          className="min-h-20"
           value={formData.description}
           onChange={(e) =>
             setFormData({ ...formData, description: e.target.value })
+          }
+          className="h-32 custom-scroll"
+        />
+        <Input
+          placeholder="Project Category"
+          value={formData.Category}
+          onChange={(e) =>
+            setFormData({ ...formData, Category: e.target.value })
           }
         />
         <div className="flex flex-row gap-2 w-full">
@@ -149,12 +156,13 @@ export default function ProjectModol({
             onChange={(e) =>
               setFormData({ ...formData, Category: e.target.value })
             }
+            className="hidden"
           />
           <Select
             value={formData.status}
             onValueChange={(v) => handleInputChange("status", v)}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>

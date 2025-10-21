@@ -147,12 +147,18 @@ const HomePage = () => {
   const projectsPerPage = 6;
 
   const totalPages = Math.ceil(filteredProjects.length / projectsPerPage);
+  const sortedProjects = [...filteredProjects].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+
   const indexOfLastProject = currentPage * projectsPerPage;
   const indexOfFirstProject = indexOfLastProject - projectsPerPage;
-  const currentProjects = filteredProjects.slice(
+  const currentProjects = sortedProjects.slice(
     indexOfFirstProject,
     indexOfLastProject
   );
+
+  console.log("Current Projects Render", currentProjects);
 
   return (
     <>

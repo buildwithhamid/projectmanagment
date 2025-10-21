@@ -72,24 +72,9 @@ const TodoModel: React.FC<TodoModelProps> = ({ projectId, taskToEdit }) => {
     }
   }, [taskToEdit]);
 
-  // ✅ Efficient handlers
   const handleInputChange = useCallback(
     (field: keyof TaskFormData, value: string) => {
       setFormData((prev) => ({ ...prev, [field]: value }));
-    },
-    []
-  );
-
-  const handleFileChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (file) {
-        const fileUrl = URL.createObjectURL(file);
-        setFormData((prev) => ({ ...prev, attachments: [fileUrl] }));
-
-        // Clean up to prevent memory leak
-        return () => URL.revokeObjectURL(fileUrl);
-      }
     },
     []
   );
@@ -189,7 +174,34 @@ const TodoModel: React.FC<TodoModelProps> = ({ projectId, taskToEdit }) => {
           />
         </div>
 
-        <Input type="file" onChange={handleFileChange} />
+        <Input
+          type="file"
+          accept="image/*"
+          onChange={async (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+
+            if (file.size > 500 * 1024) {
+              alert("Image too large. Please upload under 500KB.");
+              return;
+            }
+
+            const toBase64 = (file: File) =>
+              new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result as string);
+                reader.onerror = reject;
+              });
+
+            const base64String = await toBase64(file);
+
+            setFormData((prev) => ({
+              ...prev,
+              attachments: [base64String],
+            }));
+          }}
+        />
       </div>
 
       <DialogFooter className="flex justify-center gap-2 mt-4">

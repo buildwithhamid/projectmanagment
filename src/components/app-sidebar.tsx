@@ -37,7 +37,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {...props}
       className="flex flex-col h-full bg-sidebar"
     >
-      <div className="md:hidden flex items-center justify-between p-2">
+      <div className="md:hidden flex items-center justify-between px-5 pt-2 -mb-2">
         <span className="font-semibold text-base tracking-tight">Menu</span>
         <SidebarTrigger className="scale-90" />
       </div>
@@ -61,7 +61,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               onMouseLeave={() => setHovered(false)}
             >
               {!hovered ? (
-                <Avatar className="cursor-pointer transition-transform hover:scale-105">
+                <Avatar className="hidden md:flex cursor-pointer transition-transform hover:scale-105">
                   <AvatarImage
                     src="/todo-list-svgrepo-com.svg"
                     alt="User Avatar"
@@ -72,16 +72,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   </AvatarFallback>
                 </Avatar>
               ) : (
-                <SidebarTrigger className="transition-all duration-200 scale-110 cursor-pointer" />
+                <SidebarTrigger
+                  className="transition-all duration-200 scale-110 cursor-pointer"
+                  onClick={() => setHovered(false)}
+                />
               )}
             </div>
           ) : (
             <>
-              <Avatar className="cursor-pointer">
+              <Avatar className=" cursor-pointer">
                 <AvatarImage
                   src="/todo-list-svgrepo-com.svg"
                   alt="User Avatar"
-                  className="h-8 w-8 p-1"
+                  className=" h-8 w-8 p-1"
                 />
                 <AvatarFallback className="text-[13px] font-medium">
                   U
@@ -182,26 +185,34 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   </Dialog>
                 </>
               ) : (
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <button
-                      className=" p-1.5 rounded hover:bg-sidebar-accent inline-flex items-center justify-center"
-                      title="Add Project"
-                    >
-                      <AiOutlinePlus size={17} />
-                    </button>
-                  </DialogTrigger>
-                  <ProjectModol />
-                </Dialog>
+                <div className=" w-full  px-2 flex justify-between items-center gap-1">
+                  <SidebarGroupLabel className="flex md:hidden text-[12px] uppercase text-muted-foreground tracking-wide font-semibold">
+                    Projects
+                  </SidebarGroupLabel>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <button
+                        className=" p-1.5 rounded hover:bg-sidebar-accent inline-flex items-center justify-center"
+                        title="Add Project"
+                      >
+                        <AiOutlinePlus size={17} />
+                      </button>
+                    </DialogTrigger>
+                    <ProjectModol />
+                  </Dialog>
+                </div>
               )}
             </div>
 
-            {/* Project List */}
             <SidebarMenu>
               {projects.length > 0 ? (
-                projects
+                [...projects]
+                  .sort(
+                    (a, b) =>
+                      new Date(b.createdAt).getTime() -
+                      new Date(a.createdAt).getTime()
+                  )
                   .slice(0, 5)
-                  .reverse()
                   .map((project) => (
                     <SidebarMenuItem
                       key={project.id}
@@ -246,7 +257,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         )}
                       </NavLink>
                       {/* Mobile Project Item (with Delete Button) */}
-                      <div className="flex items-center justify-between w-full md:hidden px-3 py-2 rounded-lg hover:bg-sidebar-accent transition-colors duration-200">
+                      <div className="flex items-center justify-between w-full md:hidden px-2 py-0.5 rounded-lg hover:bg-sidebar-accent transition-colors duration-200">
                         <NavLink
                           to={`/projects/${project.id}`}
                           className="flex-1"

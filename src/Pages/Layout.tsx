@@ -5,25 +5,36 @@ import { Separator } from "../components/ui/separator";
 import { Breadcrumb } from "../components/ui/breadcrumb";
 import { SidebarInset, SidebarProvider } from "../components/ui/sidebar";
 import LayoutFooter from "@/components/LayoutFooter";
-
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 const Layout = () => {
   return (
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
         <header
-          className="flex h-10 shrink-0 items-center gap-2 border-b text-foreground transition-[width,height] ease-linear 
-                   group-has-data-[collapsible=icon]/sidebar-wrapper:h-10 
-                   lg:hidden"
+          className="flex items-center justify-between border-b px-4 py-2 shadow-sm 
+             transition-all duration-200 ease-linear lg:hidden"
         >
-          <div className="flex items-center gap-2 px-4">
+          <div className="flex items-center gap-3">
             <SidebarTrigger />
             <Separator
               orientation="vertical"
-              className="data-[orientation=vertical]:h-4"
+              className="data-[orientation=vertical]:h-5"
             />
-            <Breadcrumb>Project Manager</Breadcrumb>
+            <Breadcrumb className="text-sm font-semibold tracking-wide ">
+              Project Manager
+            </Breadcrumb>
           </div>
+          <Avatar className="cursor-pointer transition-transform duration-200 hover:scale-105 ">
+            <AvatarImage
+              src="/todo-list-svgrepo-com.svg"
+              alt="User Avatar"
+              className="h-8 w-8 p-1"
+            />
+            <AvatarFallback className="text-[13px] font-medium ">
+              U
+            </AvatarFallback>
+          </Avatar>
         </header>
 
         <div className=" h-full w-full  bg-background text-foreground">

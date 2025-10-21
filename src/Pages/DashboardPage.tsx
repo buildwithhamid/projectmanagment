@@ -118,7 +118,7 @@ const DashboardPage: React.FC = () => {
       </div>
 
       <div className="flex gap-3 p-3 h-full w-full overflow-y-auto scrollbar-thin  rounded-b-md">
-        {statuses.map((statusKey) => (
+        {statuses?.map((statusKey) => (
           <Droppable droppableId={statusKey} type="TASK" key={statusKey}>
             {(provided) => (
               <div
