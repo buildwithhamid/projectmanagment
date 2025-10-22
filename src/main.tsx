@@ -22,7 +22,6 @@ import LandingPage from "./Pages/LandingPage";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-      {/* Public Routes */}
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignUpPage />} />
@@ -37,7 +36,6 @@ const router = createBrowserRouter(
         </Route>
       </Route>
 
-      {/* Fallback Route */}
       <Route
         path="*"
         element={
