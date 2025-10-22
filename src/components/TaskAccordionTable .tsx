@@ -142,6 +142,9 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
 
           <div className="flex gap-3 absolute -bottom-6 text-xs text-gray-500">
             <p>{tasks?.length ?? 0} Tasks</p>
+            <p className="hidden md:flex">
+              Category: {specifictaskdata?.Category}
+            </p>
             <p>
               Created At:{" "}
               {specifictaskdata?.createdAt

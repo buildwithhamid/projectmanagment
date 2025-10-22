@@ -4,7 +4,7 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { db } from "../Config/firbase";
 import { updateDoc, doc } from "firebase/firestore";
 import { useParams } from "react-router-dom";
-import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import TodoModel from "@/components/TodoModel";
@@ -33,13 +33,13 @@ const DashboardPage: React.FC = () => {
 
     const statusTasksObj: { [key: string]: any[] } = {};
     statuses.forEach((status) => {
-      statusTasksObj[status] = projectTasks.filter(
+      statusTasksObj[status] = projectTasks?.filter(
         (task) => task.status === status
       );
     });
 
     setStatusTasks(statusTasksObj);
-    setLoading(projectTasks.length === 0);
+    setLoading(false);
   }, [projectId, taskCache]);
   console.log(`current page project title: ${projectTitle}`);
   console.log(statusTasks);
@@ -86,7 +86,7 @@ const DashboardPage: React.FC = () => {
   };
   const handleListView = () => {
     console.log(`Navigating the ${projectId} to list view`);
-    Navigate(`/projects/${projectId}`);
+    Navigate(`../projects/${projectId}`);
   };
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
@@ -146,6 +146,14 @@ const DashboardPage: React.FC = () => {
 
                 {!cardWidth && (
                   <div className="flex flex-col gap-2">
+                    {!loading &&
+                      (!statusTasks[statusKey] ||
+                        statusTasks[statusKey].length === 0) && (
+                        <p className="text-sm text-muted-foreground text-center">
+                          No tasks.
+                        </p>
+                      )}
+
                     {loading ? (
                       <p className="text-sm text-muted-foreground text-center">
                         Loading...
@@ -173,7 +181,6 @@ const DashboardPage: React.FC = () => {
                                 />
                               )}
 
-                              {/* Task Title */}
                               <Dialog>
                                 <DialogTrigger asChild>
                                   <span
@@ -186,9 +193,7 @@ const DashboardPage: React.FC = () => {
                                     {todo.title}
                                   </span>
                                 </DialogTrigger>
-                                <DialogContent>
-                                  <TaskDetailModal task={todo} />
-                                </DialogContent>
+                                <TaskDetailModal task={todo} />
                               </Dialog>
 
                               {todo.todo && (
@@ -206,12 +211,10 @@ const DashboardPage: React.FC = () => {
                                     } text-muted-foreground hover:text-primary cursor-pointer`}
                                   />
                                 </DialogTrigger>
-                                <DialogContent>
-                                  <TodoModel
-                                    projectId={projectId}
-                                    taskToEdit={todo}
-                                  />
-                                </DialogContent>
+                                <TodoModel
+                                  projectId={projectId}
+                                  taskToEdit={todo}
+                                />
                               </Dialog>
                             </div>
                           )}
@@ -231,9 +234,7 @@ const DashboardPage: React.FC = () => {
                             Add
                           </Button>
                         </DialogTrigger>
-                        <DialogContent>
-                          <TodoModel projectId={projectId} />
-                        </DialogContent>
+                        <TodoModel projectId={projectId} />
                       </Dialog>
                     </div>
                   </div>

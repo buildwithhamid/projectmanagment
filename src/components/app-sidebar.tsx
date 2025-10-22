@@ -28,8 +28,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { setOpen, state } = useSidebar();
   const [hovered, setHovered] = React.useState(false);
   const items = [
-    { title: "Home", url: "/home", icon: IoHomeOutline },
-    { title: "Ai Talk", url: "/ai-talk", icon: Bot },
+    { title: "Home", url: ".", icon: IoHomeOutline },
+    { title: "Ai Talk", url: "ai-talk", icon: Bot },
   ];
   return (
     <Sidebar
@@ -223,7 +223,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       }`}
                     >
                       <NavLink
-                        to={`/projects/${project.id}`}
+                        to={`projects/${project.id}`}
                         className="flex-1 hidden md:flex "
                         onClick={() => {
                           setOpen(false);
@@ -259,7 +259,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       {/* Mobile Project Item (with Delete Button) */}
                       <div className="flex items-center justify-between w-full md:hidden px-2 py-0.5 rounded-lg hover:bg-sidebar-accent transition-colors duration-200">
                         <NavLink
-                          to={`/projects/${project.id}`}
+                          to={`projects/${project.id}`}
                           className="flex-1"
                           onClick={() => setOpen(false)}
                         >

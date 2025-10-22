@@ -23,12 +23,12 @@ const ProjectOptions = ({ currentProjectDetails }: ProjectOptionsProps) => {
   const { deleteProject } = useTaskContext();
 
   const handleTrelloLink = (projectId: string) => {
-    navigate(`/dashboard/${projectId}`);
+    navigate(`../dashboard/${projectId}`);
   };
   const handleDelete = (projectId: string) => {
     console.log(`Deleting project with ID: ${projectId}`);
     deleteProject(projectId);
-    navigate("/home");
+    navigate("../");
   };
 
   return (

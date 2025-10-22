@@ -16,7 +16,7 @@ const LatestProject: React.FC<LatestProjectProps> = ({ LatestProjects }) => {
   const navigate = useNavigate();
   const handleNavigateToPage = (projectId: string | undefined) => {
     if (projectId) {
-      navigate(`/projects/${projectId}`);
+      navigate(`projects/${projectId}`);
     }
   };
   const top5UpdatedProjects = [...LatestProjects]

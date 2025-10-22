@@ -33,12 +33,12 @@ const SignIn: React.FC = () => {
 
   useEffect(() => {
     if (userContextId) {
-      navigate("/");
+      navigate("/v1");
     }
   }, [userContextId, navigate]);
 
   return (
-    <Card className="w-full max-w-sm mx-auto mt-10 shadow-lg">
+    <Card className="w-full max-w-sm mx-auto md:mt-10 shadow-xl backdrop-blur-sm bg-gradient-to-b">
       <CardHeader>
         <CardTitle className="text-2xl text-center">Sign In</CardTitle>
         <CardDescription className="text-center mb-2">
@@ -78,6 +78,11 @@ const SignIn: React.FC = () => {
             className="text-primary font-medium hover:underline"
           >
             Sign up
+          </Link>
+        </p>
+        <p className="text-sm text-center mt-2">
+          <Link to="/" className="text-chart-1  hover:underline">
+            Back to Home
           </Link>
         </p>
       </CardContent>

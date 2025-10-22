@@ -139,7 +139,7 @@ const HomePage = () => {
       };
     }, [taskCache]);
 
-  const handleProjectClick = (id: string) => navigate(`/projects/${id}`);
+  const handleProjectClick = (id: string) => navigate(`projects/${id}`);
 
   const handleCategoryProject = (value: string) =>
     setFilteredCategory(value === "all" ? "" : value);

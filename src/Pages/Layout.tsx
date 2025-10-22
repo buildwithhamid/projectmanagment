@@ -22,7 +22,7 @@ const Layout = () => {
               className="data-[orientation=vertical]:h-5"
             />
             <Breadcrumb className="text-sm font-semibold tracking-wide ">
-              Project Manager
+              ProjectFlow
             </Breadcrumb>
           </div>
           <Avatar className="cursor-pointer transition-transform duration-200 hover:scale-105 ">

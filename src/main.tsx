@@ -18,22 +18,36 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import SignUpPage from "./Pages/SignUpPage";
 import AITalk from "./components/AiChat/AIChatDialog";
 import Layout from "./Pages/Layout";
+import LandingPage from "./Pages/LandingPage";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
+      {/* Public Routes */}
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignUpPage />} />
 
-      <Route path="/" element={<ProtectedRoute />}>
-        <Route element={<Layout />}>
+      <Route element={<ProtectedRoute />}>
+        <Route path="/v1" element={<Layout />}>
           <Route index element={<HomePage />} />
-          <Route path="home" element={<HomePage />} />
           <Route path="dashboard/:projectId" element={<DashboarPage />} />
           <Route path="profile" element={<ProfilePage />} />
           <Route path="projects/:projectId" element={<ProjectPage />} />
           <Route path="ai-talk" element={<AITalk />} />
         </Route>
       </Route>
+
+      {/* Fallback Route */}
+      <Route
+        path="*"
+        element={
+          <div className="min-h-screen flex items-center justify-center bg-gray-50">
+            <h1 className="text-2xl font-semibold text-red-600">
+              404 – Page Not Found
+            </h1>
+          </div>
+        }
+      />
     </>
   )
 );
