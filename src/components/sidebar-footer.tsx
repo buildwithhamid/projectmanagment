@@ -47,7 +47,7 @@ const SidebarFooter: React.FC<SidebarFooterProps> = ({ setopen, state }) => {
           </SidebarMenuButton>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-44">
-          <DropdownMenuItem onClick={() => navigate("/profile")}>
+          <DropdownMenuItem onClick={() => navigate(`profile`)}>
             <FaUser className="mr-2 h-4 w-4" /> Profile
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleLogout}>
