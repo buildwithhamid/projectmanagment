@@ -127,7 +127,6 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
       if (userSnap.exists()) {
         const userData = userSnap.data() as User;
         setuserData(userData);
-        console.log("✅ User data fetched:", userData);
         return userData;
       } else {
         console.warn("⚠️ No user data found in Firestore");
@@ -167,7 +166,6 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         cache[project.id!] = { title: project.title, tasks };
       }
       setTaskCache(cache);
-      console.log("✅ Projects & tasks loaded", { projectsData, cache });
     } catch (err) {
       console.error("❌ Error fetching projects:", err);
     } finally {
@@ -202,7 +200,6 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
 
       const docRef = await addDoc(collection(db, "Projects"), projectData);
 
-      console.log("✅ Project created:", projectData);
       setProjects((prev) => [...prev, { id: docRef.id, ...projectData }]);
 
       return docRef.id;
@@ -245,8 +242,6 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         prev.map((p) => (p.id === projectId ? { ...p, ...updatedData } : p))
       );
 
-      console.log("✅ Project updated:", updatedData);
-
       return true;
     } catch (err) {
       console.error("❌ Error updating project:", err);
@@ -266,7 +261,6 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
 
       await deleteDoc(doc(db, "Projects", projectId));
       setProjects((prev) => prev.filter((p) => p.id !== projectId));
-      console.log("🗑️ Project deleted:", projectId);
     } catch (err) {
       console.error("❌ Error deleting project:", err);
     } finally {
@@ -310,7 +304,6 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         },
       }));
 
-      console.log(`✅ Task added to project "${projectId}":`, taskRef.id);
       return taskRef.id;
     } catch (err) {
       console.error("❌ Error adding task:", err);
@@ -337,8 +330,6 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
             prev[projectId]?.tasks.filter((task) => task.id !== taskId) || [],
         },
       }));
-
-      console.log(`✅ Task ${taskId} deleted from project: ${projectId}`);
     } catch (err) {
       console.error("❌ Error deleting task:", err);
       throw err;
@@ -382,8 +373,6 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
           [projectid]: { ...prev[projectid], tasks },
         };
       });
-
-      console.log(`✅ Task ${taskId} updated in project ${projectid}`);
     } catch (err) {
       console.error("❌ Error updating task:", err);
       throw err;

@@ -31,7 +31,6 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
   const { projects } = useTaskContext();
   const specifictaskdata = projects.find((project) => project.id === projectId);
 
-  console.log(specifictaskdata);
   const getPriorityInfo = (dueDate: string) => {
     const today = new Date();
     const due = new Date(dueDate);
@@ -143,12 +142,15 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
           <div className="flex gap-3 absolute -bottom-6 text-xs text-gray-500">
             <p>{tasks?.length ?? 0} Tasks</p>
             <p className="hidden md:flex">
+              Status: {specifictaskdata?.status || "Backlog"}
+            </p>
+            <p className="hidden md:flex">
               Category: {specifictaskdata?.Category}
             </p>
             <p>
               Created At:{" "}
               {specifictaskdata?.createdAt
-                ? new Date(specifictaskdata.createdAt).toLocaleString()
+                ? new Date(specifictaskdata.createdAt).toLocaleDateString()
                 : "—"}
             </p>
           </div>

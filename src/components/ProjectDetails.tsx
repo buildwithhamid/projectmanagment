@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, MessageSquare, User, Tag } from "lucide-react";
-
 interface ProjectDetailsProps {
   specifictaskdata: any;
   tasks?: any[];

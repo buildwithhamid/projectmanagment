@@ -9,7 +9,7 @@ const ProjectPage: React.FC = () => {
 
   const projectDocId = Object.keys(taskCache).find((id) => id === projectId);
   const specificTasks = projectDocId ? taskCache[projectDocId].tasks : [];
-  console.log(`Tasks for ${projectId} are ${specificTasks}`);
+
   return (
     <div className="min-h-screen w-full space-y-4 flex flex-col bg-background text-foreground">
       <div className="flex-1 overflow-auto">

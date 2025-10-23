@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useTaskContext, type Task } from "../TaskContext/TaskContext";
 import {

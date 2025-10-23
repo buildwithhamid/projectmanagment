@@ -11,6 +11,7 @@ import TodoModel from "@/components/TodoModel";
 import { FaEdit } from "react-icons/fa";
 import { ChevronsRightLeft, Plus } from "lucide-react";
 import TaskDetailModal from "@/components/TrelloDetailPage";
+import { MdDeleteOutline } from "react-icons/md";
 
 const DashboardPage: React.FC = () => {
   const { taskCache } = useTaskContext();
@@ -21,13 +22,13 @@ const DashboardPage: React.FC = () => {
   const Navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const statuses = ["backlog", "pending", "active", "inactive", "completed"];
-  const { projects } = useTaskContext();
+  const { projects, deleteTaskFromProject } = useTaskContext();
   useEffect(() => {
     if (!projectId) return;
 
     const project = taskCache[projectId];
     const projectTasks = project?.tasks;
-    console.log(projectTasks);
+
     const project2 = projects.find((p) => p.id === projectId);
     setprojectTitle(project2?.title || "");
 
@@ -41,8 +42,7 @@ const DashboardPage: React.FC = () => {
     setStatusTasks(statusTasksObj);
     setLoading(false);
   }, [projectId, taskCache]);
-  console.log(`current page project title: ${projectTitle}`);
-  console.log(statusTasks);
+
   const updateTaskStatusInFirebase = async (
     taskId: string,
     newStatus: string
@@ -87,6 +87,15 @@ const DashboardPage: React.FC = () => {
   const handleListView = () => {
     console.log(`Navigating the ${projectId} to list view`);
     Navigate(`../projects/${projectId}`);
+  };
+  const handleDelChange = async (taskId: string) => {
+    try {
+      if (window.confirm("Are you sure you want to delete this task?")) {
+        await deleteTaskFromProject(projectId || "", taskId || "");
+      }
+    } catch (error) {
+      console.log("err: ", error);
+    }
   };
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
@@ -193,7 +202,10 @@ const DashboardPage: React.FC = () => {
                                     {todo.title}
                                   </span>
                                 </DialogTrigger>
-                                <TaskDetailModal task={todo} />
+                                <TaskDetailModal
+                                  task={todo}
+                                  projectId={projectId}
+                                />
                               </Dialog>
 
                               {todo.todo && (
@@ -207,7 +219,7 @@ const DashboardPage: React.FC = () => {
                                   <FaEdit
                                     size={16}
                                     className={`absolute right-2 ${
-                                      todo.attachments?.length > 0 && "top-32"
+                                      todo.attachments?.length > 0 && "top-28"
                                     } text-muted-foreground hover:text-primary cursor-pointer`}
                                   />
                                 </DialogTrigger>
@@ -216,6 +228,13 @@ const DashboardPage: React.FC = () => {
                                   taskToEdit={todo}
                                 />
                               </Dialog>
+                              <MdDeleteOutline
+                                size={18}
+                                className={`absolute right-6 ${
+                                  todo.attachments?.length > 0 && "top-28"
+                                } text-muted-foreground hover:text-primary cursor-pointer`}
+                                onClick={() => handleDelChange(todo.id || "")}
+                              />
                             </div>
                           )}
                         </Draggable>

@@ -9,7 +9,7 @@ import {
 import { Progress } from "./ui/progress";
 import { Calendar, Paperclip, MessagesSquare } from "lucide-react";
 import { FaEdit } from "react-icons/fa";
-import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 
 import ProjectModol from "./ProjectModol";
 
@@ -82,17 +82,20 @@ export const ProjectCard = ({
       onClick?.(projectToShow.id);
     }
   };
-  console.log("Render ProjectCard", projectToShow.id);
 
   return (
     <Card className="w-full relative border border-border/50 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer overflow-hidden pb-1">
-      {projectToShow?.attachments && projectToShow.attachments.length > 0 && (
+      {projectToShow?.attachments && projectToShow.attachments.length > 0 ? (
         <div className="w-full  h-22 md:h-12 -mt-3">
           <img
             src={projectToShow.attachments[0]}
             alt={projectToShow.title}
             className="w-full h-full object-cover "
           />
+        </div>
+      ) : (
+        <div className="w-full  h-22 md:h-12 -mt-3">
+          <img src={"hero.png"} className="w-full h-full object-cover " />
         </div>
       )}
 
@@ -105,9 +108,8 @@ export const ProjectCard = ({
                 className=" absolute top-24 md:top-13 right-2 text-muted-foreground hover:text-primary cursor-pointer"
               />
             </DialogTrigger>
-            <DialogContent>
-              <ProjectModol ProjectToEdit={projectToShow} />
-            </DialogContent>
+
+            <ProjectModol ProjectToEdit={projectToShow} />
           </Dialog>
         </div>
       </CardHeader>
@@ -122,7 +124,7 @@ export const ProjectCard = ({
         </CardTitle>
 
         <p className="text-sm text-muted-foreground line-clamp-2 ">
-          {projectToShow.description}
+          {projectToShow.description || "No description  provided."}
         </p>
 
         <div className="flex items-center flex-wrap gap-2 text-xs">

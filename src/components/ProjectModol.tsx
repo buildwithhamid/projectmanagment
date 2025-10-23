@@ -43,7 +43,7 @@ export default function ProjectModol({
     Category: "",
     attachments: [],
     dueDate: "",
-    status: "",
+    status: "backlog",
   });
 
   const { userContextId } = useUserContextId();
@@ -79,7 +79,7 @@ export default function ProjectModol({
         formData.Category,
         formData.attachments,
         formData.dueDate || "",
-        formData.status || ""
+        formData.status || "backlog"
       );
     } else {
       await addProject(
@@ -89,7 +89,7 @@ export default function ProjectModol({
         formData.Category || "",
         formData.attachments || [],
         formData.dueDate || "",
-        formData.status || ""
+        formData.status || "backlog"
       );
     }
 

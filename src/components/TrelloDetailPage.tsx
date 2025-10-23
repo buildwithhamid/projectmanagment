@@ -1,5 +1,7 @@
 import React from "react";
 import {
+  Dialog,
+  DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -7,13 +9,19 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Calendar, Clock, FolderOpen } from "lucide-react";
-
+import { Calendar, Clock } from "lucide-react";
+import { FaEdit } from "react-icons/fa";
+import TodoModel from "./TodoModel";
+import type { Task } from "@/TaskContext/TaskContext";
 type TaskDetailModalProps = {
-  task: any | null;
+  task: Task;
+  projectId?: string;
 };
 
-const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task }) => {
+const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
+  task,
+  projectId,
+}) => {
   if (!task) return null;
 
   const formatDate = (dateString: string) => {
@@ -59,25 +67,27 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task }) => {
         <div className="p-4 sm:p-6 space-y-5">
           {/* Title & Status */}
           <DialogHeader>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <DialogTitle className="text-lg sm:text-2xl font-bold leading-tight">
+            <div className="flex flex-row justify-between   gap-3">
+              <DialogTitle className="flex gap-2 text-lg sm:text-2xl font-bold leading-tight">
                 {task.title}
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <FaEdit
+                      size={18}
+                      className="m1-1 md:mt-2.5 text-muted-foreground hover:text-primary cursor-pointer"
+                    />
+                  </DialogTrigger>
+                  <TodoModel projectId={projectId} taskToEdit={task} />
+                </Dialog>
               </DialogTitle>
-              <Badge variant={getStatusVariant(task.status)} className="w-fit">
+              <Badge
+                variant={getStatusVariant(task.status)}
+                className="w-fit px-3 py-1 text-sm capitalize"
+              >
                 {task.status}
               </Badge>
             </div>
           </DialogHeader>
-
-          {/* Project */}
-          {task.projectTitle && (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <FolderOpen className="h-4 w-4" />
-              <span className="text-sm font-medium truncate">
-                {task.projectTitle}
-              </span>
-            </div>
-          )}
 
           <Separator />
 

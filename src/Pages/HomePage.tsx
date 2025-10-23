@@ -86,7 +86,6 @@ const HomePage = () => {
     LatestProject,
     LastUpdatedProject,
   ]);
-  console.log("Render ProjectCard", filteredProjects.length);
 
   const Categories = useMemo(() => {
     const unique = new Set();
@@ -157,8 +156,6 @@ const HomePage = () => {
     indexOfFirstProject,
     indexOfLastProject
   );
-
-  console.log("Current Projects Render", currentProjects);
 
   return (
     <>

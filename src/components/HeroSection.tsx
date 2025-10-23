@@ -49,7 +49,7 @@ export default function HeroSection() {
           className="w-full max-w-[95%] sm:max-w-[80%] md:max-w-[70%] rounded-2xl shadow-2xl border border-gray-700 transition-transform duration-300 hover:scale-[1.02]"
         />
         <img
-          src="/public/hom2.png"
+          src="/hom2.png"
           alt="App Preview"
           className="w-full md:hidden max-w-[95%] sm:max-w-[80%] md:max-w-[70%] rounded-2xl shadow-2xl border border-gray-700 transition-transform duration-300 hover:scale-[1.02]"
         />
