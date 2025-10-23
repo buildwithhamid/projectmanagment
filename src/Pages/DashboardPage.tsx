@@ -16,21 +16,17 @@ import { MdDeleteOutline } from "react-icons/md";
 const DashboardPage: React.FC = () => {
   const { taskCache } = useTaskContext();
   const { projectId } = useParams();
-  const [projectTitle, setprojectTitle] = useState<string>("");
   const [cardWidth, setcardWidth] = useState<boolean>(false);
   const [statusTasks, setStatusTasks] = useState<{ [key: string]: any[] }>({});
   const Navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const statuses = ["backlog", "pending", "active", "inactive", "completed"];
-  const { projects, deleteTaskFromProject } = useTaskContext();
+  const { deleteTaskFromProject } = useTaskContext();
   useEffect(() => {
     if (!projectId) return;
 
     const project = taskCache[projectId];
     const projectTasks = project?.tasks;
-
-    const project2 = projects.find((p) => p.id === projectId);
-    setprojectTitle(project2?.title || "");
 
     const statusTasksObj: { [key: string]: any[] } = {};
     statuses.forEach((status) => {
