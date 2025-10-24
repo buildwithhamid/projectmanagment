@@ -5,7 +5,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Eye, FileText } from "lucide-react";
-import { useState } from "react";
 import TaskDetailModal from "./TrelloDetailPage";
 import { MdDeleteOutline } from "react-icons/md";
 import { FaEdit } from "react-icons/fa";
@@ -16,22 +15,17 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 
 const TaskDetailsAccordion = ({
   task,
-  projectTitle,
+  projectid,
 }: {
   task: Task & { dueDate: string };
-  projectTitle: string;
+  projectid: string;
 }) => {
-  const [showDetail, setShowDetail] = useState(false);
   const { deleteTaskFromProject } = useTaskContext();
 
-  const handleDelChange = async () => {
+  const handleDelChange = async (taskId: string) => {
     try {
       if (window.confirm("Are you sure you want to delete this task?")) {
-        await deleteTaskFromProject(
-          projectTitle,
-          task.userId ?? null,
-          task.id ?? ""
-        );
+        await deleteTaskFromProject(projectid, taskId || "");
       }
     } catch (error) {
       console.log("err: ", error);
@@ -74,12 +68,15 @@ const TaskDetailsAccordion = ({
                   </div>
                 </div>
               </div>
-
-              <Eye
-                size={20}
-                onClick={() => setShowDetail(!showDetail)}
-                className="absolute top-2 right-2 text-muted-foreground hover:text-primary cursor-pointer"
-              />
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Eye
+                    size={20}
+                    className="absolute top-2 right-2 text-muted-foreground hover:text-primary cursor-pointer"
+                  />
+                </DialogTrigger>
+                <TaskDetailModal task={task} />
+              </Dialog>
 
               <Dialog>
                 <DialogTrigger asChild>
@@ -88,22 +85,18 @@ const TaskDetailsAccordion = ({
                     className="absolute top-2 right-14 text-muted-foreground hover:text-primary cursor-pointer"
                   />
                 </DialogTrigger>
-                <TodoModel projectTitle={projectTitle} taskToEdit={task} />
+                <TodoModel projectId={projectid} taskToEdit={task} />
               </Dialog>
 
               <MdDeleteOutline
                 size={18}
                 className="absolute top-2 right-8 text-muted-foreground hover:text-primary cursor-pointer"
-                onClick={handleDelChange}
+                onClick={() => handleDelChange(task.id || "")}
               />
             </div>
           </AccordionContent>
         </AccordionItem>
       </Accordion>
-
-      {showDetail && (
-        <TaskDetailModal task={task} onClose={() => setShowDetail(false)} />
-      )}
     </>
   );
 };

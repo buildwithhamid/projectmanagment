@@ -12,7 +12,7 @@ interface StatsCardProps {
 export const StatsCard = ({
   title,
   value,
-  description,
+
   icon: Icon,
   color = "bg-primary",
 }: StatsCardProps) => {
@@ -23,8 +23,8 @@ export const StatsCard = ({
         color
       )}
     >
-      <CardContent className="p-3 sm:p-3">
-        <div className="flex items-center justify-between mb-2 sm:mb-2">
+      <CardContent className="py-2 sm:p-3">
+        <div className="flex items-center justify-between mb-1 sm:mb-2">
           <h3 className="text-base sm:text-lg font-semibold text-white/90">
             {title}
           </h3>
@@ -37,11 +37,6 @@ export const StatsCard = ({
         <div className="text-2xl sm:text-4xl font-extrabold text-white mb-1 sm:mb-2">
           {value}
         </div>
-        {description && (
-          <p className="text-xs sm:text-sm text-white/75 leading-relaxed">
-            {description}
-          </p>
-        )}
       </CardContent>
     </Card>
   );

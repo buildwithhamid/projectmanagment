@@ -1,0 +1,88 @@
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Trash2, Trello } from "lucide-react";
+import { FaEdit } from "react-icons/fa";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import ProjectModol from "./ProjectModol";
+import { type Project } from "@/TaskContext/TaskContext";
+import { useTaskContext } from "@/TaskContext/TaskContext";
+interface ProjectOptionsProps {
+  currentProjectDetails: Project;
+}
+
+const ProjectOptions = ({ currentProjectDetails }: ProjectOptionsProps) => {
+  const navigate = useNavigate();
+  const { deleteProject } = useTaskContext();
+
+  const handleTrelloLink = (projectId: string) => {
+    navigate(`../dashboard/${projectId}`);
+  };
+  const handleDelete = (projectId: string) => {
+    console.log(`Deleting project with ID: ${projectId}`);
+    deleteProject(projectId);
+    navigate("../");
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-1 hover:bg-accent hover:text-accent-foreground"
+        >
+          Options
+        </Button>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent
+        align="end"
+        className="w-48 shadow-lg rounded-xl p-1 bg-background"
+      >
+        <DropdownMenuLabel className="text-sm font-medium text-muted-foreground">
+          Project Actions
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+
+        <Dialog>
+          <DialogTrigger asChild>
+            <DropdownMenuItem
+              onSelect={(e) => e.preventDefault()}
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <FaEdit className="h-4 w-4 text-chart-1" />
+              Edit Project
+            </DropdownMenuItem>
+          </DialogTrigger>
+
+          <ProjectModol ProjectToEdit={currentProjectDetails} />
+        </Dialog>
+        <DropdownMenuItem
+          onClick={() => handleTrelloLink(currentProjectDetails?.id || "")}
+          className="flex items-center gap-2 cursor-pointer"
+        >
+          <Trello className="h-4 w-4 text-chart-2" />
+          View as Trello
+        </DropdownMenuItem>
+
+        <DropdownMenuItem
+          onClick={() => handleDelete(currentProjectDetails?.id || "")}
+          className="flex items-center gap-2 cursor-pointer focus:bg-red-50 dark:focus:bg-red-950/30"
+        >
+          <Trash2 className="h-4 w-4  text-destructive" />
+          Delete Project
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
+export default ProjectOptions;
