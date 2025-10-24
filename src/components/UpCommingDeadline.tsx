@@ -22,7 +22,7 @@ export function UpcomingDeadlines({ projects = [] }: { projects: Project[] }) {
     .slice(0, 5);
 
   return (
-    <Card className="relative border border-border/50 rounded-lg w-full max-h-min">
+    <Card className="relative border border-border/50 rounded-lg w-full  max-h-min">
       <CardHeader className="px-3">
         <CardTitle className="flex items-center gap-2 text-xs font-semibold">
           <CalendarDays size={16} />

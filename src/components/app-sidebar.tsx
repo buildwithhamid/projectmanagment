@@ -5,6 +5,7 @@ import { AiOutlinePlus, AiOutlineDelete } from "react-icons/ai";
 import { Separator } from "./ui/separator";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Bot } from "lucide-react";
+import { ScrollArea } from "./ui/scroll-area";
 import ProjectModol from "./ProjectModol";
 import {
   Sidebar,
@@ -203,65 +204,31 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </div>
               )}
             </div>
+            <ScrollArea className="h-64">
+              <SidebarMenu>
+                {projects.length > 0 ? (
+                  [...projects]
+                    .sort(
+                      (a, b) =>
+                        new Date(b.createdAt).getTime() -
+                        new Date(a.createdAt).getTime()
+                    )
 
-            <SidebarMenu>
-              {projects.length > 0 ? (
-                [...projects]
-                  .sort(
-                    (a, b) =>
-                      new Date(b.createdAt).getTime() -
-                      new Date(a.createdAt).getTime()
-                  )
-                  .slice(0, 5)
-                  .map((project) => (
-                    <SidebarMenuItem
-                      key={project.id}
-                      className={`flex items-center justify-between ${
-                        state === "expanded"
-                          ? "flex-row"
-                          : "flex-col w-full justify-center text-lg"
-                      }`}
-                    >
-                      <NavLink
-                        to={`projects/${project.id}`}
-                        className="flex-1 hidden md:flex "
-                        onClick={() => {
-                          setOpen(false);
-                        }}
+                    .map((project) => (
+                      <SidebarMenuItem
+                        key={project.id}
+                        className={`flex items-center justify-between ${
+                          state === "expanded"
+                            ? "flex-row"
+                            : "flex-col w-full justify-center text-lg"
+                        }`}
                       >
-                        {({ isActive }) => (
-                          <SidebarMenuButton
-                            tooltip={
-                              project?.title.charAt(0).toUpperCase() +
-                              project?.title.slice(1)
-                            }
-                            isActive={isActive}
-                            className={`flex items-center ${
-                              state === "expanded"
-                                ? "gap-2 px-2 py-1.5"
-                                : "flex-col gap-1 p-1 justify-center"
-                            } rounded-md transition-colors ${
-                              isActive
-                                ? "bg-primary text-white"
-                                : "hover:bg-sidebar-accent hover:text-foreground"
-                            }`}
-                          >
-                            <span className=" text-[13px] font-medium truncate max-w-[120px]">
-                              {state === "collapsed"
-                                ? project.title.toUpperCase()[0] +
-                                  project.title.slice(-1)
-                                : project.title.charAt(0).toUpperCase() +
-                                  project.title.slice(1)}
-                            </span>
-                          </SidebarMenuButton>
-                        )}
-                      </NavLink>
-                      {/* Mobile Project Item (with Delete Button) */}
-                      <div className="flex items-center justify-between w-full md:hidden px-2 py-0.5 rounded-lg hover:bg-sidebar-accent transition-colors duration-200">
                         <NavLink
                           to={`projects/${project.id}`}
-                          className="flex-1"
-                          onClick={() => setOpen(false)}
+                          className="flex-1 hidden md:flex "
+                          onClick={() => {
+                            setOpen(false);
+                          }}
                         >
                           {({ isActive }) => (
                             <SidebarMenuButton
@@ -270,7 +237,41 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                 project?.title.slice(1)
                               }
                               isActive={isActive}
-                              className={`flex items-center justify-start gap-2 w-full rounded-md transition-colors duration-200
+                              className={`flex items-center ${
+                                state === "expanded"
+                                  ? "gap-2 px-2 py-1.5"
+                                  : "flex-col gap-1 p-1 justify-center"
+                              } rounded-md transition-colors ${
+                                isActive
+                                  ? "bg-primary text-white"
+                                  : "hover:bg-sidebar-accent hover:text-foreground"
+                              }`}
+                            >
+                              <span className=" text-[13px] font-medium truncate max-w-[120px]">
+                                {state === "collapsed"
+                                  ? project.title.toUpperCase()[0] +
+                                    project.title.slice(-1)
+                                  : project.title.charAt(0).toUpperCase() +
+                                    project.title.slice(1)}
+                              </span>
+                            </SidebarMenuButton>
+                          )}
+                        </NavLink>
+                        {/* Mobile Project Item (with Delete Button) */}
+                        <div className="flex items-center justify-between w-full md:hidden px-2 py-0.5 rounded-lg hover:bg-sidebar-accent transition-colors duration-200">
+                          <NavLink
+                            to={`projects/${project.id}`}
+                            className="flex-1"
+                            onClick={() => setOpen(false)}
+                          >
+                            {({ isActive }) => (
+                              <SidebarMenuButton
+                                tooltip={
+                                  project?.title.charAt(0).toUpperCase() +
+                                  project?.title.slice(1)
+                                }
+                                isActive={isActive}
+                                className={`flex items-center justify-start gap-2 w-full rounded-md transition-colors duration-200
           ${
             isActive
               ? "bg-primary text-white"
@@ -278,55 +279,56 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           }
           px-3 py-2 text-[14px] font-medium truncate max-w-[180px]
         `}
-                            >
-                              <span>
-                                {project.title.charAt(0).toUpperCase() +
-                                  project.title.slice(1)}
-                              </span>
-                            </SidebarMenuButton>
-                          )}
-                        </NavLink>
+                              >
+                                <span>
+                                  {project.title.charAt(0).toUpperCase() +
+                                    project.title.slice(1)}
+                                </span>
+                              </SidebarMenuButton>
+                            )}
+                          </NavLink>
 
-                        {/* Delete button */}
-                        <button
-                          onClick={() => deleteProject(project.id!)}
-                          className="p-2 text-muted-foreground hover:bg-red-500 hover:text-white rounded-md transition"
-                        >
-                          <AiOutlineDelete size={16} />
-                        </button>
-                      </div>
+                          {/* Delete button */}
+                          <button
+                            onClick={() => deleteProject(project.id!)}
+                            className="p-2 text-muted-foreground hover:bg-red-500 hover:text-white rounded-md transition"
+                          >
+                            <AiOutlineDelete size={16} />
+                          </button>
+                        </div>
 
-                      {state === "expanded" && (
-                        <button
-                          onClick={() => deleteProject(project.id!)}
-                          className="p-1 ml-1 text-muted-foreground hover:bg-red-500 hover:text-white rounded transition"
-                        >
-                          <AiOutlineDelete size={15} />
-                        </button>
-                      )}
-                    </SidebarMenuItem>
-                  ))
-              ) : (
-                <div className="px-3 py-2 text-sm text-muted-foreground flex flex-col items-center justify-center">
-                  {loading ? (
-                    <Loader />
-                  ) : (
-                    <>
-                      {state === "expanded" && (
-                        <>
-                          <span className="text-[13px] font-medium">
-                            No projects
-                          </span>
-                          <span className="text-[12px] text-muted-foreground">
-                            Add a project
-                          </span>
-                        </>
-                      )}
-                    </>
-                  )}
-                </div>
-              )}
-            </SidebarMenu>
+                        {state === "expanded" && (
+                          <button
+                            onClick={() => deleteProject(project.id!)}
+                            className="p-1 ml-1 text-muted-foreground hover:bg-red-500 hover:text-white rounded transition"
+                          >
+                            <AiOutlineDelete size={15} />
+                          </button>
+                        )}
+                      </SidebarMenuItem>
+                    ))
+                ) : (
+                  <div className="px-3 py-2 text-sm text-muted-foreground flex flex-col items-center justify-center">
+                    {loading ? (
+                      <Loader />
+                    ) : (
+                      <>
+                        {state === "expanded" && (
+                          <>
+                            <span className="text-[13px] font-medium">
+                              No projects
+                            </span>
+                            <span className="text-[12px] text-muted-foreground">
+                              Add a project
+                            </span>
+                          </>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
+              </SidebarMenu>
+            </ScrollArea>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

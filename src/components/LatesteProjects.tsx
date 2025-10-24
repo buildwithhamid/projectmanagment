@@ -29,11 +29,9 @@ const LatestProject: React.FC<LatestProjectProps> = ({ LatestProjects }) => {
     .slice(0, 5);
 
   return (
-    <Card className="w-full pb-1 pt-1 min-h-min border border-border/50 rounded-lg mt-2 bg-card transition-all duration-300">
+    <Card className="w-full overscroll-none pb-1 pt-1 min-h-min border border-border/50 rounded-lg mt-2 bg-card transition-all duration-300">
       <CardHeader className="flex justify-between -ml-3">
-        <CardTitle className="text-sm">
-          Top 5 Recently Updated Projects
-        </CardTitle>
+        <CardTitle className="text-sm">Recently Updated Projects</CardTitle>
         <Badge variant="outline" className="text-xs -mr-3">
           {top5UpdatedProjects.length}
         </Badge>
@@ -41,7 +39,7 @@ const LatestProject: React.FC<LatestProjectProps> = ({ LatestProjects }) => {
 
       {top5UpdatedProjects.length > 0 ? (
         <ScrollArea className="w-full pr-1">
-          <CardContent className="max-h-[208px] p-0 -mt-1">
+          <CardContent className="max-h-[190px] p-0 -mt-1">
             <div className="flex flex-col gap-2 p-1">
               {top5UpdatedProjects.map((project) => (
                 <Card

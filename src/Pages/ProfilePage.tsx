@@ -1,19 +1,12 @@
 import ProfileContent from "@/components/profile-page/components/profile-content";
 import ProfileHeader from "@/components/profile-page/components/profile-header";
+import { useTaskContext } from "@/TaskContext/TaskContext";
 const ProfilePage = () => {
-  const user = {
-    name: "Hasnain Ahmad",
-    email: "hasnain@example.com",
-    location: "Lahore, Pakistan",
-    joinedAt: "October 2025",
-    role: "Full-Stack Developer",
-    avatarUrl: "https://example.com/avatar.png",
-    membership: "Pro Member",
-  };
+  const { userData } = useTaskContext();
 
   return (
     <div className="container mx-auto space-y-6 px-4 py-10">
-      <ProfileHeader user={user} />
+      <ProfileHeader user={userData} />
       <ProfileContent />
     </div>
   );

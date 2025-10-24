@@ -12,12 +12,21 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
-
+import { type User } from "@/AuthContext/UserContext";
 const SignUp: React.FC = () => {
-  const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [fullname, setFullname] = useState<string>("");
+
   const [loading, setLoading] = useState<boolean>(false);
+  const [userData, setuserData] = useState<User>({
+    fullname: "",
+    bio: "",
+    email: "",
+    avatar: "",
+    isActive: false,
+    occupation: "",
+    location: "",
+    origanization: "",
+  });
   const navigate = useNavigate();
 
   const { signUp } = useUserContextId();
@@ -27,7 +36,7 @@ const SignUp: React.FC = () => {
     setLoading(true);
 
     try {
-      await signUp(email, password);
+      await signUp(userData?.email || "", password, userData);
       console.log("✅ User signed up successfully!");
       navigate("/v1");
     } catch (error: any) {
@@ -55,8 +64,49 @@ const SignUp: React.FC = () => {
             <Input
               type="text"
               placeholder="Full Name"
-              value={fullname}
-              onChange={(e) => setFullname(e.target.value)}
+              value={userData?.fullname || ""}
+              onChange={(e) =>
+                setuserData({ ...userData, fullname: e.target.value })
+              }
+              required
+              disabled={loading}
+              className="bg-gray-900/40 border-gray-700 text-white placeholder-gray-500"
+            />
+          </div>
+          <div className="space-y-2">
+            <Input
+              type="text"
+              placeholder="Occupation"
+              value={userData?.occupation || ""}
+              onChange={(e) =>
+                setuserData({ ...userData, occupation: e.target.value })
+              }
+              required
+              disabled={loading}
+              className="bg-gray-900/40 border-gray-700 text-white placeholder-gray-500"
+            />
+          </div>
+          <div className="space-y-2">
+            <Input
+              type="text"
+              placeholder="Organization"
+              value={userData?.origanization || ""}
+              onChange={(e) =>
+                setuserData({ ...userData, origanization: e.target.value })
+              }
+              required
+              disabled={loading}
+              className="bg-gray-900/40 border-gray-700 text-white placeholder-gray-500"
+            />
+          </div>
+          <div className="space-y-2">
+            <Input
+              type="text"
+              placeholder="Country"
+              value={userData?.location || ""}
+              onChange={(e) =>
+                setuserData({ ...userData, location: e.target.value })
+              }
               required
               disabled={loading}
               className="bg-gray-900/40 border-gray-700 text-white placeholder-gray-500"
@@ -67,8 +117,10 @@ const SignUp: React.FC = () => {
             <Input
               type="email"
               placeholder="example123@gmail.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={userData.email || ""}
+              onChange={(e) =>
+                setuserData({ ...userData, email: e.target.value })
+              }
               required
               disabled={loading}
               className="bg-gray-900/40 border-gray-700 text-white placeholder-gray-500"
@@ -89,7 +141,7 @@ const SignUp: React.FC = () => {
 
           <Button
             type="submit"
-            disabled={loading || !email.trim() || !password.trim()}
+            disabled={loading || !userData.email?.trim() || !password.trim()}
             className="w-full rounded-full bg-white text-black hover:bg-gray-200 transition-all"
           >
             {loading ? "Creating..." : "Create Account"}

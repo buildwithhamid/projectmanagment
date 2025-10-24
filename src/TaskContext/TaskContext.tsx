@@ -27,8 +27,13 @@ export interface Task {
 }
 export interface User {
   id?: string;
-  email: string | null;
-  name?: string | null;
+  email?: string | null;
+  fullname?: string | null;
+  location?: string | null;
+  occupation?: string | null;
+  origanization?: string | null;
+  isActive?: boolean;
+  bio?: string | null;
   avatar?: string | null;
   createdAt?: string;
   updatedAt?: string;
@@ -87,6 +92,7 @@ interface TaskContextType {
   // Projects
   fetchUserProjects: (userId: string) => Promise<void>;
   fetchUserData: (userId: string) => Promise<User | undefined>;
+  updateUserData: (data: User) => Promise<User | undefined>;
   addProject: (
     title: string,
     userId: string,
@@ -168,6 +174,38 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
       setTaskCache(cache);
     } catch (err) {
       console.error("❌ Error fetching projects:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateUserData = async (data: User): Promise<User | undefined> => {
+    setLoading(true);
+    try {
+      if (!data.id) throw new Error("❌ No user ID provided.");
+
+      const userRef = doc(db, "users", data.id);
+
+      const userUpdateData = {
+        fullname: data.fullname,
+        location: data.location,
+        occupation: data.occupation,
+        origanization: data.origanization,
+        isActive: data.isActive,
+        bio: data.bio,
+        avatar: data.avatar,
+        updatedAt: new Date().toISOString(),
+      };
+
+      await updateDoc(userRef, userUpdateData);
+
+      setuserData((p) => (p.id === data.id ? { ...p, ...userUpdateData } : p));
+
+      console.log("✅ User data updated successfully!");
+      return userUpdateData;
+    } catch (error) {
+      console.error("❌ Error updating user:", error);
+      return undefined;
     } finally {
       setLoading(false);
     }
@@ -385,6 +423,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (user) {
         fetchUserProjects(user.uid);
+        fetchUserData(user.uid);
       } else if (!user) {
         setProjects([]);
         setTaskCache({});
@@ -398,6 +437,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     <TaskContext.Provider
       value={{
         userData,
+        updateUserData,
         fetchUserData,
         projects,
         setProjects,

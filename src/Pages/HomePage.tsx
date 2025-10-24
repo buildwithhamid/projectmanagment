@@ -20,7 +20,7 @@ import { Plus } from "lucide-react";
 import Loader from "@/components/Loader";
 import { UpcomingDeadlines } from "@/components/UpCommingDeadline";
 import LatestProjects from "@/components/LatesteProjects";
-import { Card } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Pagination,
   PaginationContent,
@@ -315,7 +315,7 @@ const HomePage = () => {
                         </div>
                       ))
                     ) : (
-                      <p className="text-muted-foreground text-center col-span-full">
+                      <p className="text-muted-foreground text-center col-span-full pt-12">
                         No projects found. Add new projects to get started.
                       </p>
                     )}
@@ -375,11 +375,21 @@ const HomePage = () => {
               >
                 <div className="flex flex-col gap-2 sm:flex-col md:flex-row">
                   <Card
-                    className="max-h-min bg-blend-hard-light flex p-2 rounded-lg flex-col gap-1 
+                    className="h-[392px]  flex p-1 border border-border/50 rounded-lg flex-col gap-1 
                      w-full md:w-1/2"
                   >
-                    <UpcomingDeadlines projects={projects} />
-                    <LatestProjects LatestProjects={projects} />
+                    <CardHeader className="flex justify-between -ml-5">
+                      <CardTitle className="text-md">
+                        Project Highlights
+                      </CardTitle>
+                    </CardHeader>
+
+                    {projects.length > 0 && (
+                      <>
+                        <UpcomingDeadlines projects={projects} />
+                        <LatestProjects LatestProjects={projects} />
+                      </>
+                    )}
                   </Card>
                   <div className="flex h-auto md:h-[200px] flex-col gap-2 w-full md:w-1/2 md:-mt-2">
                     <LatestUpdatedTasks latestTasks={latestTasks} />

@@ -1,8 +1,4 @@
-"use client";
-
-import { useState } from "react";
-import { Shield, Key, Trash2 } from "lucide-react";
-
+import { Shield, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,25 +14,61 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-
+import { useTaskContext } from "@/TaskContext/TaskContext";
+import { useState } from "react";
+import type { User } from "@/TaskContext/TaskContext";
+import { useUserContextId } from "@/AuthContext/UserContext";
+import { ChangePasswordDialog } from "@/components/ChangePassword";
 export default function ProfileContent() {
-  const [firstName, setFirstName] = useState("John");
-  const [lastName, setLastName] = useState("Doe");
-  const [email, setEmail] = useState("john.doe@example.com");
-  const [phone, setPhone] = useState("+1 (555) 123-4567");
-  const [jobTitle, setJobTitle] = useState("Senior Product Designer");
-  const [company, setCompany] = useState("Acme Inc.");
-  const [bio, setBio] = useState(
-    "Passionate product designer with 8+ years of experience creating user-centered digital experiences."
-  );
-  const [location, setLocation] = useState("San Francisco, CA");
+  const { userData, updateUserData } = useTaskContext();
+  const { deleteFirebaseAccount, logout } = useUserContextId();
 
-  const [accountVisibility, setAccountVisibility] = useState(true);
-  const [loginNotifications, setLoginNotifications] = useState(true);
+  const [currentUser, setCurrentUser] = useState<User>({
+    id: userData?.id || "",
+    fullname: userData?.fullname || "",
+    email: userData?.email || "",
+    location: userData?.location || "",
+    occupation: userData?.occupation || "",
+    origanization: userData?.origanization || "",
+    bio: userData?.bio || "",
+    isActive: userData?.isActive ?? true,
+    avatar: userData?.avatar || "",
+  });
+
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      await updateUserData(currentUser);
+      console.log("✅ Profile updated successfully!");
+    } catch (error) {
+      console.error("❌ Failed to update profile:", error);
+    } finally {
+      setSaving(false);
+    }
+  };
+  const handleAccountDel = async () => {
+    try {
+      if (!currentUser.id) throw new Error("No user ID found.");
+
+      const confirmDelete = window.confirm(
+        "Are you sure you want to delete your account? This action is irreversible."
+      );
+
+      if (!confirmDelete) return;
+
+      await deleteFirebaseAccount(currentUser.id);
+      await logout();
+
+      console.log("✅ Account deleted successfully!");
+    } catch (error) {
+      console.error("❌ Failed to delete account:", error);
+    }
+  };
 
   return (
     <Tabs defaultValue="personal" className="space-y-6">
-      {/* Tab Triggers */}
       <TabsList className="grid w-full grid-cols-4">
         <TabsTrigger value="personal">Personal</TabsTrigger>
         <TabsTrigger value="account">Account</TabsTrigger>
@@ -44,8 +76,23 @@ export default function ProfileContent() {
         <TabsTrigger value="notifications">Notifications</TabsTrigger>
       </TabsList>
 
-      {/* Personal Info */}
-      <TabsContent value="personal" className="space-y-6">
+      {/* PERSONAL INFO */}
+      <TabsContent value="personal" className="relative space-y-6">
+        <div className="absolute top-4 right-6 flex items-center gap-3">
+          {currentUser.isActive ? (
+            <>
+              <h3>Active</h3>
+            </>
+          ) : (
+            <>Not Active</>
+          )}
+          <Switch
+            checked={currentUser.isActive}
+            onCheckedChange={(value) =>
+              setCurrentUser({ ...currentUser, isActive: value })
+            }
+          />
+        </div>
         <Card>
           <CardHeader>
             <CardTitle>Personal Information</CardTitle>
@@ -53,55 +100,102 @@ export default function ProfileContent() {
               Update your personal details and profile information.
             </CardDescription>
           </CardHeader>
+
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="firstName">First Name</Label>
+                <Label htmlFor="fullname">Full Name</Label>
                 <Input
-                  id="firstName"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
+                  id="fullname"
+                  value={currentUser.fullname ?? ""}
+                  onChange={(e) =>
+                    setCurrentUser({ ...currentUser, fullname: e.target.value })
+                  }
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
-                <Input
-                  id="lastName"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                />
-              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
                   type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={currentUser.email ?? ""}
+                  onChange={(e) =>
+                    setCurrentUser({ ...currentUser, email: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="occupation">Occupation</Label>
+                <Input
+                  id="occupation"
+                  value={currentUser.occupation ?? ""}
+                  onChange={(e) =>
+                    setCurrentUser({
+                      ...currentUser,
+                      occupation: e.target.value,
+                    })
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="origanization">Organization</Label>
+                <Input
+                  id="origanization"
+                  value={currentUser.origanization ?? ""}
+                  onChange={(e) =>
+                    setCurrentUser({
+                      ...currentUser,
+                      origanization: e.target.value,
+                    })
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="location">Location</Label>
+                <Input
+                  id="location"
+                  value={currentUser.location ?? ""}
+                  onChange={(e) =>
+                    setCurrentUser({
+                      ...currentUser,
+                      location: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone</Label>
+                <Label htmlFor="avatar">Profile Pic</Label>
                 <Input
-                  id="phone"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="jobTitle">Job Title</Label>
-                <Input
-                  id="jobTitle"
-                  value={jobTitle}
-                  onChange={(e) => setJobTitle(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="company">Company</Label>
-                <Input
-                  id="company"
-                  value={company}
-                  onChange={(e) => setCompany(e.target.value)}
+                  type="file"
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+
+                    if (file.size > 500 * 1024) {
+                      alert("Image too large. Please upload under 500KB.");
+                      return;
+                    }
+
+                    const toBase64 = (file: File) =>
+                      new Promise<string>((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.readAsDataURL(file);
+                        reader.onload = () => resolve(reader.result as string);
+                        reader.onerror = reject;
+                      });
+
+                    const base64String = await toBase64(file);
+
+                    setCurrentUser((prev) => ({
+                      ...prev,
+                      avatar: base64String,
+                    }));
+                  }}
                 />
               </div>
             </div>
@@ -110,19 +204,18 @@ export default function ProfileContent() {
               <Label htmlFor="bio">Bio</Label>
               <Textarea
                 id="bio"
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
+                value={currentUser.bio ?? ""}
+                onChange={(e) =>
+                  setCurrentUser({ ...currentUser, bio: e.target.value })
+                }
                 rows={4}
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
-              <Input
-                id="location"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-              />
+            <div className="flex justify-end">
+              <Button onClick={handleSave} disabled={saving}>
+                {saving ? "Saving..." : "Save Changes"}
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -149,19 +242,10 @@ export default function ProfileContent() {
                 variant="outline"
                 className="border-green-200 bg-green-50 text-green-700"
               >
-                Active
+                {currentUser.isActive ? <h3>Active</h3> : <h3>Inactive</h3>}
               </Badge>
             </div>
-            <Separator />
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <Label className="text-base">Subscription Plan</Label>
-                <p className="text-muted-foreground text-sm">
-                  Pro Plan - $29/month
-                </p>
-              </div>
-              <Button variant="outline">Manage Subscription</Button>
-            </div>
+
             <Separator />
             <div className="flex items-center justify-between">
               <div className="space-y-1">
@@ -171,8 +255,10 @@ export default function ProfileContent() {
                 </p>
               </div>
               <Switch
-                checked={accountVisibility}
-                onCheckedChange={(checked) => setAccountVisibility(checked)}
+                checked={currentUser.isActive}
+                onCheckedChange={(value) =>
+                  setCurrentUser({ ...currentUser, isActive: value })
+                }
               />
             </div>
             <Separator />
@@ -204,7 +290,7 @@ export default function ProfileContent() {
                   Permanently delete your account and all data
                 </p>
               </div>
-              <Button variant="destructive">
+              <Button variant="destructive" onClick={handleAccountDel}>
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete Account
               </Button>
@@ -231,10 +317,7 @@ export default function ProfileContent() {
                     Last changed 3 months ago
                   </p>
                 </div>
-                <Button variant="outline">
-                  <Key className="mr-2 h-4 w-4" />
-                  Change Password
-                </Button>
+                <ChangePasswordDialog />
               </div>
               <Separator />
               <div className="flex items-center justify-between">
@@ -257,18 +340,7 @@ export default function ProfileContent() {
                 </div>
               </div>
               <Separator />
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <Label className="text-base">Login Notifications</Label>
-                  <p className="text-muted-foreground text-sm">
-                    Get notified when someone logs into your account
-                  </p>
-                </div>
-                <Switch
-                  checked={loginNotifications}
-                  onCheckedChange={setLoginNotifications}
-                />
-              </div>
+
               <Separator />
               <div className="flex items-center justify-between">
                 <div className="space-y-1">

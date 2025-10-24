@@ -1,18 +1,8 @@
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Camera, Calendar, Mail, MapPin } from "lucide-react";
-
-interface User {
-  name: string;
-  email: string;
-  location?: string;
-  joinedAt?: string;
-  role?: string;
-  avatarUrl?: string;
-  membership?: string;
-}
+import { Calendar, Mail, MapPin } from "lucide-react";
+import { type User } from "@/TaskContext/TaskContext";
 
 interface ProfileHeaderProps {
   user: User;
@@ -23,15 +13,17 @@ export default function ProfileHeader({ user }: ProfileHeaderProps) {
     <Card>
       <CardContent className="p-6">
         <div className="flex flex-col items-start gap-6 md:flex-row md:items-center">
-          {/* Avatar */}
-          <div className="relative">
+          <div className="relative inline-block">
             <Avatar className="h-24 w-24">
-              {user.avatarUrl ? (
-                <AvatarImage src={user.avatarUrl} alt={user.name} />
+              {user?.avatar ? (
+                <AvatarImage
+                  src={user.avatar}
+                  alt={user.fullname || "user profile"}
+                />
               ) : (
                 <AvatarFallback className="text-2xl">
-                  {user.name
-                    ? user.name
+                  {user?.fullname
+                    ? user.fullname
                         .split(" ")
                         .map((n) => n[0])
                         .join("")
@@ -40,44 +32,40 @@ export default function ProfileHeader({ user }: ProfileHeaderProps) {
                 </AvatarFallback>
               )}
             </Avatar>
-            <Button
-              size="icon"
+
+            {/* Active/Inactive Badge */}
+            <Badge
               variant="outline"
-              className="absolute -right-2 -bottom-2 h-8 w-8 rounded-full"
-            >
-              <Camera />
-            </Button>
+              className={`absolute right-1 bottom-1 h-4 w-4 rounded-full border-1 border-white ${
+                user?.isActive ? "bg-chart-2" : "bg-chart-5"
+              }`}
+            />
           </div>
 
-          {/* User Info */}
           <div className="flex-1 space-y-2">
             <div className="flex flex-col gap-2 md:flex-row md:items-center">
               <h1 className="text-2xl font-bold">
-                {user.name || "Unnamed User"}
+                {user?.fullname || "Unnamed User"}
               </h1>
-              {user.membership && (
-                <Badge variant="secondary">{user.membership}</Badge>
-              )}
             </div>
-            {user.role && <p className="text-muted-foreground">{user.role}</p>}
 
             <div className="text-muted-foreground flex flex-wrap gap-4 text-sm">
-              {user.email && (
+              {user?.email && (
                 <div className="flex items-center gap-1">
                   <Mail className="size-4" />
-                  {user.email}
+                  {user?.email}
                 </div>
               )}
-              {user.location && (
+              {user?.location && (
                 <div className="flex items-center gap-1">
                   <MapPin className="size-4" />
-                  {user.location}
+                  {user?.location}
                 </div>
               )}
-              {user.joinedAt && (
+              {user?.createdAt && (
                 <div className="flex items-center gap-1">
                   <Calendar className="size-4" />
-                  Joined {user.joinedAt}
+                  Joined {new Date(user.createdAt).toLocaleDateString()}
                 </div>
               )}
             </div>

@@ -4,19 +4,42 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
+  deleteUser,
+  updatePassword,
 } from "firebase/auth";
-import { auth } from "../Config/firbase";
+import { deleteDoc, doc, setDoc } from "firebase/firestore";
+import { auth, db } from "../Config/firbase";
 
-type UserContextIdType = {
+export interface User {
+  id?: string;
+  email: string | null;
+  fullname?: string | null;
+  location?: string | null;
+  occupation?: string | null;
+  origanization?: string | null;
+  isActive?: boolean;
+  bio?: string | null;
+  avatar?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+type UserContextType = {
   userContextId: string | null;
   setUserId: (id: string | null) => void;
   loading: boolean;
-  signUp: (email: string, password: string) => Promise<void>;
+  signUp: (
+    email: string,
+    password: string,
+    createUserData: User
+  ) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  deleteFirebaseAccount: (userId: string) => Promise<void>;
+  changeUserPassword: (newPassword: string) => Promise<boolean>;
 };
 
-const UserContextId = createContext<UserContextIdType | undefined>(undefined);
+const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [userContextId, setUserId] = useState<string | null>(null);
@@ -31,12 +54,37 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (
+    email: string,
+    password: string,
+    createUserData: User
+  ) => {
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      console.log("User registered successfully!");
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+
+      const userRef = doc(db, "users", user.uid);
+      const userData: User = {
+        id: user.uid,
+        email: user.email,
+        fullname: createUserData.fullname || "",
+        location: createUserData.location || "",
+        occupation: createUserData.occupation || "",
+        origanization: createUserData.origanization || "",
+        isActive: false,
+        bio: createUserData.bio || "",
+        avatar: createUserData.avatar || "",
+        createdAt: new Date().toISOString(),
+      };
+
+      await setDoc(userRef, userData);
+      console.log("✅ User registered & Firestore profile created!");
     } catch (error: any) {
-      console.error("Signup error:", error.message);
+      console.error("❌ Signup error:", error.message);
       throw error;
     }
   };
@@ -44,39 +92,75 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const login = async (email: string, password: string) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      console.log("User logged in!");
+      console.log("✅ User logged in!");
     } catch (error: any) {
-      console.error("Login error:", error.message);
+      console.error("❌ Login error:", error.message);
       throw error;
     }
   };
 
   const logout = async () => {
     try {
-      setUserId(null);
       await signOut(auth);
-      console.log("User logged out!");
+      setUserId(null);
+      console.log("🚪 User logged out!");
     } catch (error: any) {
-      console.error("Logout error:", error.message);
+      console.error("❌ Logout error:", error.message);
       throw error;
     }
   };
+  const deleteFirebaseAccount = async (userId: string) => {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        console.warn("⚠️ No signed-in user.");
+        return;
+      }
+      await deleteDoc(doc(db, "users", userId));
+      console.log("🗑️ Firestore user document deleted");
+      await deleteUser(user);
+      console.log("✅ Firebase Auth account deleted successfully!");
+    } catch (error: any) {
+      console.error("❌ Error deleting account:", error.message);
+    }
+  };
+  const changeUserPassword = async (newPassword: string) => {
+    try {
+      const user = auth.currentUser;
+      if (!user) throw new Error("No user is currently logged in.");
 
+      await updatePassword(user, newPassword);
+      console.log("✅ Password updated successfully!");
+      return true;
+    } catch (error: any) {
+      console.error("❌ Error updating password:", error.message);
+      throw error;
+    }
+  };
   return (
-    <UserContextId.Provider
-      value={{ userContextId, setUserId, loading, signUp, login, logout }}
+    <UserContext.Provider
+      value={{
+        userContextId,
+        setUserId,
+        loading,
+        signUp,
+        login,
+        logout,
+        deleteFirebaseAccount,
+        changeUserPassword,
+      }}
     >
       {children}
-    </UserContextId.Provider>
+    </UserContext.Provider>
   );
 };
 
 export const useUserContextId = () => {
-  const context = useContext(UserContextId);
+  const context = useContext(UserContext);
   if (!context) {
     throw new Error("useUserContextId must be used within a UserProvider");
   }
   return context;
 };
 
-export default UserContextId;
+export default UserContext;
