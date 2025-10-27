@@ -51,6 +51,7 @@ export interface Project {
   attachments?: string[];
   dueDate?: string;
   status?: string;
+  assignedUsers?: string[];
 }
 
 interface TaskContextType {
@@ -135,7 +136,8 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         setuserData(userData);
         return userData;
       } else {
-        console.warn("⚠️ No user data found in Firestore");
+        console.warn("⚠️ No user data found for:", userId);
+        setuserData({} as User);
       }
     } catch (error) {
       console.error("❌ Error fetching user data:", error);
@@ -146,19 +148,40 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       setLoading(true);
 
-      const q = query(
+      const ownedQuery = query(
         collection(db, "Projects"),
         where("userId", "==", userId)
       );
-      const querySnapshot = await getDocs(q);
+      const ownedSnapshot = await getDocs(ownedQuery);
 
-      const projectsData = querySnapshot.docs.map((doc) => ({
+      const assignedQuery = query(
+        collection(db, "Projects"),
+        where("assignedUsers", "array-contains", userId)
+      );
+      const assignedSnapshot = await getDocs(assignedQuery);
+
+      const combinedDocs = [
+        ...ownedSnapshot.docs,
+        ...assignedSnapshot.docs,
+      ].filter(
+        (doc, index, self) => index === self.findIndex((d) => d.id === doc.id)
+      );
+
+      if (combinedDocs.length === 0) {
+        console.log("⚠️ No projects found for this user.");
+        setProjects([]);
+        return;
+      }
+
+      // 🔹 4. Map to project data
+      const projectsData = combinedDocs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       })) as Project[];
 
       setProjects(projectsData);
 
+      // 🔹 5. Fetch tasks for each project
       const cache: { [key: string]: { title: string; tasks: Task[] } } = {};
       for (const project of projectsData) {
         const taskSnap = await getDocs(
@@ -171,6 +194,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
 
         cache[project.id!] = { title: project.title, tasks };
       }
+
       setTaskCache(cache);
     } catch (err) {
       console.error("❌ Error fetching projects:", err);
@@ -189,6 +213,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
       const userUpdateData = {
         fullname: data.fullname,
         location: data.location,
+        email: data.email,
         occupation: data.occupation,
         origanization: data.origanization,
         isActive: data.isActive,
@@ -196,10 +221,9 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         avatar: data.avatar,
         updatedAt: new Date().toISOString(),
       };
+      setuserData((p) => (p.id === data.id ? { ...p, ...userUpdateData } : p));
 
       await updateDoc(userRef, userUpdateData);
-
-      setuserData((p) => (p.id === data.id ? { ...p, ...userUpdateData } : p));
 
       console.log("✅ User data updated successfully!");
       return userUpdateData;
@@ -234,6 +258,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         createdAt: new Date().toISOString(),
         dueDate: dueDate || "",
         status: status,
+        assignedUsers: [userId],
       };
 
       const docRef = await addDoc(collection(db, "Projects"), projectData);

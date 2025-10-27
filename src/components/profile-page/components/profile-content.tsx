@@ -21,10 +21,9 @@ import { useUserContextId } from "@/AuthContext/UserContext";
 import { ChangePasswordDialog } from "@/components/ChangePassword";
 export default function ProfileContent() {
   const { userData, updateUserData } = useTaskContext();
-  const { deleteFirebaseAccount, logout } = useUserContextId();
-
+  const { userContextId, deleteFirebaseAccount, logout } = useUserContextId();
   const [currentUser, setCurrentUser] = useState<User>({
-    id: userData?.id || "",
+    id: userData?.id || userContextId || "",
     fullname: userData?.fullname || "",
     email: userData?.email || "",
     location: userData?.location || "",
@@ -34,12 +33,12 @@ export default function ProfileContent() {
     isActive: userData?.isActive ?? true,
     avatar: userData?.avatar || "",
   });
-
+  console.log("Saving user data:", userData);
   const [saving, setSaving] = useState(false);
-
   const handleSave = async () => {
     try {
       setSaving(true);
+
       await updateUserData(currentUser);
       console.log("✅ Profile updated successfully!");
     } catch (error) {

@@ -4,7 +4,7 @@ import { IoHomeOutline } from "react-icons/io5";
 import { AiOutlinePlus, AiOutlineDelete } from "react-icons/ai";
 import { Separator } from "./ui/separator";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
-import { Bot } from "lucide-react";
+import { Bot, File } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 import ProjectModol from "./ProjectModol";
 import {
@@ -30,6 +30,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [hovered, setHovered] = React.useState(false);
   const items = [
     { title: "Home", url: ".", icon: IoHomeOutline },
+    { title: "Projects", url: "assign-projects", icon: File },
     { title: "Ai Talk", url: "ai-talk", icon: Bot },
   ];
   return (
