@@ -162,7 +162,7 @@ export const ProjectCard = ({
         {projectToShow?.assignedUsers &&
           projectToShow.assignedUsers?.length > 0 && (
             <div className="flex  -space-x-2 -mt-2 ml-2 -mr-2">
-              {projectToShow.assignedUsers.slice(0, 3).map((m, i) => (
+              {projectToShow.assignedUsers.slice(0, 3).map((i) => (
                 <img
                   key={i}
                   src={"/public/hero.png"}
