@@ -10,6 +10,8 @@ import {
   updateDoc,
   doc,
   getDoc,
+  arrayUnion,
+  arrayRemove,
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -27,11 +29,11 @@ export interface Task {
 }
 export interface User {
   id?: string;
-  email?: string | null;
-  fullname?: string | null;
+  email: string;
+  fullname: string;
   location?: string | null;
   occupation?: string | null;
-  origanization?: string | null;
+  organization?: string | null;
   isActive?: boolean;
   bio?: string | null;
   avatar?: string | null;
@@ -94,6 +96,7 @@ interface TaskContextType {
   fetchUserProjects: (userId: string) => Promise<void>;
   fetchUserData: (userId: string) => Promise<User | undefined>;
   updateUserData: (data: User) => Promise<User | undefined>;
+  deleteUserData: (userId: string) => Promise<void>;
   addProject: (
     title: string,
     userId: string,
@@ -110,7 +113,9 @@ interface TaskContextType {
     Category?: string,
     attachments?: string[],
     dueDate?: string,
-    status?: string
+    status?: string,
+    assignedUsers?: string[],
+    deletedUsers?: string[]
   ) => Promise<boolean>;
   deleteProject: (projectId: string) => Promise<void>;
 }
@@ -215,7 +220,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         location: data.location,
         email: data.email,
         occupation: data.occupation,
-        origanization: data.origanization,
+        origanization: data.organization,
         isActive: data.isActive,
         bio: data.bio,
         avatar: data.avatar,
@@ -230,6 +235,22 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (error) {
       console.error("❌ Error updating user:", error);
       return undefined;
+    } finally {
+      setLoading(false);
+    }
+  };
+  const deleteUserData = async (userId: string) => {
+    try {
+      setLoading(true);
+      const confirmed = window.confirm(
+        `Are you sure you want to delete project `
+      );
+      if (!confirmed) return;
+
+      await deleteDoc(doc(db, "users", userId));
+      setProjects((prev) => prev.filter((p) => p.id !== userId));
+    } catch (err) {
+      console.error("❌ Error deleting project:", err);
     } finally {
       setLoading(false);
     }
@@ -258,7 +279,6 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         createdAt: new Date().toISOString(),
         dueDate: dueDate || "",
         status: status,
-        assignedUsers: [userId],
       };
 
       const docRef = await addDoc(collection(db, "Projects"), projectData);
@@ -281,13 +301,15 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     Category?: string,
     attachments?: string[],
     dueDate?: string,
-    status?: string
+    status?: string,
+    assignedUsers?: string[],
+    deletedUsers?: string[]
   ) => {
     try {
       setLoading(true);
 
       if (!projectId || !title.trim()) return false;
-
+      const projectRef = doc(db, "Projects", projectId);
       const updatedData = {
         title,
         description: description || "",
@@ -297,12 +319,39 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         dueDate: dueDate || "",
         status: status || "",
       };
-
-      const projectRef = doc(db, "Projects", projectId);
       await updateDoc(projectRef, updatedData);
-
+      if (assignedUsers && assignedUsers.length > 0) {
+        await updateDoc(projectRef, {
+          assignedUsers: arrayUnion(...assignedUsers),
+        });
+      }
+      if (deletedUsers && deletedUsers.length > 0) {
+        await updateDoc(projectRef, {
+          assignedUsers: arrayRemove(...deletedUsers),
+        });
+      }
       setProjects((prev) =>
-        prev.map((p) => (p.id === projectId ? { ...p, ...updatedData } : p))
+        prev.map((p) =>
+          p.id === projectId
+            ? {
+                ...p,
+                ...updatedData,
+                assignedUsers: (() => {
+                  let updated = p.assignedUsers || [];
+                  if (deletedUsers?.length)
+                    updated = updated.filter(
+                      (id) => !deletedUsers.includes(id)
+                    );
+                  if (assignedUsers?.length)
+                    updated = Array.from(
+                      new Set([...updated, ...assignedUsers])
+                    );
+
+                  return updated;
+                })(),
+              }
+            : p
+        )
       );
 
       return true;
@@ -464,6 +513,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         userData,
         updateUserData,
         fetchUserData,
+        deleteUserData,
         projects,
         setProjects,
         taskCache,

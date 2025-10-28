@@ -164,9 +164,9 @@ const HomePage = () => {
           <Loader />
         </div>
       ) : (
-        <div className="h-full w-full p-2 bg-background md:p-1 ">
-          <main className="max-w-7xl mx-auto pt-2 flex-1">
-            <section className="mb-2">
+        <div className="h-full  p-2 bg-background md:p-1 ">
+          <main className="w-full mx-auto pt-2 flex-1">
+            <section className="mb-1">
               <div className="grid auto-rows-min gap-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4">
                 <StatsCard
                   title="Projects"
@@ -199,7 +199,7 @@ const HomePage = () => {
               <div className="flex-1 min-w-0">
                 <div className="flex flex-col gap-2">
                   <div className="flex flex-col md:flex-row lg:flex-row lg:items-center lg:justify-between w-full gap-2 pt-2 shadow-sm">
-                    <div className="relative flex items-center  w-full sm:max-w-sm md:max-w-[240px] lg:max-w-[200px]">
+                    <div className="relative flex items-center  w-full sm:max-w-sm md:max-w-[240px] lg:max-w-[200px] xl:w-full ">
                       <Search
                         className="absolute left-3 text-muted-foreground"
                         size={18}
@@ -301,7 +301,7 @@ const HomePage = () => {
                     </div>
                   </div>
                   <Separator />
-                  <div className="w-full min-h-[340px] md:min-h-[500px] lg:min-h-[340px] rounded-lg  grid gap-2 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+                  <div className="w-full min-h-[340px] md:min-h-[500px] lg:min-h-[340px] xl:h-full  rounded-lg grid gap-2 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                     {currentProjects.length > 0 ? (
                       currentProjects.map((project) => (
                         <div key={project.id} className="w-full h-full">

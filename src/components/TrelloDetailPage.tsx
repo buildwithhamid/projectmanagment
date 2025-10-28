@@ -50,10 +50,9 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   };
 
   return (
-    <DialogContent className="w-[95vw] max-w-6xl max-h-[90vh] overflow-y-auto rounded-2xl border border-border bg-background shadow-xl p-0">
+    <DialogContent className="w-[95vw] max-w-6xl max-h-[80vh] overflow-y-auto rounded-2xl border border-border bg-background shadow-xl p-0">
       {task.attachments && task.attachments.length > 0 && (
         <div className="w-full h-48 sm:h-64 md:h-72 bg-muted relative overflow-hidden">
-          {" "}
           <img
             src={task.attachments[0]}
             alt="Task attachment"

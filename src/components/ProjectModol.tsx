@@ -29,6 +29,8 @@ type ProjectToEdit = {
   attachments?: string[];
   dueDate?: string;
   status?: string;
+  userId?: string;
+  assignedUsers?: string[];
 };
 
 export default function ProjectModol({
@@ -45,7 +47,9 @@ export default function ProjectModol({
     attachments: [],
     dueDate: "",
     status: "backlog",
+    assignedUsers: [],
   });
+  const [deletedUserIds, setDeletedUserIds] = useState<string[]>([]);
 
   const { userContextId } = useUserContextId();
   const { loading, addProject, updateProject } = useTaskContext();
@@ -65,6 +69,7 @@ export default function ProjectModol({
         id: ProjectToEdit.id,
         dueDate: ProjectToEdit.dueDate || "",
         status: ProjectToEdit.status || "",
+        assignedUsers: ProjectToEdit.assignedUsers || [],
       });
     }
   }, [ProjectToEdit]);
@@ -80,7 +85,9 @@ export default function ProjectModol({
         formData.Category,
         formData.attachments,
         formData.dueDate || "",
-        formData.status || "backlog"
+        formData.status || "backlog",
+        formData.assignedUsers || [],
+        deletedUserIds
       );
     } else {
       await addProject(
@@ -101,6 +108,7 @@ export default function ProjectModol({
       Category: "",
       dueDate: "",
       status: "",
+      assignedUsers: [],
     });
     if (onClose) onClose();
   };
@@ -115,7 +123,9 @@ export default function ProjectModol({
     ],
     []
   );
-
+  const isOwner = ProjectToEdit
+    ? ProjectToEdit?.userId === userContextId
+    : true;
   return (
     <DialogContent className="w-[95vw] max-w-6xl max-h-[90vh] p-6 bg-background shadow-[0_8px_30px_rgba(0,0,0,0.1)] border border-border">
       <DialogHeader className="mb-6">
@@ -225,19 +235,70 @@ export default function ProjectModol({
           value={formData.dueDate || ""}
           onChange={(date) => setFormData({ ...formData, dueDate: date || "" })}
         />
-        <Input
-          placeholder="Assign user"
-          value={formData.Category}
-          className="md:-ml-2"
-          onChange={(e) =>
-            setFormData({ ...formData, Category: e.target.value })
-          }
-        />
+
+        <div className=" space-y-3">
+          {!isOwner && (
+            <p className="text-xs text-muted-foreground">
+              you can only view assigned users.
+            </p>
+          )}
+
+          {isOwner && (
+            <Input
+              placeholder="Assign project by Id"
+              className="w-full"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  const value = e.currentTarget.value.trim();
+
+                  if (value && !formData.assignedUsers?.includes(value)) {
+                    setFormData((prev) => ({
+                      ...prev,
+                      assignedUsers: [...(prev.assignedUsers || []), value],
+                    }));
+                  }
+
+                  e.currentTarget.value = "";
+                }
+              }}
+            />
+          )}
+
+          <div className="flex flex-wrap gap-2 mt-1">
+            {formData.assignedUsers?.map((uid) => (
+              <div
+                key={uid}
+                className="flex items-center gap-1 bg-muted text-foreground text-xs px-2 py-0.5 rounded-md"
+              >
+                {uid.slice(0, 4)}
+                {isOwner && (
+                  <button
+                    onClick={() => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        assignedUsers: prev.assignedUsers?.filter(
+                          (id) => id !== uid
+                        ),
+                      }));
+
+                      setDeletedUserIds((prev) => [...prev, uid]);
+                    }}
+                    className="text-chart-5 hover:text-destructive ml-1 text-xs"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
         <Select
           value={formData.status}
           onValueChange={(v) => handleInputChange("status", v)}
         >
-          <SelectTrigger className="md:-ml-2">
+          <SelectTrigger className="">
             <SelectValue placeholder="Select status" />
           </SelectTrigger>
           <SelectContent>
@@ -248,19 +309,10 @@ export default function ProjectModol({
             ))}
           </SelectContent>
         </Select>
-
-        <div className="flex flex-col justify-center text-sm text-muted-foreground">
-          <p>
-            Created by: <span className="font-medium text-foreground">You</span>
-          </p>
-          <p>
-            Assigned members: <span className="italic">Add later</span>
-          </p>
-        </div>
       </div>
 
       {/* Footer */}
-      <DialogFooter className="mt-8 flex justify-end">
+      <DialogFooter className="mt-4 flex justify-end">
         <Button onClick={handleSubmit} disabled={loading} className="px-6">
           {loading
             ? ProjectToEdit

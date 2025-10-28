@@ -6,7 +6,7 @@ import {
 
 export function VideoDemoDialog() {
   return (
-    <DialogContent className="max-w-md bg-black p-0 overflow-hidden">
+    <DialogContent className="w-[95vw] max-w-6xl max-h-[90vh] p-6 bg-background shadow-[0_8px_30px_rgba(0,0,0,0.1)] border border-border">
       <DialogHeader className="p-4">
         <DialogTitle className="text-sm">
           Project Flow The ultimate Project Manger
