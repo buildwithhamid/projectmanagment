@@ -312,7 +312,7 @@ export default function ProjectModol({
       </div>
 
       {/* Footer */}
-      <DialogFooter className="mt-4 flex justify-end">
+      <DialogFooter className=" flex justify-end">
         <Button onClick={handleSubmit} disabled={loading} className="px-6">
           {loading
             ? ProjectToEdit

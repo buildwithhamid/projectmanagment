@@ -48,7 +48,14 @@ const HomePage = () => {
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       )[0];
   }, [projects]);
-
+  const AssignedProjects = useMemo(() => {
+    if (!projects?.length) return null;
+    return [...projects].filter((p) => p.assignedUsers?.length);
+  }, [projects]);
+  const TotalActiveProjects = useMemo(() => {
+    if (!projects?.length) return null;
+    return [...projects].filter((p) => p.status == "active");
+  }, [projects]);
   const LastUpdatedProject = useMemo(() => {
     if (!projects?.length) return null;
     return [...projects]
@@ -98,45 +105,44 @@ const HomePage = () => {
     });
   }, [projects]);
 
-  const { totalTasks, totalActive, totalCompleted, latestTasks } =
-    useMemo(() => {
-      let total = 0,
-        active = 0,
-        completed = 0;
-      const allTasks = [];
+  const { totalTasks, latestTasks } = useMemo(() => {
+    let total = 0,
+      active = 0,
+      completed = 0;
+    const allTasks = [];
 
-      for (const [projectId, project] of Object.entries(taskCache)) {
-        const tasks = project.tasks || [];
-        total += tasks.length;
-        active += tasks.filter((t) => t.status === "active").length;
-        completed += tasks.filter((t) => t.status === "completed").length;
+    for (const [projectId, project] of Object.entries(taskCache)) {
+      const tasks = project.tasks || [];
+      total += tasks.length;
+      active += tasks.filter((t) => t.status === "active").length;
+      completed += tasks.filter((t) => t.status === "completed").length;
 
-        for (const task of tasks) {
-          if (task.updatedAt) {
-            allTasks.push({
-              ...task,
-              projectId,
-              projectTitle: project.title,
-            });
-          }
+      for (const task of tasks) {
+        if (task.updatedAt) {
+          allTasks.push({
+            ...task,
+            projectId,
+            projectTitle: project.title,
+          });
         }
       }
+    }
 
-      allTasks
-        .sort(
-          (a, b) =>
-            new Date(b.updatedAt ?? 0).getTime() -
-            new Date(a.updatedAt ?? 0).getTime()
-        )
-        .slice(0, 9);
+    allTasks
+      .sort(
+        (a, b) =>
+          new Date(b.updatedAt ?? 0).getTime() -
+          new Date(a.updatedAt ?? 0).getTime()
+      )
+      .slice(0, 9);
 
-      return {
-        totalTasks: total,
-        totalActive: active,
-        totalCompleted: completed,
-        latestTasks: allTasks,
-      };
-    }, [taskCache]);
+    return {
+      totalTasks: total,
+      totalActive: active,
+      totalCompleted: completed,
+      latestTasks: allTasks,
+    };
+  }, [taskCache]);
 
   const handleProjectClick = (id: string) => navigate(`projects/${id}`);
 
@@ -165,32 +171,32 @@ const HomePage = () => {
         </div>
       ) : (
         <div className="h-full  p-2 bg-background md:p-1 ">
-          <main className="w-full mx-auto pt-2 flex-1">
+          <main className="w-full mx-auto pt-2 flex-1 ">
             <section className="mb-1">
-              <div className="grid auto-rows-min gap-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4">
+              <div className="grid px-0.5 py-0.5 auto-rows-min gap-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4">
                 <StatsCard
                   title="Projects"
                   value={projects.length}
                   icon={FolderOpen}
-                  color="bg-gradient-to-br from-sky-500 to-sky-600"
+                  color="bg-gradient-to-br from-sky-600 to-sky-700"
+                />
+                <StatsCard
+                  title="Assigned Projects"
+                  value={AssignedProjects?.length || ""}
+                  icon={CheckCircle}
+                  color="bg-gradient-to-br from-violet-600 to-violet-700"
+                />
+                <StatsCard
+                  title="Active Projects"
+                  value={TotalActiveProjects?.length || ""}
+                  icon={Clock}
+                  color="bg-gradient-to-br from-green-500 to-green-600"
                 />
                 <StatsCard
                   title="Total Tasks"
                   value={totalTasks}
                   icon={CheckCircle}
                   color="bg-gradient-to-br from-teal-500 to-teal-600"
-                />
-                <StatsCard
-                  title="Active"
-                  value={totalActive}
-                  icon={Clock}
-                  color="bg-gradient-to-br from-amber-500 to-amber-600"
-                />
-                <StatsCard
-                  title="Completed"
-                  value={totalCompleted}
-                  icon={CheckCircle}
-                  color="bg-gradient-to-br from-violet-500 to-violet-600"
                 />
               </div>
             </section>

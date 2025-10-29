@@ -33,9 +33,7 @@ export default function ProfileContent() {
     isActive: userData?.isActive ?? true,
     avatar: userData?.avatar || "",
   });
-  console.log("Current user state:", userData);
 
-  console.log("Saving user data:", userData);
   const [saving, setSaving] = useState(false);
   const handleSave = async () => {
     try {
@@ -69,7 +67,7 @@ export default function ProfileContent() {
   };
 
   return (
-    <Tabs defaultValue="personal" className="space-y-6">
+    <Tabs defaultValue="personal" className="space-y-2">
       <TabsList className="grid w-full grid-cols-4">
         <TabsTrigger value="personal">Personal</TabsTrigger>
         <TabsTrigger value="account">Account</TabsTrigger>
