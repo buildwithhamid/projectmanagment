@@ -158,25 +158,6 @@ export const ProjectCard = ({
             {completed}/{total}
           </span>
         </div>
-
-        {projectToShow?.assignedUsers &&
-          projectToShow.assignedUsers?.length > 0 && (
-            <div className="flex  -space-x-2 -mt-2 ml-2 -mr-2">
-              {projectToShow.assignedUsers.slice(0, 3).map((m, i) => (
-                <img
-                  key={i}
-                  src={"/public/hero.png"}
-                  className="w-5 h-5 rounded-full border-2 border-background object-cover"
-                />
-              ))}
-            </div>
-          )}
-        {projectToShow?.assignedUsers &&
-          projectToShow?.assignedUsers?.length > 3 && (
-            <span className="w-5 h-5 flex items-center -mr-3 justify-center rounded-full bg-muted text-[10px] font-medium border border-background -mt-2">
-              +{projectToShow?.assignedUsers.length - 3}
-            </span>
-          )}
       </CardFooter>
     </Card>
   );

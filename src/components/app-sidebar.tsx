@@ -4,7 +4,7 @@ import { IoHomeOutline } from "react-icons/io5";
 import { AiOutlinePlus, AiOutlineDelete } from "react-icons/ai";
 import { Separator } from "./ui/separator";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
-import { Bot, Folder } from "lucide-react";
+import { Bot, FolderOpen } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 import ProjectModol from "./ProjectModol";
 import {
@@ -30,7 +30,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [hovered, setHovered] = React.useState(false);
   const items = [
     { title: "Home", url: ".", icon: IoHomeOutline },
-    { title: "Assign Projects", url: "assign-projects", icon: Folder },
+    { title: "Assign Projects", url: "assign-projects", icon: FolderOpen },
     { title: "Ai Talk", url: "ai-talk", icon: Bot },
   ];
   return (
@@ -171,7 +171,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >
               {state === "expanded" ? (
                 <>
-                  <SidebarGroupLabel className="hidden md:flex text-[12px] uppercase text-muted-foreground tracking-wide font-semibold">
+                  <SidebarGroupLabel className="hidden md:flex text-[12px] gap-1 uppercase text-muted-foreground tracking-wide font-semibold">
                     Projects
                   </SidebarGroupLabel>
                   <Dialog>
@@ -248,7 +248,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                   : "hover:bg-sidebar-accent hover:text-foreground"
                               }`}
                             >
-                              <span className=" text-[13px] font-medium truncate max-w-[120px]">
+                              <span className=" text-[14px] flex gap-2 font-medium truncate max-w-[120px]">
                                 {state === "collapsed"
                                   ? project.title.toUpperCase()[0] +
                                     project.title.slice(-1)
@@ -297,7 +297,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             <AiOutlineDelete size={16} />
                           </button>
                         </div>
-
                         {state === "expanded" && (
                           <button
                             onClick={() => deleteProject(project.id!)}

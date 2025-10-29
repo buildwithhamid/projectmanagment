@@ -226,9 +226,9 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         avatar: data.avatar,
         updatedAt: new Date().toISOString(),
       };
-      setuserData((p) => (p.id === data.id ? { ...p, ...userUpdateData } : p));
 
       await updateDoc(userRef, userUpdateData);
+      setuserData((prev) => ({ ...prev, ...userUpdateData }));
 
       console.log("✅ User data updated successfully!");
       return userUpdateData;

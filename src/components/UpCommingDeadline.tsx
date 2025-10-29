@@ -2,7 +2,7 @@
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-
+import { useNavigate } from "react-router-dom";
 import { CalendarDays } from "lucide-react";
 import { Badge } from "./ui/badge";
 
@@ -20,7 +20,8 @@ export function UpcomingDeadlines({ projects = [] }: { projects: Project[] }) {
         new Date(a.dueDate ?? 0).getTime() - new Date(b.dueDate ?? 0).getTime()
     )
     .slice(0, 5);
-
+  const navigate = useNavigate();
+  const handleProjectClick = (id: string) => navigate(`projects/${id}`);
   return (
     <Card className="relative border border-border/50 rounded-lg w-full  max-h-min">
       <CardHeader className="px-3">
@@ -42,7 +43,12 @@ export function UpcomingDeadlines({ projects = [] }: { projects: Project[] }) {
                   key={p.id}
                   className="flex justify-between text-xs text-muted-foreground"
                 >
-                  <span className="truncate max-w-[65%]">{p.title}</span>
+                  <h2
+                    className=" max-w-[65%] cursor-pointer"
+                    onClick={() => handleProjectClick(p?.id || "")}
+                  >
+                    {p.title}
+                  </h2>
                   <span className="text-foreground font-medium">
                     {new Date(p.dueDate ?? 0).toLocaleDateString("en-US", {
                       month: "short",
