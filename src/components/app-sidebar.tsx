@@ -94,7 +94,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               </Avatar>
 
               <span className="text-[13px] font-semibold tracking-wide text-foreground">
-                Project Manager
+                Project Flow
               </span>
             </>
           )}

@@ -127,7 +127,7 @@ export default function ProjectModol({
     ? ProjectToEdit?.userId === userContextId
     : true;
   return (
-    <DialogContent className="w-[95vw] max-w-6xl max-h-[90vh] p-6 bg-background shadow-[0_8px_30px_rgba(0,0,0,0.1)] border border-border">
+    <DialogContent className="w-[95vw] max-w-6xl max-h-[90vh] p-4 bg-background shadow-[0_8px_30px_rgba(0,0,0,0.1)] border border-border">
       <DialogHeader className="mb-6">
         <DialogTitle className="text-2xl font-semibold tracking-tight">
           {ProjectToEdit ? "Edit Project" : "Add New Project"}
@@ -139,9 +139,9 @@ export default function ProjectModol({
         </DialogDescription>
       </DialogHeader>
 
-      <div className="grid md:grid-cols-2 gap-9">
+      <div className="grid md:grid-cols-2 gap-4">
         {/* Left Side - Text Fields */}
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-4">
           <div className="space-y-2">
             <label
               className="text-sm 
@@ -176,15 +176,15 @@ export default function ProjectModol({
         </div>
 
         <div className="flex flex-col h-full gap-4">
-          <div className="bg-accent/25 rounded-lg p-4 flex flex-col items-center justify-center gap-4">
+          <div className="bg-accent/25 rounded-lg p-4 border flex flex-col items-center justify-center gap-4">
             {formData.attachments?.[0] ? (
               <img
                 src={formData.attachments[0]}
                 alt="Preview"
-                className="w-full h-48 object-cover shadow-sm"
+                className="w-full h-52 object-cover shadow-sm"
               />
             ) : (
-              <div className="w-full h-48 flex items-center justify-center border border-dashed text-muted-foreground text-sm">
+              <div className="w-full  h-52 flex items-center justify-center border border-dashed text-muted-foreground text-sm">
                 No image uploaded
               </div>
             )}
@@ -220,7 +220,7 @@ export default function ProjectModol({
         </div>
       </div>
 
-      <Separator className="border-t mt-8 mb-6" />
+      <Separator className="border-t mt-4 mb-4" />
 
       <div className="grid sm:grid-cols-2 md:grid-cols-5 gap-2">
         <Input
@@ -312,7 +312,7 @@ export default function ProjectModol({
       </div>
 
       {/* Footer */}
-      <DialogFooter className=" flex justify-end">
+      <DialogFooter className=" -mt-12 flex justify-end">
         <Button onClick={handleSubmit} disabled={loading} className="px-6">
           {loading
             ? ProjectToEdit

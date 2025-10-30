@@ -97,7 +97,7 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
   });
 
   return (
-    <Card className=" h-full rounded-none cursor-pointer bg-background ">
+    <Card className=" h-full rounded-none cursor-pointer bg-background  ">
       <CardHeader>
         <CardTitle className=" flex sm:justify-between sm:items-center gap-3 text-lg">
           <div className="  flex items-center gap-2">
@@ -115,11 +115,11 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
           </div>
 
           {!loading && (
-            <div className="flex gap-2 ml-12  md:ml-0 lg:ml-0">
+            <div className="flex gap-2 ml-auto  md:ml-0 lg:ml-0">
               <Dialog>
                 <DialogTrigger asChild>
                   <Button variant="ghost" size="sm" className="cursor-pointer">
-                    <Plus className="h-4 w-4" />{" "}
+                    <Plus className="h-4 w-4" />
                     <span className="hidden md:block">Add Task</span>
                   </Button>
                 </DialogTrigger>
@@ -139,10 +139,10 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
               <img
                 src={specifictaskdata?.attachments[0]}
                 alt={specifictaskdata?.title ?? "Project image"}
-                className="w-full h-52 object-cover rounded-lg mb-2"
+                className="w-full h-64 md:h-72 object-cover rounded-lg mb-2"
               />
             )}
-          <p className="line-clamp-4 text-gray-300">
+          <p className="line-clamp-5 text-gray-300">
             {specifictaskdata?.description ?? "No description available"}
           </p>
 
@@ -152,7 +152,7 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
               <span>{tasks?.length ?? 0} Tasks</span>
             </div>
 
-            <div className="hidden md:flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5">
               <Layers className="w-4 h-4 text-green-500" />
               <span>Status: {specifictaskdata?.status || "Backlog"}</span>
             </div>
@@ -164,10 +164,10 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
               </div>
             )}
 
-            <div className="flex items-center gap-1.5">
+            <div className="hidden md:flex items-center gap-1.5">
               <Calendar className="w-4 h-4 text-emerald-500" />
               <span>
-                Created day:
+                Created day:{" "}
                 {specifictaskdata?.createdAt
                   ? new Date(specifictaskdata.createdAt).toLocaleDateString()
                   : "—"}
@@ -216,7 +216,7 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
                   </div>
 
                   {section.tasks.map((task) => (
-                    <div key={task.id} className="border-b ">
+                    <div key={task.id} className="border-b pb-2 ">
                       <div className="hidden sm:grid grid-cols-12 gap-2 py-2 items-center">
                         <div className="col-span-5 ">
                           <TaskDetailsAccordion
@@ -247,7 +247,7 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
                         </div>
                       </div>
 
-                      <div className="sm:hidden flex flex-col gap-1 px-3 py-2">
+                      <div className="sm:hidden flex flex-col gap-2 ">
                         <TaskDetailsAccordion
                           task={task}
                           projectid={projectId ?? ""}

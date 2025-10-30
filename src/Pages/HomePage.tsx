@@ -182,13 +182,13 @@ const HomePage = () => {
                 />
                 <StatsCard
                   title="Assigned Projects"
-                  value={AssignedProjects?.length || ""}
+                  value={AssignedProjects?.length || 0}
                   icon={CheckCircle}
                   color="bg-gradient-to-br from-violet-600 to-violet-700"
                 />
                 <StatsCard
                   title="Active Projects"
-                  value={TotalActiveProjects?.length || ""}
+                  value={TotalActiveProjects?.length || 0}
                   icon={Clock}
                   color="bg-gradient-to-br from-green-500 to-green-600"
                 />

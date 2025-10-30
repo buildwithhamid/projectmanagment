@@ -37,9 +37,9 @@ const TaskDetailsAccordion = ({
       <Accordion type="single" collapsible className="w-full">
         <AccordionItem
           value={`task-${task.id}`}
-          className="border-b last:border-b-0 cursor-pointer"
+          className="border-b last:border-b-0  cursor-pointer"
         >
-          <AccordionTrigger className="hover:no-underline px-3 py-1">
+          <AccordionTrigger className="hover:no-underline md:px-3 py-1">
             <div className="flex items-center w-full cursor-pointer">
               <div className="w-2 h-2 rounded-full bg-cyan-400 mr-3" />
               <span className="flex w-full text-sm font-medium justify-between truncate">
