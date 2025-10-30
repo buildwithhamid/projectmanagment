@@ -25,6 +25,7 @@ import TaskDetailsAccordion from "./TaskDetailsAccordion";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import TodoModel from "./TodoModel";
 import ProjectOptions from "./TaskAccOption";
+import ProjectChatModal from "./ProjectChatModal";
 interface TaskAccordionTableProps {
   tasks: Task[];
   loading: boolean;
@@ -97,7 +98,7 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
   });
 
   return (
-    <Card className=" h-full rounded-none cursor-pointer bg-background  ">
+    <Card className=" relative h-full rounded-none cursor-pointer bg-background  ">
       <CardHeader>
         <CardTitle className=" flex sm:justify-between sm:items-center gap-3 text-lg">
           <div className="  flex items-center gap-2">
@@ -183,6 +184,9 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
               </span>
             </div>
           </div>
+        </div>
+        <div className="fixed bottom-8 right-6 z-50">
+          <ProjectChatModal projectId={projectId!} />
         </div>
 
         <Accordion
