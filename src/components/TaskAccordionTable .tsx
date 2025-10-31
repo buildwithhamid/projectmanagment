@@ -185,7 +185,7 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
             </div>
           </div>
         </div>
-        <div className="fixed bottom-8 right-6 z-50">
+        <div className="fixed bottom-5 right-5 z-50">
           <ProjectChatModal projectId={projectId!} />
         </div>
 

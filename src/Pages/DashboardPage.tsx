@@ -104,7 +104,7 @@ const DashboardPage: React.FC = () => {
             <div>
               <div className="w-full flex justify-between items-center px-4 py-2  border-b border-accent/35 rounded-t-md">
                 <h2 className="text-lg font-semibold text-foreground">
-                  Trello
+                  Drag & Drop
                 </h2>
                 <div className="flex items-center gap-2">
                   <Button

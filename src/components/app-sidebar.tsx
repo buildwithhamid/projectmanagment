@@ -308,7 +308,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       </SidebarMenuItem>
                     ))
                 ) : (
-                  <div className="px-3 py-2 text-sm text-muted-foreground flex flex-col items-center justify-center">
+                  <div className="px-3 py-6 text-sm text-muted-foreground flex flex-col items-center justify-center">
                     {loading ? (
                       <Loader />
                     ) : (

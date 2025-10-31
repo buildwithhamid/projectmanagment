@@ -181,7 +181,7 @@ export default function ProjectModol({
               <img
                 src={formData.attachments[0]}
                 alt="Preview"
-                className="w-full h-52 object-cover shadow-sm"
+                className="w-full  h-52 object-cover shadow-sm"
               />
             ) : (
               <div className="w-full  h-52 flex items-center justify-center border border-dashed text-muted-foreground text-sm">

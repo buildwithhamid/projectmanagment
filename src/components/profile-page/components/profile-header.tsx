@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Calendar, Mail, MapPin, Briefcase } from "lucide-react";
 import { type User } from "@/TaskContext/TaskContext";
 import { useUserContextId } from "@/AuthContext/UserContext";
+import { ThemeToggle } from "@/components/ThemeToggle";
 interface ProfileHeaderProps {
   user: User;
 }
@@ -12,7 +13,7 @@ export default function ProfileHeader({ user }: ProfileHeaderProps) {
   const { userContextId } = useUserContextId();
   return (
     <Card>
-      <CardContent className="p-6">
+      <CardContent className="relative p-6">
         <div className="flex flex-col items-start gap-6 md:flex-row md:items-center">
           <div className="relative inline-block">
             <Avatar className="h-32 w-32 border-2 border-primary rounded-full">
@@ -95,6 +96,9 @@ export default function ProfileHeader({ user }: ProfileHeaderProps) {
               )}
             </div>
           </div>
+        </div>
+        <div className="absolute top-0 right-2">
+          <ThemeToggle />
         </div>
       </CardContent>
     </Card>

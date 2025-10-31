@@ -83,7 +83,7 @@ export default function ProfileContent() {
               <h3>Active</h3>
             </>
           ) : (
-            <>Not Active</>
+            <>Away</>
           )}
           <Switch
             checked={currentUser.isActive}
