@@ -33,7 +33,7 @@ const ProjectOptions = ({ currentProjectDetails }: ProjectOptionsProps) => {
     deleteProject(projectId);
     navigate("../");
   };
-  const isUser = currentProjectDetails.userId === userContextId;
+  const isUser = currentProjectDetails?.userId === userContextId;
 
   return (
     <DropdownMenu>

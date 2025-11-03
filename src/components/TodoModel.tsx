@@ -129,8 +129,8 @@ const TodoModel: React.FC<TodoModelProps> = ({ projectId, taskToEdit }) => {
   );
 
   return (
-    <DialogContent className="w-[95vw] max-w-6xl max-h-[90vh] p-6 bg-background shadow-[0_8px_30px_rgba(0,0,0,0.1)] border border-border">
-      <DialogHeader className="mb-6">
+    <DialogContent className="w-[95vw] max-w-6xl max-h-[90vh] p-4 bg-background shadow-[0_8px_30px_rgba(0,0,0,0.1)] border border-border">
+      <DialogHeader className="mb-4">
         <DialogTitle className="text-2xl font-semibold tracking-tight">
           {taskToEdit ? "Edit Task" : "Add New Task"}
         </DialogTitle>
@@ -169,7 +169,7 @@ const TodoModel: React.FC<TodoModelProps> = ({ projectId, taskToEdit }) => {
             />
           </div>
 
-          <div className="flex flex-wrap justify-start items-center gap-4">
+          <div className="flex  justify-start items-center gap-4">
             <Select
               value={formData.status}
               onValueChange={(v) => handleInputChange("status", v)}
@@ -186,10 +186,12 @@ const TodoModel: React.FC<TodoModelProps> = ({ projectId, taskToEdit }) => {
               </SelectContent>
             </Select>
 
-            <DatePicker
-              value={formData.dueDate || ""}
-              onChange={(date) => handleInputChange("dueDate", date || "")}
-            />
+            <div>
+              <DatePicker
+                value={formData.dueDate || ""}
+                onChange={(date) => handleInputChange("dueDate", date || "")}
+              />
+            </div>
           </div>
         </div>
 
@@ -201,18 +203,15 @@ const TodoModel: React.FC<TodoModelProps> = ({ projectId, taskToEdit }) => {
 
         {/* Right Section */}
         <div className="flex flex-col h-full gap-4">
-          <label className="text-sm font-medium text-foreground">
-            Task Image
-          </label>
           <div className="bg-accent/25 rounded-lg p-4 flex flex-col items-center justify-center gap-4">
             {formData.attachments?.[0] ? (
               <img
                 src={formData.attachments[0]}
                 alt="Preview"
-                className="w-full h-48 object-cover shadow-sm"
+                className="w-full h-52 object-cover shadow-sm"
               />
             ) : (
-              <div className="w-full h-48 flex items-center justify-center border border-dashed text-muted-foreground text-sm">
+              <div className="w-full h-52 flex items-center justify-center border border-dashed text-muted-foreground text-sm">
                 No image uploaded
               </div>
             )}
@@ -248,7 +247,7 @@ const TodoModel: React.FC<TodoModelProps> = ({ projectId, taskToEdit }) => {
         </div>
       </div>
 
-      <DialogFooter className="mt-1 flex justify-end">
+      <DialogFooter className="-mt-2 flex justify-end">
         <Button onClick={handleSubmit} disabled={loading} className="px-6">
           {loading
             ? taskToEdit
