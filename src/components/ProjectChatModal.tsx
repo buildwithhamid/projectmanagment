@@ -32,8 +32,6 @@ import Loader from "./Loader";
 export default function ProjectChatModal({ projectId }: { projectId: string }) {
   const { userContextId } = useUserContextId();
   const { userData } = useTaskContext();
-
-  const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
   const [message, setMessage] = useState("");
   const [assignedUsers, setAssignedUsers] = useState<string[]>([]);
@@ -60,7 +58,7 @@ export default function ProjectChatModal({ projectId }: { projectId: string }) {
     };
 
     fetchProject();
-  }, [open, projectId]);
+  }, [projectId]);
 
   // 🔹 Fetch messages in real-time
   useEffect(() => {
@@ -78,7 +76,7 @@ export default function ProjectChatModal({ projectId }: { projectId: string }) {
     });
 
     return () => unsubscribe();
-  }, [open, projectId]);
+  }, [projectId]);
   console.log(messages);
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -116,10 +114,10 @@ export default function ProjectChatModal({ projectId }: { projectId: string }) {
     ownerId === userContextId ||
     ownerId === userData?.id ||
     assignedUsers.includes(userContextId!) ||
-    assignedUsers.includes(userData?.id);
+    assignedUsers.includes(userData?.id || "");
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog>
       <DialogTrigger asChild>
         <Button
           variant="outline"
@@ -164,7 +162,7 @@ export default function ProjectChatModal({ projectId }: { projectId: string }) {
               {userData && (
                 <div className="flex items-center gap-3 p-2 rounded-lg bg-muted/20 border border-transparent hover:border-border transition">
                   <Avatar className="w-9 h-9 border">
-                    <AvatarImage src={userData.avatar} />
+                    <AvatarImage src={userData?.avatar || ""} />
                     <AvatarFallback>
                       {userData.fullname?.charAt(0).toUpperCase()}
                     </AvatarFallback>
@@ -251,7 +249,7 @@ export default function ProjectChatModal({ projectId }: { projectId: string }) {
 
             <Separator />
 
-            {canChat ? (
+            {canChat && assignedUsers?.length > 0 ? (
               <form
                 onSubmit={sendMessage}
                 className="flex flex-col gap-1 p-3 border-t bg-muted/10 backdrop-blur supports-[backdrop-filter]:bg-muted/20"
