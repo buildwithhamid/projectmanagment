@@ -48,7 +48,14 @@ const HomePage = () => {
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       )[0];
   }, [projects]);
-
+  const AssignedProjects = useMemo(() => {
+    if (!projects?.length) return null;
+    return [...projects].filter((p) => p.assignedUsers?.length);
+  }, [projects]);
+  const TotalActiveProjects = useMemo(() => {
+    if (!projects?.length) return null;
+    return [...projects].filter((p) => p.status == "active");
+  }, [projects]);
   const LastUpdatedProject = useMemo(() => {
     if (!projects?.length) return null;
     return [...projects]
@@ -98,45 +105,44 @@ const HomePage = () => {
     });
   }, [projects]);
 
-  const { totalTasks, totalActive, totalCompleted, latestTasks } =
-    useMemo(() => {
-      let total = 0,
-        active = 0,
-        completed = 0;
-      const allTasks = [];
+  const { totalTasks, latestTasks } = useMemo(() => {
+    let total = 0,
+      active = 0,
+      completed = 0;
+    const allTasks = [];
 
-      for (const [projectId, project] of Object.entries(taskCache)) {
-        const tasks = project.tasks || [];
-        total += tasks.length;
-        active += tasks.filter((t) => t.status === "active").length;
-        completed += tasks.filter((t) => t.status === "completed").length;
+    for (const [projectId, project] of Object.entries(taskCache)) {
+      const tasks = project.tasks || [];
+      total += tasks.length;
+      active += tasks.filter((t) => t.status === "active").length;
+      completed += tasks.filter((t) => t.status === "completed").length;
 
-        for (const task of tasks) {
-          if (task.updatedAt) {
-            allTasks.push({
-              ...task,
-              projectId,
-              projectTitle: project.title,
-            });
-          }
+      for (const task of tasks) {
+        if (task.updatedAt) {
+          allTasks.push({
+            ...task,
+            projectId,
+            projectTitle: project.title,
+          });
         }
       }
+    }
 
-      allTasks
-        .sort(
-          (a, b) =>
-            new Date(b.updatedAt ?? 0).getTime() -
-            new Date(a.updatedAt ?? 0).getTime()
-        )
-        .slice(0, 9);
+    allTasks
+      .sort(
+        (a, b) =>
+          new Date(b.updatedAt ?? 0).getTime() -
+          new Date(a.updatedAt ?? 0).getTime()
+      )
+      .slice(0, 9);
 
-      return {
-        totalTasks: total,
-        totalActive: active,
-        totalCompleted: completed,
-        latestTasks: allTasks,
-      };
-    }, [taskCache]);
+    return {
+      totalTasks: total,
+      totalActive: active,
+      totalCompleted: completed,
+      latestTasks: allTasks,
+    };
+  }, [taskCache]);
 
   const handleProjectClick = (id: string) => navigate(`projects/${id}`);
 
@@ -164,33 +170,33 @@ const HomePage = () => {
           <Loader />
         </div>
       ) : (
-        <div className="h-full w-full p-2 bg-background md:p-1 ">
-          <main className="max-w-7xl mx-auto pt-2 flex-1">
-            <section className="mb-2">
-              <div className="grid auto-rows-min gap-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4">
+        <div className="h-full  p-2 bg-background md:p-1 ">
+          <main className="w-full mx-auto pt-2 flex-1 ">
+            <section className="mb-1">
+              <div className="grid px-0.5 py-0.5 auto-rows-min gap-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4">
                 <StatsCard
                   title="Projects"
                   value={projects.length}
                   icon={FolderOpen}
-                  color="bg-gradient-to-br from-sky-500 to-sky-600"
+                  color="bg-gradient-to-br from-sky-600 to-sky-700"
+                />
+                <StatsCard
+                  title="Assigned Projects"
+                  value={AssignedProjects?.length || 0}
+                  icon={CheckCircle}
+                  color="bg-gradient-to-br from-violet-600 to-violet-700"
+                />
+                <StatsCard
+                  title="Active Projects"
+                  value={TotalActiveProjects?.length || 0}
+                  icon={Clock}
+                  color="bg-gradient-to-br from-green-500 to-green-600"
                 />
                 <StatsCard
                   title="Total Tasks"
                   value={totalTasks}
                   icon={CheckCircle}
                   color="bg-gradient-to-br from-teal-500 to-teal-600"
-                />
-                <StatsCard
-                  title="Active"
-                  value={totalActive}
-                  icon={Clock}
-                  color="bg-gradient-to-br from-amber-500 to-amber-600"
-                />
-                <StatsCard
-                  title="Completed"
-                  value={totalCompleted}
-                  icon={CheckCircle}
-                  color="bg-gradient-to-br from-violet-500 to-violet-600"
                 />
               </div>
             </section>
@@ -199,7 +205,7 @@ const HomePage = () => {
               <div className="flex-1 min-w-0">
                 <div className="flex flex-col gap-2">
                   <div className="flex flex-col md:flex-row lg:flex-row lg:items-center lg:justify-between w-full gap-2 pt-2 shadow-sm">
-                    <div className="relative flex items-center  w-full sm:max-w-sm md:max-w-[240px] lg:max-w-[200px]">
+                    <div className="relative flex items-center  w-full sm:max-w-sm md:max-w-[240px] lg:max-w-[200px] xl:w-full ">
                       <Search
                         className="absolute left-3 text-muted-foreground"
                         size={18}
@@ -301,7 +307,7 @@ const HomePage = () => {
                     </div>
                   </div>
                   <Separator />
-                  <div className="w-full min-h-[340px] md:min-h-[500px] lg:min-h-[340px] rounded-lg  grid gap-2 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+                  <div className="w-full min-h-[340px] md:min-h-[500px] lg:min-h-[340px] xl:h-full  rounded-lg grid gap-2 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                     {currentProjects.length > 0 ? (
                       currentProjects.map((project) => (
                         <div key={project.id} className="w-full h-full">
@@ -375,7 +381,7 @@ const HomePage = () => {
               >
                 <div className="flex flex-col gap-2 sm:flex-col md:flex-row">
                   <Card
-                    className="h-[392px]  flex p-1 border border-border/50 rounded-lg flex-col gap-1 
+                    className="max-h-[392px]  flex p-1 border border-border/50 rounded-lg flex-col gap-1 
                      w-full md:w-1/2"
                   >
                     <CardHeader className="flex justify-between -ml-5">

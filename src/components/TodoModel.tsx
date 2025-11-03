@@ -5,6 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import DatePicker from "./DatePicker";
 import { useParams } from "react-router-dom";
+import { Separator } from "./ui/separator";
 
 export interface TaskFormData {
   title: string;
@@ -127,89 +129,132 @@ const TodoModel: React.FC<TodoModelProps> = ({ projectId, taskToEdit }) => {
   );
 
   return (
-    <DialogContent className="sm:max-w-md rounded-xl  border border-border">
-      <DialogHeader>
-        <DialogTitle className="text-lg font-semibold">
-          {taskToEdit ? "Edit Task" : "Add Task"}
+    <DialogContent className="w-[95vw] max-w-6xl max-h-[90vh] p-4 bg-background shadow-[0_8px_30px_rgba(0,0,0,0.1)] border border-border">
+      <DialogHeader className="mb-4">
+        <DialogTitle className="text-2xl font-semibold tracking-tight">
+          {taskToEdit ? "Edit Task" : "Add New Task"}
         </DialogTitle>
+        <DialogDescription className="text-sm text-muted-foreground">
+          {taskToEdit
+            ? "Update the Task details below."
+            : "Fill out the information to create a new Task."}
+        </DialogDescription>
       </DialogHeader>
 
-      <div className="space-y-2">
-        <Input
-          placeholder="Enter title"
-          value={formData.title}
-          onChange={(e) => handleInputChange("title", e.target.value)}
-        />
+      <div className="grid md:grid-cols-[1fr_auto_1fr] gap-9 items-start">
+        {/* Left Section */}
+        <div className="flex flex-col gap-5">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">
+              Task Title
+            </label>
+            <Input
+              placeholder="Enter task title..."
+              value={formData.title}
+              onChange={(e) => handleInputChange("title", e.target.value)}
+              className="mt-1"
+            />
+          </div>
 
-        <Textarea
-          placeholder="Enter description"
-          rows={6}
-          value={formData.todo}
-          onChange={(e) => handleInputChange("todo", e.target.value)}
-          className="h-32 overflow-auto custom-scroll"
-        />
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">
+              Description
+            </label>
+            <Textarea
+              placeholder="Write task details..."
+              rows={7}
+              value={formData.todo}
+              onChange={(e) => handleInputChange("todo", e.target.value)}
+              className="resize-none h-44 border-muted-foreground/20 mt-1"
+            />
+          </div>
 
-        <div className="flex flex-row gap-2 w-full">
-          <Select
-            value={formData.status}
-            onValueChange={(v) => handleInputChange("status", v)}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              {statusOptions.map((status) => (
-                <SelectItem key={status} value={status}>
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex  justify-start items-center gap-4">
+            <Select
+              value={formData.status}
+              onValueChange={(v) => handleInputChange("status", v)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                {statusOptions.map((status) => (
+                  <SelectItem key={status} value={status}>
+                    {status.charAt(0).toUpperCase() + status.slice(1)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-          <DatePicker
-            value={formData.dueDate || null}
-            onChange={(date) => handleInputChange("dueDate", date || "")}
-          />
+            <div>
+              <DatePicker
+                value={formData.dueDate || ""}
+                onChange={(date) => handleInputChange("dueDate", date || "")}
+              />
+            </div>
+          </div>
         </div>
 
-        <Input
-          type="file"
-          accept="image/*"
-          onChange={async (e) => {
-            const file = e.target.files?.[0];
-            if (!file) return;
-
-            if (file.size > 500 * 1024) {
-              alert("Image too large. Please upload under 500KB.");
-              return;
-            }
-
-            const toBase64 = (file: File) =>
-              new Promise<string>((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => resolve(reader.result as string);
-                reader.onerror = reject;
-              });
-
-            const base64String = await toBase64(file);
-
-            setFormData((prev) => ({
-              ...prev,
-              attachments: [base64String],
-            }));
-          }}
+        {/* Vertical Separator */}
+        <Separator
+          orientation="vertical"
+          className="h-full bg-border hidden md:block"
         />
+
+        {/* Right Section */}
+        <div className="flex flex-col h-full gap-4">
+          <div className="bg-accent/25 rounded-lg p-4 flex flex-col items-center justify-center gap-4">
+            {formData.attachments?.[0] ? (
+              <img
+                src={formData.attachments[0]}
+                alt="Preview"
+                className="w-full h-52 object-cover shadow-sm"
+              />
+            ) : (
+              <div className="w-full h-52 flex items-center justify-center border border-dashed text-muted-foreground text-sm">
+                No image uploaded
+              </div>
+            )}
+
+            <Input
+              type="file"
+              accept="image/*"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+
+                if (file.size > 500 * 1024) {
+                  alert("Image too large. Please upload under 500KB.");
+                  return;
+                }
+
+                const toBase64 = (file: File) =>
+                  new Promise<string>((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = () => resolve(reader.result as string);
+                    reader.onerror = reject;
+                  });
+
+                const base64String = await toBase64(file);
+                setFormData((prev) => ({
+                  ...prev,
+                  attachments: [base64String],
+                }));
+              }}
+            />
+          </div>
+        </div>
       </div>
 
-      <DialogFooter className="flex justify-center gap-2 mt-4">
-        <Button onClick={handleSubmit} disabled={loading}>
+      <DialogFooter className="-mt-2 flex justify-end">
+        <Button onClick={handleSubmit} disabled={loading} className="px-6">
           {loading
             ? taskToEdit
-              ? "Saving..."
+              ? "Updating..."
               : "Adding..."
             : taskToEdit
-            ? "Update"
+            ? "Update Task"
             : "Add Task"}
         </Button>
       </DialogFooter>

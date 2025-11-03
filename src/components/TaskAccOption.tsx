@@ -8,12 +8,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Trash2, Trello } from "lucide-react";
+import { EllipsisVertical, Trash2, Trello } from "lucide-react";
 import { FaEdit } from "react-icons/fa";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import ProjectModol from "./ProjectModol";
 import { type Project } from "@/TaskContext/TaskContext";
 import { useTaskContext } from "@/TaskContext/TaskContext";
+import { useUserContextId } from "@/AuthContext/UserContext";
 interface ProjectOptionsProps {
   currentProjectDetails: Project;
 }
@@ -21,25 +22,28 @@ interface ProjectOptionsProps {
 const ProjectOptions = ({ currentProjectDetails }: ProjectOptionsProps) => {
   const navigate = useNavigate();
   const { deleteProject } = useTaskContext();
+  const { userContextId } = useUserContextId();
 
   const handleTrelloLink = (projectId: string) => {
     navigate(`../dashboard/${projectId}`);
   };
+
   const handleDelete = (projectId: string) => {
     console.log(`Deleting project with ID: ${projectId}`);
     deleteProject(projectId);
     navigate("../");
   };
+  const isUser = currentProjectDetails?.userId === userContextId;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
-          className="flex items-center gap-1 hover:bg-accent hover:text-accent-foreground"
+          className="flex items-center gap-1 hover:bg-accent hover:text-accent-foreground cursor-pointer"
         >
-          Options
+          <EllipsisVertical size={28} />
         </Button>
       </DropdownMenuTrigger>
 
@@ -73,13 +77,15 @@ const ProjectOptions = ({ currentProjectDetails }: ProjectOptionsProps) => {
           View as Trello
         </DropdownMenuItem>
 
-        <DropdownMenuItem
-          onClick={() => handleDelete(currentProjectDetails?.id || "")}
-          className="flex items-center gap-2 cursor-pointer focus:bg-red-50 dark:focus:bg-red-950/30"
-        >
-          <Trash2 className="h-4 w-4  text-destructive" />
-          Delete Project
-        </DropdownMenuItem>
+        {isUser && (
+          <DropdownMenuItem
+            onClick={() => handleDelete(currentProjectDetails?.id || "")}
+            className="flex items-center gap-2 cursor-pointer focus:bg-red-50 dark:focus:bg-red-950/30"
+          >
+            <Trash2 className="h-4 w-4  text-destructive" />
+            Delete Project
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
