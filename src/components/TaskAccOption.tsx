@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Trash2, Trello } from "lucide-react";
+import { EllipsisVertical, Trash2, Trello } from "lucide-react";
 import { FaEdit } from "react-icons/fa";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import ProjectModol from "./ProjectModol";
@@ -39,11 +39,11 @@ const ProjectOptions = ({ currentProjectDetails }: ProjectOptionsProps) => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
-          className="flex items-center gap-1 hover:bg-accent hover:text-accent-foreground"
+          className="flex items-center gap-1 hover:bg-accent hover:text-accent-foreground cursor-pointer"
         >
-          Options
+          <EllipsisVertical size={28} />
         </Button>
       </DropdownMenuTrigger>
 

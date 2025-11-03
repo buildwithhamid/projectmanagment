@@ -33,9 +33,8 @@ export function UpcomingDeadlines({ projects = [] }: { projects: Project[] }) {
           {sorted.length}
         </Badge>
       </CardHeader>
-
-      <CardContent className="p-0">
-        <ScrollArea className="w-full h-[68px]">
+      <ScrollArea className="w-full ">
+        <CardContent className="p-0 max-h-[68px]">
           <div className="flex flex-col gap-1 px-3 ">
             {sorted.length > 0 ? (
               sorted.map((p) => (
@@ -64,8 +63,8 @@ export function UpcomingDeadlines({ projects = [] }: { projects: Project[] }) {
             )}
           </div>
           <ScrollBar orientation="vertical" />
-        </ScrollArea>
-      </CardContent>
+        </CardContent>
+      </ScrollArea>
     </Card>
   );
 }

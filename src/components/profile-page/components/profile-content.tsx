@@ -32,6 +32,7 @@ export default function ProfileContent() {
     bio: userData?.bio || "",
     isActive: userData?.isActive ?? true,
     avatar: userData?.avatar || "",
+    coverImage: userData?.coverImage,
   });
 
   const [saving, setSaving] = useState(false);
@@ -166,36 +167,71 @@ export default function ProfileContent() {
                   }
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="avatar">Profile Pic</Label>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
+              <div className=" flex gap-2">
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="avatar">Profile Pic</Label>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
 
-                    if (file.size > 500 * 1024) {
-                      alert("Image too large. Please upload under 500KB.");
-                      return;
-                    }
+                      if (file.size > 500 * 1024) {
+                        alert("Image too large. Please upload under 500KB.");
+                        return;
+                      }
 
-                    const toBase64 = (file: File) =>
-                      new Promise<string>((resolve, reject) => {
-                        const reader = new FileReader();
-                        reader.readAsDataURL(file);
-                        reader.onload = () => resolve(reader.result as string);
-                        reader.onerror = reject;
-                      });
+                      const toBase64 = (file: File) =>
+                        new Promise<string>((resolve, reject) => {
+                          const reader = new FileReader();
+                          reader.readAsDataURL(file);
+                          reader.onload = () =>
+                            resolve(reader.result as string);
+                          reader.onerror = reject;
+                        });
 
-                    const base64String = await toBase64(file);
+                      const base64String = await toBase64(file);
 
-                    setCurrentUser((prev) => ({
-                      ...prev,
-                      avatar: base64String,
-                    }));
-                  }}
-                />
+                      setCurrentUser((prev) => ({
+                        ...prev,
+                        avatar: base64String,
+                      }));
+                    }}
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="avatar">Cover Image</Label>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+
+                      if (file.size > 500 * 1024) {
+                        alert("Image too large. Please upload under 500KB.");
+                        return;
+                      }
+
+                      const toBase64 = (file: File) =>
+                        new Promise<string>((resolve, reject) => {
+                          const reader = new FileReader();
+                          reader.readAsDataURL(file);
+                          reader.onload = () =>
+                            resolve(reader.result as string);
+                          reader.onerror = reject;
+                        });
+
+                      const base64String = await toBase64(file);
+
+                      setCurrentUser((prev) => ({
+                        ...prev,
+                        coverImage: base64String,
+                      }));
+                    }}
+                  />
+                </div>
               </div>
             </div>
 

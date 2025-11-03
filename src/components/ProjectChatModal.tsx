@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
   doc,
   getDoc,
@@ -32,6 +32,7 @@ import Loader from "./Loader";
 export default function ProjectChatModal({ projectId }: { projectId: string }) {
   const { userContextId } = useUserContextId();
   const { userData } = useTaskContext();
+
   const [messages, setMessages] = useState<any[]>([]);
   const [message, setMessage] = useState("");
   const [assignedUsers, setAssignedUsers] = useState<string[]>([]);
@@ -43,87 +44,79 @@ export default function ProjectChatModal({ projectId }: { projectId: string }) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 🔹 Fetch project info (participants)
   useEffect(() => {
-    if (!open) return;
-
     const fetchProject = async () => {
-      const projectRef = doc(db, "Projects", projectId);
-      const projectSnap = await getDoc(projectRef);
-      if (projectSnap.exists()) {
-        const data = projectSnap.data();
-        setAssignedUsers(data.assignedUsers || []);
-        setOwnerId(data.userId || null);
+      try {
+        const projectSnap = await getDoc(doc(db, "Projects", projectId));
+        if (projectSnap.exists()) {
+          const data = projectSnap.data();
+          setAssignedUsers(data?.assignedUsers || []);
+          setOwnerId(data?.userId || null);
+        }
+      } finally {
+        setLoading(false);
       }
     };
-
     fetchProject();
   }, [projectId]);
 
-  // 🔹 Fetch messages in real-time
   useEffect(() => {
-    if (!open) return;
-
     const q = query(
       collection(db, "Projects", projectId, "chat"),
       orderBy("createdAt", "asc")
     );
-
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const msgs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setMessages(msgs);
-      setLoading(false);
     });
-
     return () => unsubscribe();
   }, [projectId]);
-  console.log(messages);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // 🔹 Send message handler
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!message.trim()) return;
 
     setSending(true);
-
-    await addDoc(collection(db, "Projects", projectId, "chat"), {
-      text: message,
-      senderId: userData?.id || userContextId,
-      senderName: userData?.fullname || "Unknown",
-      senderPhoto: userData?.avatar || "",
-      createdAt: serverTimestamp(),
-    });
-
-    setMessage("");
-    setSending(false);
+    try {
+      await addDoc(collection(db, "Projects", projectId, "chat"), {
+        text: message,
+        senderId: userData?.id || userContextId,
+        senderName: userData?.fullname || "Unknown",
+        senderPhoto: userData?.avatar || "",
+        createdAt: serverTimestamp(),
+      });
+      setMessage("");
+    } finally {
+      setSending(false);
+    }
   };
 
-  // 🔹 Detect typing activity
   const handleTyping = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(e.target.value);
     setTyping(true);
-
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     typingTimeoutRef.current = setTimeout(() => setTyping(false), 1500);
   };
 
-  const canChat =
-    ownerId === userContextId ||
-    ownerId === userData?.id ||
-    assignedUsers.includes(userContextId!) ||
-    assignedUsers.includes(userData?.id || "");
+  const canChat = useMemo(
+    () =>
+      ownerId === userContextId ||
+      assignedUsers.includes(userContextId!) ||
+      assignedUsers.includes(userData?.id || ""),
+    [ownerId, assignedUsers, userContextId, userData?.id]
+  );
 
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="w-14 h-14 rounded-full shadow-lg cursor-pointer
-             flex items-center justify-center transition-all duration-300 
-             hover:scale-105 border "
+          size={"sm"}
+          className="w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:scale-105 transition-all duration-300"
         >
           <MessageCircle size={26} />
         </Button>
@@ -142,7 +135,7 @@ export default function ProjectChatModal({ projectId }: { projectId: string }) {
             </div>
             <Badge
               variant="outline"
-              className="  px-2 py-1 bg-primary rounded-md"
+              className="px-2 py-1 bg-primary rounded-md"
             >
               Live
             </Badge>
@@ -150,142 +143,156 @@ export default function ProjectChatModal({ projectId }: { projectId: string }) {
         </DialogHeader>
 
         <div className="flex h-[65vh]">
-          {/* 🔹 Participants Panel */}
-          <div className="w-1/3 border-r bg-muted/10 flex flex-col">
-            <div className="p-4 border-b">
-              <h3 className="font-semibold text-sm uppercase text-muted-foreground">
-                Participants
-              </h3>
+          {loading ? (
+            <div className="flex justify-center px-[480px] items-center">
+              <Loader />
             </div>
-
-            <ScrollArea className="flex-1 p-4 space-y-2">
-              {userData && (
-                <div className="flex items-center gap-3 p-2 rounded-lg bg-muted/20 border border-transparent hover:border-border transition">
-                  <Avatar className="w-9 h-9 border">
-                    <AvatarImage src={userData?.avatar || ""} />
-                    <AvatarFallback>
-                      {userData.fullname?.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex justify-between w-full">
-                    <p className="font-medium text-sm">{userData.fullname}</p>
-                    <Badge variant="secondary" className="text-xs w-fit">
-                      You
-                    </Badge>
-                  </div>
+          ) : (
+            <>
+              {/* Participants */}
+              <div className="w-1/3 border-r bg-muted/10 flex flex-col">
+                <div className="p-4 border-b">
+                  <h3 className="font-semibold text-sm uppercase text-muted-foreground">
+                    Participants
+                  </h3>
                 </div>
-              )}
 
-              <Separator className="my-3" />
+                <ScrollArea className="flex-1 p-4 space-y-2">
+                  {/* Current User */}
+                  {userData && (
+                    <div className="flex items-center gap-3 p-2 rounded-lg bg-muted/20 border border-transparent hover:border-border transition cursor-pointer">
+                      <Avatar className="w-9 h-9 border">
+                        {userData.avatar ? (
+                          <AvatarImage src={userData.avatar} />
+                        ) : (
+                          <AvatarFallback>
+                            {userData.fullname?.charAt(0).toUpperCase() || "U"}
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                      <div className="flex items-center justify-between ">
+                        <p className="text-sm font-medium">
+                          {userData.fullname}
+                        </p>
+                      </div>
+                      <Badge variant="secondary" className="text-xs ml-auto">
+                        You
+                      </Badge>
+                    </div>
+                  )}
 
-              <p className="text-xs mb-1 text-muted-foreground uppercase tracking-wide">
-                Assigned Users
-              </p>
+                  <Separator className="my-3" />
 
-              {assignedUsers.length > 0 ? (
-                assignedUsers.map((user, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/30 cursor-pointer transition"
-                  >
-                    <Avatar className="w-9 h-9 border">
-                      <AvatarFallback>{user.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <p className="text-sm font-medium">{user}</p>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-muted-foreground italic">
-                  No assigned members.
-                </p>
-              )}
-            </ScrollArea>
-          </div>
+                  {/* Assigned Users */}
+                  {assignedUsers.length > 0 ? (
+                    assignedUsers.map((userId, i) => {
+                      // Don't show the current user again
+                      if (userId === userData?.id) return null;
 
-          <div className="flex-1 flex flex-col bg-background">
-            {loading ? (
-              <div className="flex justify-center items-center h-full py-20">
-                <Loader />
-              </div>
-            ) : (
-              <ScrollArea className="flex-1 h-[40vh] px-4 py-2">
-                <div className="space-y-2">
-                  {messages.map((msg) => {
-                    const isUser = msg.senderId === userContextId;
-                    return (
-                      <div
-                        key={msg.id}
-                        className={`flex flex-col ${
-                          isUser ? "items-end" : "items-start"
-                        }`}
-                      >
+                      return (
                         <div
-                          className={`max-w-[75%] p-3 rounded-2xl shadow-sm border transition-all ${
-                            isUser
-                              ? "bg-blue-600 text-white rounded-br-none"
-                              : "bg-muted text-foreground rounded-bl-none"
+                          key={i}
+                          className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/30 transition cursor-pointer"
+                        >
+                          <Avatar className="w-9 h-9 border">
+                            <AvatarFallback>
+                              {userId.charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <p className="text-sm font-medium">{userId}</p>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <p className="text-sm text-muted-foreground italic">
+                      No assigned members.
+                    </p>
+                  )}
+                </ScrollArea>
+              </div>
+
+              {/* Chat */}
+              <div className="flex-1 flex flex-col bg-background">
+                <ScrollArea className="flex-1 h-[40vh] px-4 py-2">
+                  <div className="space-y-2">
+                    {messages.map((msg) => {
+                      const isUser = msg.senderId === userContextId;
+                      return (
+                        <div
+                          key={msg.id}
+                          className={`flex flex-col ${
+                            isUser ? "items-end" : "items-start"
                           }`}
                         >
-                          <div className="flex items-center gap-2 mb-1">
-                            <Avatar className="w-6 h-6 border">
-                              <AvatarImage src={msg.senderPhoto} />
-                              <AvatarFallback>
-                                {msg.senderName?.charAt(0)?.toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
-                            <span className="text-xs opacity-80 font-medium">
-                              {msg.senderName}
-                            </span>
+                          <div
+                            className={`max-w-[75%] p-3 rounded-2xl shadow-sm border ${
+                              isUser
+                                ? "bg-blue-600 text-white rounded-br-none"
+                                : "bg-muted text-foreground rounded-bl-none"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2 mb-1">
+                              <Avatar className="w-6 h-6 border">
+                                <AvatarImage src={msg.senderPhoto} />
+                                <AvatarFallback>
+                                  {msg.senderName?.charAt(0)?.toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="text-xs opacity-80 font-medium">
+                                {msg.senderName}
+                              </span>
+                            </div>
+                            <p className="text-sm leading-relaxed">
+                              {msg.text}
+                            </p>
                           </div>
-                          <p className="text-sm leading-relaxed">{msg.text}</p>
                         </div>
-                      </div>
-                    );
-                  })}
-                  <div ref={messagesEndRef} />
-                </div>
-              </ScrollArea>
-            )}
+                      );
+                    })}
+                    <div ref={messagesEndRef} />
+                  </div>
+                </ScrollArea>
 
-            <Separator />
+                <Separator />
 
-            {canChat && assignedUsers?.length > 0 ? (
-              <form
-                onSubmit={sendMessage}
-                className="flex flex-col gap-1 p-3 border-t bg-muted/10 backdrop-blur supports-[backdrop-filter]:bg-muted/20"
-              >
-                {typing && (
-                  <p className="text-xs text-muted-foreground mb-2 px-3">
-                    {userData?.fullname || "You"} are typing...
-                  </p>
-                )}
-
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Type your message..."
-                    value={message}
-                    onChange={handleTyping}
-                    className="flex-1 border rounded-full px-4"
-                    disabled={sending}
-                  />
-                  <Button
-                    type="submit"
-                    disabled={!message.trim() || sending}
-                    className="rounded-full px-6 flex items-center gap-2"
+                {canChat && assignedUsers?.length > 0 ? (
+                  <form
+                    onSubmit={sendMessage}
+                    className="flex flex-col gap-1 p-3 border-t bg-muted/10 backdrop-blur"
                   >
-                    {sending && (
-                      <Loader2 className="animate-spin w-4 h-4 text-white" />
+                    {typing && (
+                      <p className="text-xs text-muted-foreground mb-2 px-3">
+                        {userData?.fullname || "You"} are typing...
+                      </p>
                     )}
-                    {sending ? "Sending..." : "Send"}
-                  </Button>
-                </div>
-              </form>
-            ) : (
-              <div className="p-4 text-center text-muted-foreground text-sm">
-                You’re not a participant of this project.
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Type your message..."
+                        value={message}
+                        onChange={handleTyping}
+                        className="flex-1 border rounded-full px-4"
+                        disabled={sending}
+                      />
+                      <Button
+                        type="submit"
+                        disabled={!message.trim() || sending}
+                        className="rounded-full px-6 flex items-center gap-2"
+                      >
+                        {sending && (
+                          <Loader2 className="animate-spin w-4 h-4 text-white" />
+                        )}
+                        {sending ? "Sending..." : "Send"}
+                      </Button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="p-4 text-center text-muted-foreground text-sm">
+                    You’re not a participant of this project.
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </>
+          )}
         </div>
       </DialogContent>
     </Dialog>

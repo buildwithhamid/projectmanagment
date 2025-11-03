@@ -37,6 +37,7 @@ export interface User {
   isActive?: boolean;
   bio?: string | null;
   avatar?: string | null;
+  coverImage?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -224,6 +225,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         isActive: data.isActive,
         bio: data.bio,
         avatar: data.avatar,
+        coverImage: data.coverImage,
         updatedAt: new Date().toISOString(),
       };
 
