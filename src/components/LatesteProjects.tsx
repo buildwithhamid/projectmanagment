@@ -59,7 +59,7 @@ const LatestProject: React.FC<LatestProjectProps> = ({ LatestProjects }) => {
                           Category: {project.Category || "N/A"}
                         </p> */}
                         <p className="text-xs text-gray-500">
-                          Last updated:{" "}
+                          UpdatedAt:{" "}
                           {new Date(
                             project.updatedAt || ""
                           ).toLocaleDateString()}

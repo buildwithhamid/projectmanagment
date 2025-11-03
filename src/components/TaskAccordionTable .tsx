@@ -98,9 +98,17 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
   });
 
   return (
-    <Card className=" relative h-full rounded-none cursor-pointer bg-background  ">
+    <Card className=" relative h-full rounded-none cursor-pointer bg-background p-0 ">
+      {specifictaskdata?.attachments &&
+        specifictaskdata?.attachments.length > 0 && (
+          <img
+            src={specifictaskdata?.attachments[0]}
+            alt={specifictaskdata?.title ?? "Project image"}
+            className="w-full h-64 md:h-64 object-cover mb-2"
+          />
+        )}
       <CardHeader>
-        <CardTitle className=" flex sm:justify-between sm:items-center gap-3 text-lg">
+        <CardTitle className=" flex sm:justify-between sm:items-center gap-2 text-lg">
           <div className="  flex items-center gap-2">
             <FileText
               className="
@@ -116,7 +124,7 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
           </div>
 
           {!loading && (
-            <div className="flex gap-2 ml-auto  md:ml-0 lg:ml-0">
+            <div className="flex gap-1 ml-auto  md:ml-0 lg:ml-0">
               <Dialog>
                 <DialogTrigger asChild>
                   <Button variant="ghost" size="sm" className="cursor-pointer">
@@ -135,14 +143,6 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
       </CardHeader>
       <CardContent>
         <div className="relative">
-          {specifictaskdata?.attachments &&
-            specifictaskdata?.attachments.length > 0 && (
-              <img
-                src={specifictaskdata?.attachments[0]}
-                alt={specifictaskdata?.title ?? "Project image"}
-                className="w-full h-64 md:h-72 object-cover rounded-lg mb-2"
-              />
-            )}
           <p className="line-clamp-5 text-gray-300">
             {specifictaskdata?.description ?? "No description available"}
           </p>
@@ -185,7 +185,7 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
             </div>
           </div>
         </div>
-        <div className="fixed bottom-5 right-5 z-50">
+        <div className="fixed bottom-8 right-4 z-50">
           <ProjectChatModal projectId={projectId!} />
         </div>
 
