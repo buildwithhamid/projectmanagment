@@ -39,7 +39,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {...props}
       className="flex flex-col h-full bg-sidebar"
     >
-      <div className="md:hidden flex items-center justify-between px-5 pt-2 -mb-2">
+      <div className="md:hidden flex items-center justify-between px-4 pt-2 -mb-2">
         <span className="font-semibold text-base tracking-tight">Menu</span>
         <SidebarTrigger className="scale-90" />
       </div>

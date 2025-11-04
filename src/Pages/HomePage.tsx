@@ -30,6 +30,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Separator } from "@/components/ui/separator";
+import ProjectsBoard from "@/components/ProjectsBoard";
 
 const HomePage = () => {
   const { projects, taskCache, loading } = useTaskContext();
@@ -381,7 +382,7 @@ const HomePage = () => {
               >
                 <div className="flex flex-col gap-2 sm:flex-col md:flex-row">
                   <Card
-                    className="max-h-[392px]  flex p-1 border border-border/50 rounded-lg flex-col gap-1 
+                    className="max-h-[392px] bg-background flex p-0 border-none flex-col  
                      w-full md:w-1/2"
                   >
                     <CardHeader className="flex justify-between -ml-5">
@@ -402,6 +403,9 @@ const HomePage = () => {
                   </div>
                 </div>
               </div>
+            </section>
+            <section>
+              <ProjectsBoard />
             </section>
           </main>
         </div>
