@@ -1,7 +1,15 @@
 "use client";
 
 import React from "react";
-import { Plus, FileText } from "lucide-react";
+import {
+  Plus,
+  FileText,
+  Users,
+  Tag,
+  Layers,
+  ListCheck,
+  Calendar,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -89,7 +97,7 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
   });
 
   return (
-    <Card className=" h-full rounded-none cursor-pointer ">
+    <Card className=" h-full rounded-none cursor-pointer bg-background  ">
       <CardHeader>
         <CardTitle className=" flex sm:justify-between sm:items-center gap-3 text-lg">
           <div className="  flex items-center gap-2">
@@ -107,11 +115,11 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
           </div>
 
           {!loading && (
-            <div className="flex gap-2 ml-12  md:ml-0 lg:ml-0">
+            <div className="flex gap-2 ml-auto  md:ml-0 lg:ml-0">
               <Dialog>
                 <DialogTrigger asChild>
                   <Button variant="ghost" size="sm" className="cursor-pointer">
-                    <Plus className="h-4 w-4" />{" "}
+                    <Plus className="h-4 w-4" />
                     <span className="hidden md:block">Add Task</span>
                   </Button>
                 </DialogTrigger>
@@ -131,28 +139,49 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
               <img
                 src={specifictaskdata?.attachments[0]}
                 alt={specifictaskdata?.title ?? "Project image"}
-                className="w-full h-45 object-cover rounded-lg mb-2"
+                className="w-full h-64 md:h-72 object-cover rounded-lg mb-2"
               />
             )}
-
-          <p className="line-clamp-4 text-gray-300">
+          <p className="line-clamp-5 text-gray-300">
             {specifictaskdata?.description ?? "No description available"}
           </p>
 
-          <div className="flex gap-3 absolute -bottom-6 text-xs text-gray-500">
-            <p>{tasks?.length ?? 0} Tasks</p>
-            <p className="hidden md:flex">
-              Status: {specifictaskdata?.status || "Backlog"}
-            </p>
-            <p className="hidden md:flex">
-              Category: {specifictaskdata?.Category}
-            </p>
-            <p>
-              Created At:{" "}
-              {specifictaskdata?.createdAt
-                ? new Date(specifictaskdata.createdAt).toLocaleDateString()
-                : "—"}
-            </p>
+          <div className="flex flex-wrap items-center gap-4 absolute -bottom-8 text-[12px]   py-2 rounded-xl shadow-sm">
+            <div className="flex items-center gap-1.5">
+              <ListCheck className="w-4 h-4 text-blue-500" />
+              <span>{tasks?.length ?? 0} Tasks</span>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <Layers className="w-4 h-4 text-green-500" />
+              <span>Status: {specifictaskdata?.status || "Backlog"}</span>
+            </div>
+
+            {specifictaskdata?.Category && (
+              <div className="hidden md:flex items-center gap-1.5">
+                <Tag className="w-4 h-4 text-purple-500" />
+                <span>Category: {specifictaskdata?.Category || ""}</span>
+              </div>
+            )}
+
+            <div className="hidden md:flex items-center gap-1.5">
+              <Calendar className="w-4 h-4 text-emerald-500" />
+              <span>
+                Created day:{" "}
+                {specifictaskdata?.createdAt
+                  ? new Date(specifictaskdata.createdAt).toLocaleDateString()
+                  : "—"}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <Users className="w-4 h-4 text-orange-500" />
+              <span>
+                {specifictaskdata?.assignedUsers?.length
+                  ? `${specifictaskdata.assignedUsers.length} Users`
+                  : "No Assignees"}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -163,7 +192,7 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
         >
           {taskSections.map((section) => (
             <AccordionItem key={section.id} value={section.id}>
-              <AccordionTrigger className="px-0 py-2 hover:no-underline">
+              <AccordionTrigger className="px-0 py-2 hover:no-underline ">
                 <div className="flex items-center">
                   <Badge
                     className={`${section.badgeColor} w-20 mr-3 rounded-sm`}
@@ -177,9 +206,9 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
                 </div>
               </AccordionTrigger>
 
-              <AccordionContent className="px-0 pb-0">
+              <AccordionContent className="px-0 pb-0 ">
                 <div>
-                  <div className="hidden sm:grid grid-cols-12 gap-2 px-3 py-2 bg-card text-card-foreground text-xs font-semibold uppercase">
+                  <div className="hidden  sm:grid grid-cols-12 gap-2 px-3 py-2 bg-accent text-card-foreground text-xs font-semibold uppercase rounded-t-2xl">
                     <div className="col-span-5">Name</div>
                     <div className="col-span-2">Priority</div>
                     <div className="col-span-2">Due Date</div>
@@ -187,7 +216,7 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
                   </div>
 
                   {section.tasks.map((task) => (
-                    <div key={task.id} className="border-b bg-card">
+                    <div key={task.id} className="border-b pb-2 ">
                       <div className="hidden sm:grid grid-cols-12 gap-2 py-2 items-center">
                         <div className="col-span-5 ">
                           <TaskDetailsAccordion
@@ -218,7 +247,7 @@ const TaskAccordionTable: React.FC<TaskAccordionTableProps> = ({
                         </div>
                       </div>
 
-                      <div className="sm:hidden flex flex-col gap-1 px-3 py-2">
+                      <div className="sm:hidden flex flex-col gap-2 ">
                         <TaskDetailsAccordion
                           task={task}
                           projectid={projectId ?? ""}

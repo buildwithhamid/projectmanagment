@@ -12,14 +12,14 @@ import { FaEdit } from "react-icons/fa";
 import { ChevronsRightLeft, Plus } from "lucide-react";
 import TaskDetailModal from "@/components/TrelloDetailPage";
 import { MdDeleteOutline } from "react-icons/md";
+import Loader from "@/components/Loader";
 
 const DashboardPage: React.FC = () => {
-  const { taskCache } = useTaskContext();
+  const { taskCache, loading } = useTaskContext();
   const { projectId } = useParams();
   const [cardWidth, setcardWidth] = useState<boolean>(false);
   const [statusTasks, setStatusTasks] = useState<{ [key: string]: any[] }>({});
   const Navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
   const statuses = ["backlog", "pending", "active", "inactive", "completed"];
   const { deleteTaskFromProject } = useTaskContext();
   useEffect(() => {
@@ -36,7 +36,6 @@ const DashboardPage: React.FC = () => {
     });
 
     setStatusTasks(statusTasksObj);
-    setLoading(false);
   }, [projectId, taskCache]);
 
   const updateTaskStatusInFirebase = async (
@@ -94,174 +93,193 @@ const DashboardPage: React.FC = () => {
     }
   };
   return (
-    <DragDropContext onDragEnd={handleDragEnd}>
-      <div>
-        <div className="w-full flex justify-between items-center px-4 py-2  border-b border-accent/35 rounded-t-md">
-          <h2 className="text-lg font-semibold text-foreground">Trello</h2>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="p-1 text-muted-foreground hover:text-foreground hover:bg-accent"
-              onClick={(e) => {
-                e.stopPropagation();
-                setcardWidth((prev) => !prev);
-              }}
-            >
-              <ChevronsRightLeft size={18} />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="hover:bg-accent hover:text-accent-foreground"
-              onClick={handleListView}
-            >
-              View List
-            </Button>
-          </div>
+    <>
+      {loading == true ? (
+        <div className="flex justify-center items-center h-full py-20">
+          <Loader />
         </div>
-      </div>
+      ) : (
+        <>
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <div>
+              <div className="w-full flex justify-between items-center px-4 py-2  border-b border-accent/35 rounded-t-md">
+                <h2 className="text-lg font-semibold text-foreground">
+                  Trello
+                </h2>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="p-1 text-muted-foreground hover:text-foreground hover:bg-accent"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setcardWidth((prev) => !prev);
+                    }}
+                  >
+                    <ChevronsRightLeft size={18} />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="hover:bg-accent hover:text-accent-foreground"
+                    onClick={handleListView}
+                  >
+                    View List
+                  </Button>
+                </div>
+              </div>
+            </div>
 
-      <div className="flex gap-3 p-3 h-full w-full overflow-y-auto scrollbar-thin  rounded-b-md">
-        {statuses?.map((statusKey) => (
-          <Droppable droppableId={statusKey} type="TASK" key={statusKey}>
-            {(provided) => (
-              <div
-                ref={provided.innerRef}
-                {...provided.droppableProps}
-                className={`flex-none rounded-xl border  shadow-sm transition-all duration-300 p-2.5 hover:shadow-md hover:border-accent/50
+            <div className="flex gap-3 p-3 h-full w-full overflow-y-auto scrollbar-thin  rounded-b-md">
+              {statuses?.map((statusKey) => (
+                <Droppable droppableId={statusKey} type="TASK" key={statusKey}>
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      className={`flex-none rounded-xl border  shadow-sm transition-all duration-300 p-2.5 hover:shadow-md hover:border-accent/50
               ${
                 cardWidth
                   ? "min-w-[60px] max-w-[60px] h-[50px]"
                   : "min-w-[230px] max-w-[260px]"
               } 
               max-h-min overflow-y-auto`}
-              >
-                {!cardWidth ? (
-                  <div className="flex justify-between items-center mb-1">
-                    <h2 className="font-semibold text-base capitalize text-foreground truncate">
-                      {statusKey}
-                    </h2>
-                  </div>
-                ) : (
-                  <h3 className="text-sm font-semibold mb-1 text-center text-muted-foreground whitespace-nowrap w-8">
-                    {statusKey.charAt(0).toUpperCase() + statusKey.slice(-1)}
-                  </h3>
-                )}
-
-                {!cardWidth && (
-                  <div className="flex flex-col gap-2">
-                    {!loading &&
-                      (!statusTasks[statusKey] ||
-                        statusTasks[statusKey].length === 0) && (
-                        <p className="text-sm text-muted-foreground text-center">
-                          No tasks.
-                        </p>
+                    >
+                      {!cardWidth ? (
+                        <div className="flex justify-between items-center mb-1">
+                          <h2 className="font-semibold text-base capitalize text-foreground truncate">
+                            {statusKey}
+                          </h2>
+                        </div>
+                      ) : (
+                        <h3 className="text-sm font-semibold mb-1 text-center text-muted-foreground whitespace-nowrap w-8">
+                          {statusKey.charAt(0).toUpperCase() +
+                            statusKey.slice(-1)}
+                        </h3>
                       )}
 
-                    {loading ? (
-                      <p className="text-sm text-muted-foreground text-center">
-                        Loading...
-                      </p>
-                    ) : (
-                      (statusTasks[statusKey] || []).map((todo, index) => (
-                        <Draggable
-                          key={todo.id}
-                          draggableId={todo.id}
-                          index={index}
-                        >
-                          {(provided) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className="relative p-2 flex flex-col gap-2 bg-card text-accent-foreground rounded-lg border border-transparent hover:border-accent shadow-sm hover:shadow-md transition cursor-pointer"
-                            >
-                              {/* Attachment */}
-                              {todo.attachments?.length > 0 && (
-                                <img
-                                  src={todo.attachments[0]}
-                                  alt="todo-attachment"
-                                  className="w-full h-24 object-cover rounded-md"
-                                />
-                              )}
+                      {!cardWidth && (
+                        <div className="flex flex-col gap-2">
+                          {!loading &&
+                            (!statusTasks[statusKey] ||
+                              statusTasks[statusKey].length === 0) && (
+                              <p className="text-sm text-muted-foreground text-center">
+                                No tasks.
+                              </p>
+                            )}
 
-                              <Dialog>
-                                <DialogTrigger asChild>
-                                  <span
-                                    className={`text-sm font-medium cursor-pointer ${
-                                      todo.status === "completed"
-                                        ? "line-through text-muted-foreground"
-                                        : "text-foreground"
-                                    }`}
-                                  >
-                                    {todo.title}
-                                  </span>
-                                </DialogTrigger>
-                                <TaskDetailModal
-                                  task={todo}
-                                  projectId={projectId}
-                                />
-                              </Dialog>
+                          {loading ? (
+                            <p className="text-sm text-muted-foreground text-center">
+                              Loading...
+                            </p>
+                          ) : (
+                            (statusTasks[statusKey] || []).map(
+                              (todo, index) => (
+                                <Draggable
+                                  key={todo.id}
+                                  draggableId={todo.id}
+                                  index={index}
+                                >
+                                  {(provided) => (
+                                    <div
+                                      ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      {...provided.dragHandleProps}
+                                      className="relative p-2 flex flex-col gap-2 bg-card text-accent-foreground rounded-lg border border-transparent hover:border-accent shadow-sm hover:shadow-md transition cursor-pointer"
+                                    >
+                                      {/* Attachment */}
+                                      {todo.attachments?.length > 0 && (
+                                        <img
+                                          src={todo.attachments[0]}
+                                          alt="todo-attachment"
+                                          className="w-full h-24 object-cover rounded-md"
+                                        />
+                                      )}
 
-                              {todo.todo && (
-                                <p className="text-xs text-muted-foreground line-clamp-3">
-                                  {todo.todo}
-                                </p>
-                              )}
+                                      <Dialog>
+                                        <DialogTrigger asChild>
+                                          <span
+                                            className={`text-sm font-medium cursor-pointer ${
+                                              todo.status === "completed"
+                                                ? "line-through text-muted-foreground"
+                                                : "text-foreground"
+                                            }`}
+                                          >
+                                            {todo.title}
+                                          </span>
+                                        </DialogTrigger>
+                                        <TaskDetailModal
+                                          task={todo}
+                                          projectId={projectId}
+                                        />
+                                      </Dialog>
 
-                              <Dialog>
-                                <DialogTrigger asChild>
-                                  <FaEdit
-                                    size={16}
-                                    className={`absolute right-2 ${
-                                      todo.attachments?.length > 0 && "top-28"
-                                    } text-muted-foreground hover:text-primary cursor-pointer`}
-                                  />
-                                </DialogTrigger>
-                                <TodoModel
-                                  projectId={projectId}
-                                  taskToEdit={todo}
-                                />
-                              </Dialog>
-                              <MdDeleteOutline
-                                size={18}
-                                className={`absolute right-6 ${
-                                  todo.attachments?.length > 0 && "top-28"
-                                } text-muted-foreground hover:text-primary cursor-pointer`}
-                                onClick={() => handleDelChange(todo.id || "")}
-                              />
-                            </div>
+                                      {todo.todo && (
+                                        <p className="text-xs text-muted-foreground line-clamp-3">
+                                          {todo.todo}
+                                        </p>
+                                      )}
+
+                                      <Dialog>
+                                        <DialogTrigger asChild>
+                                          <FaEdit
+                                            size={16}
+                                            className={`absolute right-2 ${
+                                              todo.attachments?.length > 0 &&
+                                              "top-28"
+                                            } text-muted-foreground hover:text-primary cursor-pointer`}
+                                          />
+                                        </DialogTrigger>
+                                        <TodoModel
+                                          projectId={projectId}
+                                          taskToEdit={todo}
+                                        />
+                                      </Dialog>
+                                      <MdDeleteOutline
+                                        size={18}
+                                        className={`absolute right-6 ${
+                                          todo.attachments?.length > 0 &&
+                                          "top-28"
+                                        } text-muted-foreground hover:text-primary cursor-pointer`}
+                                        onClick={() =>
+                                          handleDelChange(todo.id || "")
+                                        }
+                                      />
+                                    </div>
+                                  )}
+                                </Draggable>
+                              )
+                            )
                           )}
-                        </Draggable>
-                      ))
-                    )}
 
-                    <div className="w-full flex justify-end mt-2">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-sm text-muted-foreground hover:text-primary hover:bg-accent/30 flex items-center gap-1"
-                          >
-                            <Plus className="h-3 w-3" />
-                            Add
-                          </Button>
-                        </DialogTrigger>
-                        <TodoModel projectId={projectId} />
-                      </Dialog>
+                          <div className="w-full flex justify-end mt-2">
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-sm text-muted-foreground hover:text-primary hover:bg-accent/30 flex items-center gap-1"
+                                >
+                                  <Plus className="h-3 w-3" />
+                                  Add
+                                </Button>
+                              </DialogTrigger>
+                              <TodoModel projectId={projectId} />
+                            </Dialog>
+                          </div>
+                        </div>
+                      )}
+
+                      {provided.placeholder}
                     </div>
-                  </div>
-                )}
-
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        ))}
-      </div>
-    </DragDropContext>
+                  )}
+                </Droppable>
+              ))}
+            </div>
+          </DragDropContext>
+        </>
+      )}
+    </>
   );
 };
 
