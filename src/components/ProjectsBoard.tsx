@@ -1,21 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useTaskContext } from "@/TaskContext/TaskContext";
-import { db } from "@/Config/firbase";
-import { doc, updateDoc } from "firebase/firestore";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
-import ProjectModol from "@/components/ProjectModol";
 import Loader from "@/components/Loader";
 import { useNavigate } from "react-router-dom";
 import { ProjectCard } from "@/components/ProjectCard";
 import type { Project } from "@/TaskContext/TaskContext";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  ClipboardList,
+  Clock,
+  Rocket,
+  Moon,
+  XCircle,
+  CheckCircle2,
+} from "lucide-react";
 const ProjectsBoard: React.FC = () => {
   const { projects = [], taskCache = {}, loading } = useTaskContext();
   const navigate = useNavigate();
+
   const statuses = [
     "backlog",
     "pending",
@@ -24,9 +26,11 @@ const ProjectsBoard: React.FC = () => {
     "cancelled",
     "completed",
   ];
+
   const [groupedProjects, setGroupedProjects] = useState<
     Record<string, Project[]>
   >({});
+  const [activeTab, setActiveTab] = useState("backlog");
 
   useEffect(() => {
     const grouped: Record<string, Project[]> = {};
@@ -39,40 +43,7 @@ const ProjectsBoard: React.FC = () => {
     setGroupedProjects(grouped);
   }, [projects]);
 
-  const updateProjectStatusInFirestore = async (
-    projectId: string,
-    newStatus: string
-  ) => {
-    try {
-      const ref = doc(db, "Projects", projectId);
-      await updateDoc(ref, { status: newStatus });
-    } catch (err) {
-      console.error("Error updating project status:", err);
-    }
-  };
-
-  const handleDragEnd = async (result: any) => {
-    const { source, destination, draggableId } = result;
-    if (!destination) return;
-    if (
-      source.droppableId === destination.droppableId &&
-      source.index === destination.index
-    )
-      return;
-
-    const sourceStatus = source.droppableId;
-    const destStatus = destination.droppableId;
-
-    const newGrouped = { ...groupedProjects };
-    const [moved] = newGrouped[sourceStatus].splice(source.index, 1);
-    moved.status = destStatus;
-    newGrouped[destStatus].splice(destination.index, 0, moved);
-    setGroupedProjects(newGrouped);
-
-    await updateProjectStatusInFirestore(draggableId, destStatus);
-  };
-
-  const handleProjectClick = (id: string) => navigate(`projects/${id}`);
+  const handleProjectClick = (id: string) => navigate(`../projects/${id}`);
 
   if (loading) {
     return (
@@ -83,105 +54,93 @@ const ProjectsBoard: React.FC = () => {
   }
 
   return (
-    <div
-      className=" 
-     h-full flex flex-col"
-    >
-      <ScrollArea className="w-[94vw] flex-1 h-[calc(100vh-150px)]">
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="flex gap-2  py-2 min-w-max">
-            {statuses.map((status) => {
-              const projectsForStatus = groupedProjects[status] || [];
-              const title = status.charAt(0).toUpperCase() + status.slice(1);
-
-              return (
-                <div
+    <section className="w-full bg-background mt-4 rounded-xl border-none">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-2">
+        <h1 className="text-2xl font-bold">Projects Status:</h1>
+        <ScrollArea
+          className="w-full sm:w-auto whitespace-nowrap rounded-md border 
+          bg-background backdrop-blur-sm shadow-sm px-2 py-0.5"
+        >
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="flex w-max gap-3 bg-transparent border-none">
+              {statuses.map((status) => (
+                <TabsTrigger
                   key={status}
-                  className="flex-shrink-0 w-[230px] flex flex-col"
+                  value={status}
+                  className={`relative flex items-center justify-center gap-2 
+                  px-3 py-1 min-w-[110px] sm:min-w-[130px]
+                  text-sm sm:text-base font-medium capitalize rounded-md
+                  bg-background/60 border border-transparent
+                  hover:bg-accent/10 hover:border-border/30 hover:shadow-sm
+                  data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary
+                  data-[state=active]:text-primary-foreground data-[state=active]:shadow-md
+                  transition-all duration-300 ease-in-out`}
                 >
-                  <div className=" shadow-sm flex flex-col h-full">
-                    <div className="flex items-center justify-between px-1 py-1 mb-3 bg-card/40 border border-border/40 rounded-md ">
-                      <h4 className="text-sm font-semibold text-foreground capitalize">
-                        {title}
-                      </h4>
+                  {status === "backlog" && (
+                    <ClipboardList className="w-4 h-4 text-muted-foreground" />
+                  )}
+                  {status === "pending" && (
+                    <Clock className="w-4 h-4 text-yellow-500" />
+                  )}
+                  {status === "active" && (
+                    <Rocket className="w-4 h-4 text-blue-500" />
+                  )}
+                  {status === "inactive" && (
+                    <Moon className="w-4 h-4 text-gray-400" />
+                  )}
+                  {status === "cancelled" && (
+                    <XCircle className="w-4 h-4 text-red-500" />
+                  )}
+                  {status === "completed" && (
+                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                  )}
+                  <span>{status}</span>
 
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button
-                            size="sm"
-                            className="flex items-center gap-2"
-                            variant={"ghost"}
-                          >
-                            <Plus size={14} />
-                          </Button>
-                        </DialogTrigger>
-                        <ProjectModol />
-                      </Dialog>
+                  <span
+                    className="absolute bottom-1 left-1/2 transform -translate-x-1/2 
+                    h-[3px] w-0 bg-primary rounded-full transition-all duration-300
+                    data-[state=active]:w-10"
+                  />
+                </TabsTrigger>
+              ))}
+            </TabsList>
+            <ScrollBar orientation="horizontal" />
+          </Tabs>
+        </ScrollArea>
+      </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        {statuses.map((status) => {
+          const projectsForStatus = groupedProjects[status] || [];
+
+          return (
+            <TabsContent key={status} value={status} className="mt-2 ">
+              <ScrollArea className="h-[calc(100vh-300px)]  rounded-md">
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
+                  {projectsForStatus.length === 0 ? (
+                    <div className="col-span-full text-center py-12">
+                      <p className="text-muted-foreground text-sm">
+                        No projects found for this status.
+                      </p>
                     </div>
-
-                    <Droppable droppableId={status} type="PROJECT">
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.droppableProps}
-                          className={`flex flex-col gap-3 transition-all overflow-y-auto max-h-[calc(100vh-220px)] ${
-                            snapshot.isDraggingOver
-                              ? "bg-accent/10 rounded-lg p-2"
-                              : ""
-                          }`}
-                        >
-                          <ScrollArea className="h-[100%] ">
-                            {" "}
-                            <div className="flex flex-col gap-2">
-                              {projectsForStatus.length === 0 && (
-                                <p className="text-xs text-muted-foreground text-center py-6">
-                                  No projects
-                                </p>
-                              )}
-
-                              {projectsForStatus.map((project, index) => (
-                                <Draggable
-                                  key={project.id!}
-                                  draggableId={project.id!}
-                                  index={index}
-                                >
-                                  {(provided, snapshot) => (
-                                    <div
-                                      ref={provided.innerRef}
-                                      {...provided.draggableProps}
-                                      {...provided.dragHandleProps}
-                                      className={`${
-                                        snapshot.isDragging
-                                          ? "opacity-90 scale-[0.99]"
-                                          : ""
-                                      }`}
-                                    >
-                                      <ProjectCard
-                                        projectToShow={project}
-                                        tasks={
-                                          taskCache[project.id!]?.tasks || []
-                                        }
-                                        onClick={handleProjectClick}
-                                      />
-                                    </div>
-                                  )}
-                                </Draggable>
-                              ))}
-                            </div>
-                          </ScrollArea>
-                          {provided.placeholder}
-                        </div>
-                      )}
-                    </Droppable>
-                  </div>
+                  ) : (
+                    projectsForStatus.map((project) => (
+                      <ProjectCard
+                        key={project.id}
+                        projectToShow={project}
+                        tasks={taskCache[project.id!]?.tasks || []}
+                        onClick={handleProjectClick}
+                      />
+                    ))
+                  )}
                 </div>
-              );
-            })}
-          </div>
-        </DragDropContext>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
-    </div>
+
+                <ScrollBar orientation="vertical" />
+              </ScrollArea>
+            </TabsContent>
+          );
+        })}
+      </Tabs>
+    </section>
   );
 };
 

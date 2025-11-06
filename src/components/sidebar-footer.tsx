@@ -35,16 +35,20 @@ const SidebarFooter: React.FC<SidebarFooterProps> = ({ setopen, state }) => {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <SidebarMenuButton
-            className={`flex items-center w-full transition-all duration-200 ${
+            className={`relative w-full transition-all duration-200 ${
               state === "expanded"
-                ? "justify-between px-1 py-6"
-                : "flex-col items-center px-1 py-1"
+                ? "flex items-center justify-between px-1 py-6"
+                : "flex flex-col items-center justify-center gap-1 ml-2 py-3"
             }`}
             onClick={() => {
               if (state === "collapsed") setopen(true);
             }}
           >
-            <Avatar className="cursor-pointer transition-transform hover:scale-105">
+            <Avatar
+              className={`cursor-pointer transition-transform hover:scale-105 ${
+                state === "collapsed" ? " h-10 w-10 " : ""
+              }`}
+            >
               <AvatarImage
                 src={userData?.avatar || ""}
                 alt="User Avatar"
@@ -56,7 +60,7 @@ const SidebarFooter: React.FC<SidebarFooterProps> = ({ setopen, state }) => {
             </Avatar>
 
             {state === "expanded" && (
-              <div className="flex-1  flex flex-col">
+              <div className="flex-1 flex flex-col ml-2">
                 <h3 className="text-sm font-semibold text-foreground truncate">
                   {userData?.fullname || "Account"}
                 </h3>
@@ -66,7 +70,9 @@ const SidebarFooter: React.FC<SidebarFooterProps> = ({ setopen, state }) => {
               </div>
             )}
 
-            <ChevronUp size={18} />
+            {state === "expanded" && (
+              <ChevronUp size={18} className="absolute top-2 right-3" />
+            )}
           </SidebarMenuButton>
         </DropdownMenuTrigger>
 
