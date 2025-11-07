@@ -20,6 +20,7 @@ import AITalk from "./components/AiChat/AIChatDialog";
 import Layout from "./Pages/Layout";
 import LandingPage from "./Pages/LandingPage";
 import AssignProjects from "./Pages/AssignProjectsPage";
+import CalendarPage from "./Pages/ClanderPage";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -36,6 +37,7 @@ const router = createBrowserRouter(
           <Route path="projects/:projectId" element={<ProjectPage />} />
           <Route path="ai-talk" element={<AITalk />} />
           <Route path="assign-projects" element={<AssignProjects />} />
+          <Route path="calender-projects" element={<CalendarPage />} />
         </Route>
       </Route>
 
