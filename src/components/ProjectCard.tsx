@@ -7,7 +7,7 @@ import {
 } from "./ui/card";
 
 import { Progress } from "./ui/progress";
-import { Calendar, Paperclip, MessagesSquare } from "lucide-react";
+import { Calendar, Paperclip, UsersIcon } from "lucide-react";
 import { FaEdit } from "react-icons/fa";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 
@@ -30,8 +30,10 @@ interface Project {
   label?: string;
   priority?: string;
   attachments?: string[];
+  assignedUsers?: string[];
   comments?: number;
   members?: { avatar: string; name: string }[];
+  projectEmoji?: string;
 }
 
 interface ProjectCardProps {
@@ -84,7 +86,10 @@ export const ProjectCard = ({
   };
 
   return (
-    <Card className="w-full relative border border-border/50 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer overflow-hidden pb-1">
+    <Card
+      onClick={handleCardClick}
+      className="w-full relative border border-border/50 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer overflow-hidden pb-1"
+    >
       {projectToShow?.attachments && projectToShow.attachments.length > 0 ? (
         <div className="w-full  h-30 md:h-12 -mt-3">
           <img
@@ -105,6 +110,9 @@ export const ProjectCard = ({
             <DialogTrigger asChild>
               <FaEdit
                 size={16}
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
                 className=" absolute top-32 md:top-13 right-2 text-muted-foreground hover:text-primary cursor-pointer"
               />
             </DialogTrigger>
@@ -112,15 +120,23 @@ export const ProjectCard = ({
             <ProjectModol ProjectToEdit={projectToShow} />
           </Dialog>
         </div>
+        {projectToShow?.projectEmoji && (
+          <span className="text-lg absolute top-30 md:top-12 left-0">
+            {projectToShow.projectEmoji}
+          </span>
+        )}
       </CardHeader>
 
-      <CardContent
-        className="flex flex-col gap-1 -mt-2 -ml-3 px-4"
-        onClick={handleCardClick}
-      >
-        <CardTitle className="text-base font-semibold line-clamp-2">
-          {projectToShow?.title.charAt(0).toUpperCase() +
-            projectToShow?.title.slice(1)}
+      <CardContent className="flex flex-col gap-1 -mt-2 -ml-3 px-4">
+        <CardTitle
+          className={`text-base font-semibold ${
+            projectToShow?.projectEmoji && "ml-6"
+          }`}
+        >
+          <span>
+            {projectToShow?.title.charAt(0).toUpperCase() +
+              projectToShow?.title.slice(1)}
+          </span>
         </CardTitle>
 
         <p className="text-sm text-muted-foreground line-clamp-2 ">
@@ -139,12 +155,12 @@ export const ProjectCard = ({
 
           <div className="flex gap-2">
             <span className="flex items-center gap-1 text-muted-foreground">
-              <Paperclip className="w-3 h-3" />{" "}
+              <Paperclip className="w-3 h-3" />
               {projectToShow?.attachments?.length || 0}
             </span>
             <span className="flex items-center gap-1 text-muted-foreground">
-              <MessagesSquare className="w-3 h-3" />{" "}
-              {projectToShow?.comments || 0}
+              <UsersIcon className="w-3 h-3" />
+              {projectToShow?.assignedUsers?.length || 0}
             </span>
           </div>
         </div>
@@ -158,23 +174,24 @@ export const ProjectCard = ({
           </span>
         </div>
 
-        {projectToShow?.members && projectToShow.members.length > 0 && (
-          <div className="flex -space-x-2 ml-2">
-            {projectToShow.members.slice(0, 3).map((m, i) => (
-              <img
-                key={i}
-                src={m.avatar}
-                alt={m.name}
-                className="w-6 h-6 rounded-full border-2 border-background object-cover"
-              />
-            ))}
-            {projectToShow.members.length > 3 && (
-              <span className="w-6 h-6 flex items-center justify-center rounded-full bg-muted text-[10px] font-medium border border-background">
-                +{projectToShow.members.length - 3}
-              </span>
-            )}
-          </div>
-        )}
+        {/* {projectToShow?.assignedUsers &&
+          projectToShow.assignedUsers?.length > 0 && (
+            <div className="flex  -space-x-2 -mt-2 ml-2 -mr-2">
+              {projectToShow.assignedUsers.slice(0, 3).map((i) => (
+                <img
+                  key={i}
+                  src={"/public/hero.png"}
+                  className="w-5 h-5 rounded-full border-2 border-background object-cover"
+                />
+              ))}
+            </div>
+          )}
+        {projectToShow?.assignedUsers &&
+          projectToShow?.assignedUsers?.length > 3 && (
+            <span className="w-5 h-5 flex items-center -mr-3 justify-center rounded-full bg-muted text-[10px] font-medium border border-background -mt-2">
+              +{projectToShow?.assignedUsers.length - 3}
+            </span>
+          )} */}
       </CardFooter>
     </Card>
   );

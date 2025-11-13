@@ -10,6 +10,8 @@ import {
   updateDoc,
   doc,
   getDoc,
+  arrayUnion,
+  arrayRemove,
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -24,17 +26,19 @@ export interface Task {
   dueDate?: string;
   userId?: string | null;
   projectId?: string;
+  todoEmoji?: string;
 }
 export interface User {
   id?: string;
-  email?: string | null;
-  fullname?: string | null;
+  email: string;
+  fullname: string;
   location?: string | null;
   occupation?: string | null;
-  origanization?: string | null;
+  organization?: string | null;
   isActive?: boolean;
   bio?: string | null;
   avatar?: string | null;
+  coverImage?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -51,6 +55,8 @@ export interface Project {
   attachments?: string[];
   dueDate?: string;
   status?: string;
+  assignedUsers?: string[];
+  projectEmoji?: string;
 }
 
 interface TaskContextType {
@@ -93,6 +99,7 @@ interface TaskContextType {
   fetchUserProjects: (userId: string) => Promise<void>;
   fetchUserData: (userId: string) => Promise<User | undefined>;
   updateUserData: (data: User) => Promise<User | undefined>;
+  deleteUserData: (userId: string) => Promise<void>;
   addProject: (
     title: string,
     userId: string,
@@ -100,7 +107,8 @@ interface TaskContextType {
     Category: string,
     attachments: string[],
     dueDate?: string,
-    status?: string
+    status?: string,
+    projectEmoji?: string
   ) => Promise<string>;
   updateProject: (
     projectId: string,
@@ -109,7 +117,10 @@ interface TaskContextType {
     Category?: string,
     attachments?: string[],
     dueDate?: string,
-    status?: string
+    status?: string,
+    assignedUsers?: string[],
+    deletedUsers?: string[],
+    projectEmoji?: string
   ) => Promise<boolean>;
   deleteProject: (projectId: string) => Promise<void>;
 }
@@ -135,7 +146,8 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         setuserData(userData);
         return userData;
       } else {
-        console.warn("⚠️ No user data found in Firestore");
+        console.warn("⚠️ No user data found for:", userId);
+        setuserData({} as User);
       }
     } catch (error) {
       console.error("❌ Error fetching user data:", error);
@@ -146,19 +158,40 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       setLoading(true);
 
-      const q = query(
+      const ownedQuery = query(
         collection(db, "Projects"),
         where("userId", "==", userId)
       );
-      const querySnapshot = await getDocs(q);
+      const ownedSnapshot = await getDocs(ownedQuery);
 
-      const projectsData = querySnapshot.docs.map((doc) => ({
+      const assignedQuery = query(
+        collection(db, "Projects"),
+        where("assignedUsers", "array-contains", userId)
+      );
+      const assignedSnapshot = await getDocs(assignedQuery);
+
+      const combinedDocs = [
+        ...ownedSnapshot.docs,
+        ...assignedSnapshot.docs,
+      ].filter(
+        (doc, index, self) => index === self.findIndex((d) => d.id === doc.id)
+      );
+
+      if (combinedDocs.length === 0) {
+        console.log("⚠️ No projects found for this user.");
+        setProjects([]);
+        return;
+      }
+
+      // 🔹 4. Map to project data
+      const projectsData = combinedDocs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       })) as Project[];
 
       setProjects(projectsData);
 
+      // 🔹 5. Fetch tasks for each project
       const cache: { [key: string]: { title: string; tasks: Task[] } } = {};
       for (const project of projectsData) {
         const taskSnap = await getDocs(
@@ -171,6 +204,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
 
         cache[project.id!] = { title: project.title, tasks };
       }
+
       setTaskCache(cache);
     } catch (err) {
       console.error("❌ Error fetching projects:", err);
@@ -189,23 +223,40 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
       const userUpdateData = {
         fullname: data.fullname,
         location: data.location,
+        email: data.email,
         occupation: data.occupation,
-        origanization: data.origanization,
+        origanization: data.organization,
         isActive: data.isActive,
         bio: data.bio,
         avatar: data.avatar,
+        coverImage: data.coverImage,
         updatedAt: new Date().toISOString(),
       };
 
       await updateDoc(userRef, userUpdateData);
-
-      setuserData((p) => (p.id === data.id ? { ...p, ...userUpdateData } : p));
+      setuserData((prev) => ({ ...prev, ...userUpdateData }));
 
       console.log("✅ User data updated successfully!");
       return userUpdateData;
     } catch (error) {
       console.error("❌ Error updating user:", error);
       return undefined;
+    } finally {
+      setLoading(false);
+    }
+  };
+  const deleteUserData = async (userId: string) => {
+    try {
+      setLoading(true);
+      const confirmed = window.confirm(
+        `Are you sure you want to delete project `
+      );
+      if (!confirmed) return;
+
+      await deleteDoc(doc(db, "users", userId));
+      setProjects((prev) => prev.filter((p) => p.id !== userId));
+    } catch (err) {
+      console.error("❌ Error deleting project:", err);
     } finally {
       setLoading(false);
     }
@@ -218,7 +269,8 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     Category?: string,
     attachments?: string[],
     dueDate?: string,
-    status?: string
+    status?: string,
+    projectEmoji?: string
   ) => {
     try {
       setLoading(true);
@@ -234,6 +286,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         createdAt: new Date().toISOString(),
         dueDate: dueDate || "",
         status: status,
+        projectEmoji: projectEmoji,
       };
 
       const docRef = await addDoc(collection(db, "Projects"), projectData);
@@ -256,13 +309,16 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     Category?: string,
     attachments?: string[],
     dueDate?: string,
-    status?: string
+    status?: string,
+    assignedUsers?: string[],
+    deletedUsers?: string[],
+    projectEmoji?: string
   ) => {
     try {
       setLoading(true);
 
       if (!projectId || !title.trim()) return false;
-
+      const projectRef = doc(db, "Projects", projectId);
       const updatedData = {
         title,
         description: description || "",
@@ -271,13 +327,41 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         updatedAt: new Date().toISOString(),
         dueDate: dueDate || "",
         status: status || "",
+        projectEmoji: projectEmoji,
       };
-
-      const projectRef = doc(db, "Projects", projectId);
       await updateDoc(projectRef, updatedData);
-
+      if (assignedUsers && assignedUsers.length > 0) {
+        await updateDoc(projectRef, {
+          assignedUsers: arrayUnion(...assignedUsers),
+        });
+      }
+      if (deletedUsers && deletedUsers.length > 0) {
+        await updateDoc(projectRef, {
+          assignedUsers: arrayRemove(...deletedUsers),
+        });
+      }
       setProjects((prev) =>
-        prev.map((p) => (p.id === projectId ? { ...p, ...updatedData } : p))
+        prev.map((p) =>
+          p.id === projectId
+            ? {
+                ...p,
+                ...updatedData,
+                assignedUsers: (() => {
+                  let updated = p.assignedUsers || [];
+                  if (deletedUsers?.length)
+                    updated = updated.filter(
+                      (id) => !deletedUsers.includes(id)
+                    );
+                  if (assignedUsers?.length)
+                    updated = Array.from(
+                      new Set([...updated, ...assignedUsers])
+                    );
+
+                  return updated;
+                })(),
+              }
+            : p
+        )
       );
 
       return true;
@@ -314,6 +398,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
       status: string;
       attachments?: string[];
       dueDate?: string;
+      todoEmoji?: string;
     }
   ): Promise<string> => {
     try {
@@ -324,6 +409,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         attachments: formData.attachments ?? [],
         createdAt: new Date().toISOString(),
         dueDate: formData.dueDate ?? "",
+        todoEmoji: formData.todoEmoji,
       };
 
       const taskRef = await addDoc(
@@ -384,6 +470,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
       status?: string;
       attachments?: string[];
       dueDate?: string;
+      todoEmoji?: string;
     }
   ): Promise<void> => {
     try {
@@ -439,6 +526,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         userData,
         updateUserData,
         fetchUserData,
+        deleteUserData,
         projects,
         setProjects,
         taskCache,

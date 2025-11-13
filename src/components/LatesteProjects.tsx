@@ -39,33 +39,29 @@ const LatestProject: React.FC<LatestProjectProps> = ({ LatestProjects }) => {
 
       {top5UpdatedProjects.length > 0 ? (
         <ScrollArea className="w-full pr-1">
-          <CardContent className="max-h-[190px] p-0 -mt-1">
+          <CardContent className="max-h-[198px] p-0 -mt-1">
             <div className="flex flex-col gap-2 p-1">
               {top5UpdatedProjects.map((project) => (
                 <Card
                   key={project.id}
+                  onClick={() => handleNavigateToPage(project.id)}
                   className="border rounded-md p-2 relative transition-transform duration-200 ease-in-out hover:-translate-y-1 hover:shadow-md cursor-pointer"
                 >
                   <CardContent className="p-0">
                     <div className="relative flex justify-between items-start">
                       <div>
-                        <p
-                          className="font-medium"
-                          onClick={() => handleNavigateToPage(project.id)}
-                        >
-                          {project.title}
-                        </p>
-                        <p className="text-sm text-gray-500">
+                        <p className="font-medium">{project.title}</p>
+                        {/* <p className="text-sm text-gray-500">
                           Category: {project.Category || "N/A"}
-                        </p>
+                        </p> */}
                         <p className="text-xs text-gray-500">
-                          Last updated:
+                          UpdatedAt:{" "}
                           {new Date(
                             project.updatedAt || ""
                           ).toLocaleDateString()}
                         </p>
                         <p className="absolute bottom-0.5 right-1 text-xs text-gray-500">
-                          Status:
+                          Status:{" "}
                           {project.status &&
                             project?.status.charAt(0).toUpperCase() +
                               project?.status.slice(1)}
@@ -77,6 +73,9 @@ const LatestProject: React.FC<LatestProjectProps> = ({ LatestProjects }) => {
                           <DialogTrigger asChild>
                             <FaEdit
                               size={16}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                              }}
                               className="text-muted-foreground hover:text-primary cursor-pointer"
                             />
                           </DialogTrigger>

@@ -30,7 +30,7 @@ const LatestUpdatedTasks: React.FC<LatestUpdatedTasksProps> = ({
 }) => {
   return (
     <Card
-      className={`w-full  pb-1 pt-1 min-h-min border border-border/50 rounded-lg mt-2 bg-card transition-all duration-300 `}
+      className={`w-full  pb-1 pt-1 min-h-min border-none border-border/50 rounded-lg mt-2 bg-card transition-all duration-300 `}
     >
       <CardHeader className="flex justify-between -ml-3">
         <CardTitle className="text-md">Recently Updated Tasks</CardTitle>
@@ -56,11 +56,11 @@ const LatestUpdatedTasks: React.FC<LatestUpdatedTasksProps> = ({
                           Project: {task.projectTitle}
                         </p>
                         <p className="text-xs text-gray-500">
-                          Last updated:
+                          UpdatedAt:{" "}
                           {new Date(task.updatedAt || "").toLocaleDateString()}
                         </p>
                         <p className="absolute bottom-0.5 right-1 text-xs text-gray-500">
-                          Status:
+                          Status:{" "}
                           {task.status.charAt(0).toUpperCase() +
                             task.status.slice(1)}
                         </p>
@@ -70,6 +70,9 @@ const LatestUpdatedTasks: React.FC<LatestUpdatedTasksProps> = ({
                           <DialogTrigger asChild>
                             <Eye
                               size={20}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                              }}
                               className="text-muted-foreground hover:text-primary cursor-pointer"
                             />
                           </DialogTrigger>
@@ -81,6 +84,9 @@ const LatestUpdatedTasks: React.FC<LatestUpdatedTasksProps> = ({
                           <DialogTrigger asChild>
                             <FaEdit
                               size={16}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                              }}
                               className="text-muted-foreground hover:text-primary cursor-pointer"
                             />
                           </DialogTrigger>
