@@ -14,6 +14,7 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import ProjectModol from "./ProjectModol";
 import { type Project } from "@/TaskContext/TaskContext";
 import { useTaskContext } from "@/TaskContext/TaskContext";
+import { useUserContextId } from "@/AuthContext/UserContext";
 interface ProjectOptionsProps {
   currentProjectDetails: Project;
 }
@@ -21,15 +22,18 @@ interface ProjectOptionsProps {
 const ProjectOptions = ({ currentProjectDetails }: ProjectOptionsProps) => {
   const navigate = useNavigate();
   const { deleteProject } = useTaskContext();
+  const { userContextId } = useUserContextId();
 
   const handleTrelloLink = (projectId: string) => {
     navigate(`../dashboard/${projectId}`);
   };
+
   const handleDelete = (projectId: string) => {
     console.log(`Deleting project with ID: ${projectId}`);
     deleteProject(projectId);
     navigate("../");
   };
+  const isUser = currentProjectDetails?.userId === userContextId;
 
   return (
     <DropdownMenu>
@@ -73,13 +77,15 @@ const ProjectOptions = ({ currentProjectDetails }: ProjectOptionsProps) => {
           View as Trello
         </DropdownMenuItem>
 
-        <DropdownMenuItem
-          onClick={() => handleDelete(currentProjectDetails?.id || "")}
-          className="flex items-center gap-2 cursor-pointer focus:bg-red-50 dark:focus:bg-red-950/30"
-        >
-          <Trash2 className="h-4 w-4  text-destructive" />
-          Delete Project
-        </DropdownMenuItem>
+        {isUser && (
+          <DropdownMenuItem
+            onClick={() => handleDelete(currentProjectDetails?.id || "")}
+            className="flex items-center gap-2 cursor-pointer focus:bg-red-50 dark:focus:bg-red-950/30"
+          >
+            <Trash2 className="h-4 w-4  text-destructive" />
+            Delete Project
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

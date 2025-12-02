@@ -7,7 +7,7 @@ import {
 } from "./ui/card";
 
 import { Progress } from "./ui/progress";
-import { Calendar, Paperclip, MessagesSquare } from "lucide-react";
+import { Calendar, Paperclip, UsersIcon } from "lucide-react";
 import { FaEdit } from "react-icons/fa";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 
@@ -30,6 +30,7 @@ interface Project {
   label?: string;
   priority?: string;
   attachments?: string[];
+  assignedUsers?: string[];
   comments?: number;
   members?: { avatar: string; name: string }[];
 }
@@ -143,8 +144,8 @@ export const ProjectCard = ({
               {projectToShow?.attachments?.length || 0}
             </span>
             <span className="flex items-center gap-1 text-muted-foreground">
-              <MessagesSquare className="w-3 h-3" />{" "}
-              {projectToShow?.comments || 0}
+              <UsersIcon className="w-3 h-3" />{" "}
+              {projectToShow?.assignedUsers?.length || 0}
             </span>
           </div>
         </div>
@@ -157,24 +158,6 @@ export const ProjectCard = ({
             {completed}/{total}
           </span>
         </div>
-
-        {projectToShow?.members && projectToShow.members.length > 0 && (
-          <div className="flex -space-x-2 ml-2">
-            {projectToShow.members.slice(0, 3).map((m, i) => (
-              <img
-                key={i}
-                src={m.avatar}
-                alt={m.name}
-                className="w-6 h-6 rounded-full border-2 border-background object-cover"
-              />
-            ))}
-            {projectToShow.members.length > 3 && (
-              <span className="w-6 h-6 flex items-center justify-center rounded-full bg-muted text-[10px] font-medium border border-background">
-                +{projectToShow.members.length - 3}
-              </span>
-            )}
-          </div>
-        )}
       </CardFooter>
     </Card>
   );

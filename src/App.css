@@ -133,3 +133,6 @@
   scrollbar-width: thin;
   scrollbar-color: bg-background;
 }
+.scrollbar-slim::-webkit-scrollbar {
+  width: 6px;
+}

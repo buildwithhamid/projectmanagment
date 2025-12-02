@@ -55,17 +55,17 @@ const LatestProject: React.FC<LatestProjectProps> = ({ LatestProjects }) => {
                         >
                           {project.title}
                         </p>
-                        <p className="text-sm text-gray-500">
+                        {/* <p className="text-sm text-gray-500">
                           Category: {project.Category || "N/A"}
-                        </p>
+                        </p> */}
                         <p className="text-xs text-gray-500">
-                          Last updated:
+                          Last updated:{" "}
                           {new Date(
                             project.updatedAt || ""
                           ).toLocaleDateString()}
                         </p>
                         <p className="absolute bottom-0.5 right-1 text-xs text-gray-500">
-                          Status:
+                          Status:{" "}
                           {project.status &&
                             project?.status.charAt(0).toUpperCase() +
                               project?.status.slice(1)}

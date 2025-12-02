@@ -20,26 +20,25 @@ import type { User } from "@/TaskContext/TaskContext";
 import { useUserContextId } from "@/AuthContext/UserContext";
 import { ChangePasswordDialog } from "@/components/ChangePassword";
 export default function ProfileContent() {
-  const { userData, updateUserData } = useTaskContext();
-  const { deleteFirebaseAccount, logout } = useUserContextId();
-
+  const { userData, updateUserData, deleteUserData } = useTaskContext();
+  const { userContextId, deleteFirebaseAccount, logout } = useUserContextId();
   const [currentUser, setCurrentUser] = useState<User>({
-    id: userData?.id || "",
+    id: userData?.id || userContextId || "",
     fullname: userData?.fullname || "",
     email: userData?.email || "",
     location: userData?.location || "",
     occupation: userData?.occupation || "",
-    origanization: userData?.origanization || "",
+    organization: userData?.organization || "",
     bio: userData?.bio || "",
     isActive: userData?.isActive ?? true,
     avatar: userData?.avatar || "",
   });
 
   const [saving, setSaving] = useState(false);
-
   const handleSave = async () => {
     try {
       setSaving(true);
+
       await updateUserData(currentUser);
       console.log("✅ Profile updated successfully!");
     } catch (error) {
@@ -57,8 +56,8 @@ export default function ProfileContent() {
       );
 
       if (!confirmDelete) return;
-
       await deleteFirebaseAccount(currentUser.id);
+      await deleteUserData(currentUser?.id || userContextId!);
       await logout();
 
       console.log("✅ Account deleted successfully!");
@@ -68,7 +67,7 @@ export default function ProfileContent() {
   };
 
   return (
-    <Tabs defaultValue="personal" className="space-y-6">
+    <Tabs defaultValue="personal" className="space-y-2">
       <TabsList className="grid w-full grid-cols-4">
         <TabsTrigger value="personal">Personal</TabsTrigger>
         <TabsTrigger value="account">Account</TabsTrigger>
@@ -79,12 +78,12 @@ export default function ProfileContent() {
       {/* PERSONAL INFO */}
       <TabsContent value="personal" className="relative space-y-6">
         <div className="absolute top-4 right-6 flex items-center gap-3">
-          {currentUser.isActive ? (
+          {userData.isActive ? (
             <>
               <h3>Active</h3>
             </>
           ) : (
-            <>Not Active</>
+            <>Away</>
           )}
           <Switch
             checked={currentUser.isActive}
@@ -119,7 +118,7 @@ export default function ProfileContent() {
                 <Input
                   id="email"
                   type="email"
-                  value={currentUser.email ?? ""}
+                  value={currentUser.email}
                   onChange={(e) =>
                     setCurrentUser({ ...currentUser, email: e.target.value })
                   }
@@ -144,11 +143,11 @@ export default function ProfileContent() {
                 <Label htmlFor="origanization">Organization</Label>
                 <Input
                   id="origanization"
-                  value={currentUser.origanization ?? ""}
+                  value={currentUser.organization ?? ""}
                   onChange={(e) =>
                     setCurrentUser({
                       ...currentUser,
-                      origanization: e.target.value,
+                      organization: e.target.value,
                     })
                   }
                 />
